@@ -27,7 +27,7 @@ from math import isfinite
 import numpy as np
 import matplotlib.pyplot as plt
 from google import genai
-DATASET_REPO_ID = "Elyon7/Cosmo_login" 
+DATASET_REPO_ID = "CosmoEduLab/Cosmo_login" 
 DATASET_FILENAME = "app_data.json"
 LOCAL_DATA_FILE = "app_data.json"
 _rho_rs_cache = {}
