@@ -1389,7 +1389,7 @@ def main_layout(title: str):
         ).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
         
         aria_button('🏆 Credits', "View Credits", on_click=credits_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-purple-600 hover:!bg-purple-500 border-l-4 border-purple-300 text-white')
-    with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
+    with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto !bg-slate-900'):
             html_info_box(r"""
     <div style="font-family: 'Roboto', sans-serif; color: #ffffff;">
         
