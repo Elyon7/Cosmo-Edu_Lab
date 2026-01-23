@@ -47,7 +47,10 @@ app.add_static_files('/cluster_img', os.path.join(BASE_DIR, 'cluster_img'))
 app.add_static_files('/slides', os.path.join(BASE_DIR, 'slides'))
 app.add_static_files('/discovery_images', os.path.join(BASE_DIR, 'discovery_images'))
 app.add_static_files('/cosmic_epochs', os.path.join(BASE_DIR, 'cosmic_epochs'))
-SPACE_ID = "Elyon7/Cosmo-Edu" 
+
+
+'''
+SPACE_ID = "CosmoEduLab/Cosmo-Edu" 
 TIMEOUT_SECONDS = 15  
 
 shutdown_timer = None
@@ -91,7 +94,7 @@ def handle_disconnect():
 
 app.on_connect(handle_connect)
 app.on_disconnect(handle_disconnect)
-
+'''
 auth.create_auth_routes()  
 home.create_routes()       
 module1.create_page()    
@@ -101,7 +104,7 @@ module4.create_page()
 
 async def keep_alive():
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(30)
         try:
             ui.run_javascript('void(0);')
         except:
@@ -112,4 +115,4 @@ app.on_startup(lambda: asyncio.create_task(keep_alive()))
 #inject_layout_tool()
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(host="0.0.0.0",
-        port=7860,title='Cosmo-Edu Lab', storage_secret='a-very-secret-and-secure-key-for-sessions', dark=True,reconnect_timeout=30.0,binding_refresh_interval=0.1  )
+        port=7860,title='Cosmo-Edu Lab', storage_secret='CosmoEduSecretKey2024Fixed', dark=True,reconnect_timeout=30.0,binding_refresh_interval=0.1  )
