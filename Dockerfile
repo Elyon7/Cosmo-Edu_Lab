@@ -24,4 +24,4 @@ COPY . .
 EXPOSE 7860
 
 # Avvia l’app NiceGUI
-CMD ["python", "App/app.py"]
+CMD ["python", "App/main.py"]
