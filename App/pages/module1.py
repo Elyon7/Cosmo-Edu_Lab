@@ -857,18 +857,18 @@ def create_page():
 
                       
                         with plot_container:
-                            with ui.pyplot(figsize=(6, 6), facecolor='none') as plot_element:
+                            with ui.pyplot(figsize=(6, 6), facecolor='none',dpi=100) as plot_element:
                                 fig = plot_element.fig 
                                 fig.patch.set_alpha(0.0) 
                                 ax = fig.gca() 
                                 
                                 im = ax.imshow(observed_image, cmap=current_cmap, origin='lower')
                                 ax.set_title(f"Stats: SNR: {snr:.1f} | Photons: {int(np.sum(observed_image))}", 
-                                            fontsize=11, pad=10, color='white')
+                                            fontsize=11, pad=15, color='white')
                                 ax.axis('off')
                                 
-                                fig.subplots_adjust(left=0.05, right=0.70, top=0.9, bottom=0.05)
-                                cbar_ax = fig.add_axes([0.75, 0.15, 0.04, 0.7]) 
+                                fig.subplots_adjust(left=0.05, right=0.75, top=0.85, bottom=0.01)
+                                cbar_ax = fig.add_axes([0.8, 0.15, 0.04, 0.65]) 
                                 cbar = fig.colorbar(im, cax=cbar_ax)
                                 cbar.set_label('Photons Counts (ADU)', fontsize=10, labelpad=15, color='white')
                                 cbar.ax.yaxis.set_tick_params(color='white', labelcolor='white')
