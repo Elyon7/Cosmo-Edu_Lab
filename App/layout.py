@@ -1389,8 +1389,8 @@ def main_layout(title: str):
         ).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
         
         aria_button('🏆 Credits', "View Credits", on_click=credits_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-purple-600 hover:!bg-purple-500 border-l-4 border-purple-300 text-white')
-    with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto !bg-slate-900'):
-            html_info_box(r"""
+    with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').style('background-color: #0f172a !important; color: white; border: 1px solid #334155;'):
+            ui.html(r"""
     <div style="font-family: 'Roboto', sans-serif; color: #ffffff;">
         
         <h3 style="color: #60a5fa; font-weight: 800; margin-bottom: 12px; border-bottom: 2px solid #93c5fd; padding-bottom: 8px;">
@@ -1460,7 +1460,7 @@ def main_layout(title: str):
             Enjoy your exploration of the cosmos!
         </p>
     </div>
-""")
+""").props('role=document aria-live=polite')
             aria_button("Close", "close the box",on_click=lambda:intro.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
     with ui.header(elevated=True).classes('!bg-slate-900/30 text-white items-center justify-between q-py-sm backdrop-blur-md'):
         with ui.row().classes('items-center'):

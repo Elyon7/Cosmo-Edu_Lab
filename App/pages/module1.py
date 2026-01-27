@@ -315,7 +315,8 @@ def create_page():
                 
                     with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0'):
                         ui.label('Observational Techniques & Instruments').classes('text-xl font-bold')
-                        aria_button('Close', 'close', on_click=dialog.close).props('flat round dense text-white')
+                        aria_button('Close', 'close', on_click=dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    
 
                  
                     with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
@@ -566,7 +567,7 @@ def create_page():
                 """)
                     
                         
-                    aria_button("Close ", "Close", on_click=info_dialog.close).classes('bg-orange-600 text-white hover:bg-orange-700')
+                    aria_button("Close ", "Close", on_click=info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
              
               
                 with ui.dialog() as biblio_dialog, ui.card().classes('w-full max-w-3xl p-0 overflow-hidden'):
@@ -614,7 +615,7 @@ def create_page():
     </div>
 """)
                         with ui.row().classes('w-full justify-center mt-6'):
-                            aria_button("Close", "Close", on_click=biblio_dialog.close).classes('bg-orange-700 text-white')
+                            aria_button("Close", "Close", on_click=biblio_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
                 with ui.dialog() as math_dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden'):
                     
@@ -712,7 +713,7 @@ def create_page():
                 """)
                     
                         with ui.row().classes('w-full justify-center mt-6 mb-2'):
-                            aria_button("Close", "Close", on_click=math_dialog.close).classes('bg-orange-700 text-white hover:bg-orange-800')
+                            aria_button("Close", "Close", on_click=math_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
                 with ui.row().classes('w-full justify-center gap-6 mb-4'):
                     aria_button(
