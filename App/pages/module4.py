@@ -1909,11 +1909,11 @@ def create_page():
                             with ui.row().classes("w-full justify-center items-center gap-4 px-1 "):
                 
                               
-                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("bg-green-600 text-white font-bold font-bold py-2 px-4 roundedm")
+                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 roundedm")
                                 
-                                aria_button("Tool", "Open dialog", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("bg-green-600 text-white font-bold font-bold py-2 px-4 rounded")
+                                aria_button("Tool", "Open dialog", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 rounded")
                                 
-                                aria_button("Reset", "Refresh plot", on_click=lambda: refresh_chi2_plot()).classes("bg-red-600 text-white font-bold font-bold py-2 px-4 rounded")
+                                aria_button("Reset", "Refresh plot", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold font-bold py-2 px-4 rounded")
 
                 
                                         
