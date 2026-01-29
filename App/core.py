@@ -75,6 +75,7 @@ app_data = {'users': {}, 'reflection_log': []}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
+dataset_path = os.path.join(BASE_DIR, 'dataset')
 GALAXY_DATA_PATH = os.path.join(BASE_DIR, "galaxy_data")
 GALAXY_IMG_PATH = os.path.join(BASE_DIR, "galaxy_img")
 GALAXY_TABLES_PATH = os.path.join(BASE_DIR, "galaxy_tables")

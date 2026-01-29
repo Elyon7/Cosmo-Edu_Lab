@@ -101,8 +101,17 @@ def create_page():
     def get_rhos_rs_from_observed_matching(r, Vobs, Vgas, Vdisk, Vbul, r_match, scale=0.3):
         if r.size == 0 or Vobs.size == 0:
             raise ValueError("Array r o Vobs vuoti! Controlla il caricamento della galassia.")
+        
         rho_obs_arr = observed_rho_from_RC(r, Vobs, Vgas, Vdisk, Vbul)
         rho_obs_at_match = np.interp(r_match, r, rho_obs_arr)
+
+       
+        if rho_obs_at_match <= 0:
+            valid_rhos = rho_obs_arr[rho_obs_arr > 0]
+            if valid_rhos.size > 0:
+                rho_obs_at_match = valid_rhos[-1] 
+            else:
+                rho_obs_at_match = 1e-9 
 
         def to_solve(logM):
             M = 10.0**logM
@@ -112,9 +121,16 @@ def create_page():
             rho_s = M / (4*np.pi*r_s**3 * (np.log(1+c) - c/(1+c)))
             x = r_match / r_s
             rho_r = rho_s / (x*(1+x)**2)
-            return np.log10(rho_r) - np.log10(rho_obs_at_match)
+         
+            return np.log10(np.maximum(rho_r, 1e-12)) - np.log10(rho_obs_at_match)
 
-        logM_sol = brentq(to_solve, 10, 13)
+        try:
+           
+            logM_sol = brentq(to_solve, 8, 15)
+        except (ValueError, RuntimeError):
+           
+            logM_sol = 11.5 
+
         M200 = 10.0**logM_sol
         c = c_of_M200(M200, scale=scale)
         R200 = (3.0*M200/(4.0*np.pi*200.0*rho_crit))**(1/3)
@@ -854,6 +870,21 @@ def create_page():
                         info_box( "**Dataset variables**: Celestial_Body (name of the planet), SemiMajorAxis(km) (orbital radius in km), Velocity(km/s) (orbital velocity in km/s), Period(days) (orbital period in days), Mass(kg) (mass of the planet in kg).")
                         reference_box(
         """**Dataset reference**: [NASA-SSD](https://ssd.jpl.nasa.gov/planets/) ;[Orbital Mechanics](https://orbital-mechanics.space/reference/planetary-parameters) ;Ryan S. Park, William M. Folkner, James G. Williams, and Dale H. Boggs. The JPL Planetary and Lunar Ephemerides DE440 and DE441. The Astronomical Journal, 161(3):105, February 2021.; Brandon Rhodes. Skyfield: high precision research-grade positions for planets and Earth satellites generator. July 2019""")
+                        
+                        
+                        with ui.row().classes('w-full justify-center gap-4 mt-4'):
+        
+                       
+                            aria_button('Download Dataset', 'download', 
+                                        on_click=lambda: ui.run_javascript('window.location.href = "/dataset/planets_dataset.xlsx"')) \
+                                .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Download the Kepler Excel dataset"')
+
+                          
+                            aria_button('Upload Exercises', 'upload', 
+                                        on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')) \
+                                .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Upload your exercises to Dropbox"')
                         aria_button("Close", "close the box",on_click=lambda:data_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     with ui.dialog() as cur_kep, ui.card().classes('p-4 w-full max-w-[600px]'):
                         html_info_box(r"""
@@ -1276,6 +1307,19 @@ def create_page():
                     
                         reference_box(
         """**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
+                        with ui.row().classes('w-full justify-center gap-4 mt-4'):
+        
+                           
+                            aria_button('Download Dataset', 'download', 
+                                        on_click=lambda: ui.run_javascript('window.location.href = "/dataset/Galaxies_Datasets.xlsx"')) \
+                                .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Download the Excel dataset"')
+
+                         
+                            aria_button('Upload Exercises', 'cloud_upload', 
+                                        on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')) \
+                                .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Upload your completed exercises to Dropbox"')
                         aria_button("close",'close',on_click=lambda:data_galaxy.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
     
@@ -1360,7 +1404,7 @@ def create_page():
                             aria_button("Close", "close the box",on_click=lambda:velocity_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     @ui.refreshable
                     def update_image():
-                        select = galaxy_state["select"]
+                        select = gal_state.get('selected_file') or default_galaxy
                         image_filename = os.path.splitext(select)[0] + ".jpg"
                         image_path = os.path.join(GALAXY_IMG_PATH, image_filename)
 
@@ -1391,7 +1435,7 @@ def create_page():
                         
                     @ui.refreshable
                     def update_table():
-                        select = galaxy_state["select"]
+                        select = gal_state.get('selected_file') or default_galaxy
                         table_filename = os.path.splitext(select)[0] + ".csv"
                         table_path = os.path.join(GALAXY_TABLES_PATH, table_filename)
 
@@ -1439,7 +1483,18 @@ def create_page():
         </style>
 
         <h3 class="text-xl font-bold mb-2">Parabolic interpolation and compute &chi;&sup2; minimization</h3>
-        <p class="mb-2">Use the formula below to compute the &chi;&sup2; minimum of a parabola defined by three points (a, f(a)), (b, f(b)), (c, f(c)).</p>
+        <div class="concept-box">
+            <h4 class="font-bold mb-1">What is &chi;&sup2;?</h4>
+            <p class="text-sm">
+                The <b>&chi;&sup2; (Chi-squared)</b> statistic measures the agreement between observed data and a theoretical model. 
+                Geometrically, it represents the <b>sum of the squared vertical distances</b> between each observed data point and the model curve, weighted by the experimental error (&sigma;).
+            </p>
+            <div class="mt-2 text-center">
+                <span class="math">\( \chi^2 = \sum \frac{(O_i - T_i)^2}{\sigma_i^2} \)</span>
+            </div>
+            <p class="text-xs mt-1 italic">Where \( O_i \) is the observed value (blue curve), \( T_i \) is the theoretical value (red curve),at point \( i \) and \( \sigma_i \) is the experimental error from data. </p>
+        </div>
+        <p class="mb-2">Use the instructions below to compute the &chi;&sup2; minimum of a parabola defined by three points (a, f(a)), (b, f(b)), (c, f(c)).</p>
         
         <ul class="list-disc pl-5 space-y-1">
             <li><b>1a)</b> Choose 3 values of dark matter fraction (f) with the slider above to compute the &chi;&sup2; at that point.</li>
@@ -1586,6 +1641,7 @@ def create_page():
                         
                         if loaded:
                             gal_state['selected_file'] = new_value
+                            galaxy_state['select'] = new_value 
                             gal_state['current_galaxy_name'] = new_value
                          
                             alpha_slider.value = 0.0 
@@ -2786,7 +2842,7 @@ def create_page():
                                 plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
                                 plt.title("Enclosed Mass",fontweight='bold')
                                 plt.grid(True); plt.legend()
-                    galaxy_select.on('update:model-value', lambda e: update_plots_popup.refresh())
+                    galaxy_select.on('update:model-value', lambda e: [update_plots_popup.refresh(), update_galaxy_mass_analysis.refresh()])
 
 
                     def check_and_run_galaxy():

@@ -1306,7 +1306,29 @@ def main_layout(title: str):
 
         with ui.row().classes('w-full justify-end mt-4'):
             aria_button('Close', 'Close', on_click=credits_dialog.close).classes("!bg-purple-600 text-white font-bold")
-   
+    with ui.dialog() as kahoot_dialog, ui.card().classes('p-6 w-full max-w-[500px] text-center'):
+        ui.label('🏆 Final Challenge: Quiz!').classes('text-2xl font-bold mb-4 text-purple-600')
+        
+        with ui.column().classes('text-left w-full gap-2 mb-6'):
+           ui.markdown('''
+**Instructions:**
+
+* **Enter the Kahoot website and insert the Game PIN** provided by your teacher.
+* **Register** with a recognizable username.
+* **Fast and Accurate**: You have **30 seconds** per question.
+* **Scoring**: Points are awarded based on correct answers and your response speed.
+
+*Good luck and have fun!* 🚀
+''').classes('text-white-700').props('role=document aria-live=polite')
+        
+        with ui.row().classes('w-full justify-center gap-4'):
+          
+            aria_button('Go to Kahoot.it', "Open Kahoot website", 
+                        on_click=lambda: ui.run_javascript('window.open("https://kahoot.it/", "_blank")')) \
+                .classes('!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-lg')
+            
+            aria_button('Close', "Close instructions", on_click=kahoot_dialog.close) \
+                .classes('!bg-orange-400 hover:!bg-orange-500 text-white py-2 px-4 rounded-lg text-sm')
     drawer = ui.left_drawer(value=False) 
     with drawer:
       
@@ -1362,7 +1384,12 @@ def main_layout(title: str):
         ).classes(
             'w-full text-lg font-bold mb-3 !bg-orange-600 hover:!bg-orange-500 border-l-4 border-orange-300 text-white'
         )
-    
+       
+        aria_button(
+    '🎮 Kahoot Quiz', 
+    "Open Kahoot Instructions and Link", 
+    on_click=kahoot_dialog.open
+).classes('w-full text-lg font-bold mb-3 !bg-purple-600 hover:!bg-purple-500 border-l-4 border-purple-300 text-white')
         ui.separator().classes('my-1 bg-gray-600')
         ui.label(' 📝 Info').classes('px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
         def open_slides_cosmo():

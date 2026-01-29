@@ -957,7 +957,7 @@ def create_page():
             return re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2" target="_blank">\1</a>', md_text)
 
         def create_interactive_tile(image_file: str, title: str, description: str, size: int):
-        
+            safe_id = title.replace(" ", "_")
             with ui.dialog() as popup, ui.card():
                 ui.label(title).classes('text-h5').props('role=heading aria-level=3 tabindex=0')
                 aria_image(image_file, title).classes('w-96 h-auto')
@@ -969,8 +969,10 @@ def create_page():
                 thumb.on('click', lambda: popup.open())
             
                 thumb.props('draggable="true"')
-                thumb.props(f'ondragstart="event.dataTransfer.setData(\'application/json\', JSON.stringify({{file:\'{image_file}\', title:\'{title}\', size:{size}}}))"')
-
+                thumb.props(f'id="img-{safe_id}"')
+                
+                
+                thumb.props(f'ondragstart="event.dataTransfer.setData(\'application/json\', JSON.stringify({{file:\'{image_file}\', title:\'{title}\', safe_id:\'{safe_id}\', size:{size}}}))"')
         
 
 
@@ -999,7 +1001,15 @@ def create_page():
             <li><b>Approximation:</b> <span class="math">\( \approx 1.5 \times 10^8 \, \mathrm{km} \)</span></li>
             <li><b>Usage:</b> Jupiter is about <span class="math">\( 5.2 \, \mathrm{AU} \)</span> from the Sun; the Voyager 1 probe is over <span class="math">\( 160 \, \mathrm{AU} \)</span> away.</li>
         </ul>
+        <h4>3. The Interstellar Scale: Light-year (ly)</h4>
+        <p>The <b>Light-year</b> is the distance that light travels in a vacuum in one Julian year (365.25 days). Despite the name, it is a unit of distance, not time.</p>
 
+        <ul>
+            <li><b>Definition:</b> $1 \, \mathrm{ly} = c \times 1 \text{ year}$</li>
+            <li><b>Conversion to km:</b> $\approx 9.461 \times 10^{12} \, \mathrm{km}$</li>
+            <li><b>Conversion to AU:</b> $\approx 63,241 \, \mathrm{AU}$</li>
+            <li><b>Conversion to pc:</b> $\approx 0.3066 \, \mathrm{pc}$</li>
+        </ul>
         <hr style="margin: 15px 0; border-top: 1px solid #0284c7; opacity: 0.3;">
 
         <h4>3. The Galactic Scale: Parsec (pc)</h4>
@@ -1027,7 +1037,8 @@ def create_page():
 
                 def update_math():
    
-                    ui.run_javascript('if (window.MathJax) { if(MathJax.typesetPromise) { MathJax.typesetPromise(); } else { MathJax.typeset(); } }')
+                  
+                    ui.run_javascript('if (window.MathJax && MathJax.typesetPromise) { MathJax.typesetPromise().catch(err => console.log(err)); }')
             
                 ranges_data = [
     (r'<span class="math">\( 0 \text{ - } 10^3 \, \mathrm{km} \)</span>', 
@@ -1066,32 +1077,31 @@ def create_page():
                     "gap-1 mt-1 flex-wrap items-center justify-center w-full flex-grow h-full min-h-[60px] rounded bg-gray-50/50 border-2 border-dashed border-gray-300"
                 )
                                 js_logic = (
-                    f'ondragover="event.preventDefault();" '
-                    f'ondrop="event.preventDefault(); '
-                    f'const data=JSON.parse(event.dataTransfer.getData(\'application/json\')); '
-                    f'const size=parseFloat(data.size); '
-                    f'if(size < {min_s} || size > {max_s}) {{ '
-                    f'  if(window.Quasar && window.Quasar.Notify) {{ '
-                    f'    window.Quasar.Notify.create({{ message: data.title + \' does not belong here!\', color: \'negative\', position: \'top\', icon: \'warning\' }}); '
-                    f'  }} else {{ '
-                    f'    alert(data.title + \' does not belong here!\'); ' 
-                    f'  }} '
-                    f'  return; '
-                    f'}} '
-                  
-                    f'const scale=Math.max(55, Math.min(110, size/{max_s}*100)); ' 
-                    f'const col=document.createElement(\'div\'); '
-                    f'col.style.display=\'flex\'; col.style.flexDirection=\'column\'; col.style.alignItems=\'center\'; col.style.margin=\'3px\'; '
-                    f'const img=document.createElement(\'img\'); '
-                    f'img.src=data.file; img.width=scale; img.height=scale; img.style.objectFit=\'cover\'; img.className=\'rounded shadow-md\'; '
-                    f'const lbl=document.createElement(\'div\'); lbl.innerText=data.title; lbl.style.fontSize=\'10px\'; lbl.style.fontWeight=\'bold\'; lbl.style.textAlign=\'center\'; '
-                    f'col.appendChild(img); col.appendChild(lbl); '
-                    f'this.appendChild(col);"'
-                )
+    f'ondragover="event.preventDefault();" '
+    f'ondrop="event.preventDefault(); '
+    f'const data=JSON.parse(event.dataTransfer.getData(\'application/json\')); '
+    f'const size=parseFloat(data.size); '
+    f'if(size < {min_s} || size > {max_s}) {{ '
+    f'  if(window.Quasar && window.Quasar.Notify) {{ '
+    f'    window.Quasar.Notify.create({{ message: data.title + \' does not belong here!\', color: \'negative\', position: \'top\', icon: \'warning\' }}); '
+    f'  }} return; '
+    f'}} '
+    f'const scale=Math.max(55, Math.min(110, size/{max_s}*100)); ' 
+    f'const col=document.createElement(\'div\'); '
+    f'col.style.display=\'flex\'; col.style.flexDirection=\'column\'; col.style.alignItems=\'center\'; col.style.margin=\'3px\'; '
+    f'const img=document.createElement(\'img\'); '
+    f'img.src=data.file; img.width=scale; img.height=scale; img.style.objectFit=\'cover\'; img.className=\'rounded shadow-md\'; '
+    f'const lbl=document.createElement(\'div\'); lbl.innerText=data.title; lbl.style.fontSize=\'10px\'; lbl.style.fontWeight=\'bold\'; lbl.style.textAlign=\'center\'; '
+    f'col.appendChild(img); col.appendChild(lbl); '
+    f'this.appendChild(col); '
+  
+    f'const sourceImg = document.getElementById(\'img-\' + data.safe_id); '
+    f'if(sourceImg) {{ sourceImg.style.opacity = \'0.3\'; sourceImg.style.filter = \'grayscale(1) blur(1px)\'; sourceImg.style.pointerEvents = \'none\'; }}"'
+)
                                 drop_zone.props(js_logic)
                     
                    
-                    update_math()
+                    #update_math()
              
                 with ui.dialog() as external_resources_dialog, ui.card().classes('p-0 w-full max-w-[600px] overflow-hidden'):
             
@@ -1182,13 +1192,20 @@ def create_page():
                 with ui.row().classes('w-full justify-center gap-6 items-center'):
                 
                     
-                    aria_button(
-                'Instructions', 'Open Instructions',
-                on_click=lambda:[intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button(
-                'Units', 'Open Units',
-                on_click=lambda:[units_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Reset", "reset", on_click=render_drop_column.refresh).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
+                   
+                    aria_button('Instructions', 'Open Instructions', 
+                        on_click=lambda: (intro.open(), update_math())
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+
+                 
+                    aria_button('Units', 'Open Units', 
+                        on_click=lambda: (units_dialog.open(), update_math())
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Reset", "reset", on_click=lambda: (
+    render_drop_column.refresh(), 
+    ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
+    update_math()
+)).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                 ' Simulators ', 
                 "Open external resources list",

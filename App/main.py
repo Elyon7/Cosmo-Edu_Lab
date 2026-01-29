@@ -42,6 +42,7 @@ from pages import auth, home, module1, module2, module3, module4
 core.load_data()
 #app.add_static_files('/cluster_gif', os.path.join(BASE_DIR, 'cluster_gif'))
 app.add_static_files('/images', os.path.join(BASE_DIR, 'images'))
+app.add_static_files('/dataset', os.path.join(BASE_DIR, 'dataset'))
 app.add_static_files('/galaxy_img', os.path.join(BASE_DIR, 'galaxy_img'))
 app.add_static_files('/cluster_img', os.path.join(BASE_DIR, 'cluster_img'))
 app.add_static_files('/slides', os.path.join(BASE_DIR, 'slides'))
