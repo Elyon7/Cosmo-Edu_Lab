@@ -858,27 +858,33 @@ def create_page():
 
                       
                         with plot_container:
-                            with ui.pyplot(figsize=(6, 6), facecolor='none',dpi=100) as plot_element:
-                                fig = plot_element.fig 
-                                fig.patch.set_alpha(0.0) 
-                                ax = fig.gca() 
+                         
+                            with ui.pyplot(figsize=(6, 5), facecolor='none').classes('w-full max-w-[550px] mx-auto') as plot_element:
+                                fig = plot_element.fig
+                                fig.patch.set_alpha(0.0)
+                                ax = fig.gca()
                                 
                                 im = ax.imshow(observed_image, cmap=current_cmap, origin='lower')
                                 ax.set_title(f"Stats: SNR: {snr:.1f} | Photons: {int(np.sum(observed_image))}", 
-                                            fontsize=11, pad=15, color='white')
+                                            fontsize=10, pad=15, color='white')
                                 ax.axis('off')
+                                cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.08)
+        
+                              
+                                cbar.set_label('Photons Counts (ADU)', fontsize=10, color='white', labelpad=15)
                                 
-                                fig.subplots_adjust(left=0.05, right=0.75, top=0.85, bottom=0.01)
-                                cbar_ax = fig.add_axes([0.8, 0.15, 0.04, 0.65]) 
-                                cbar = fig.colorbar(im, cax=cbar_ax)
-                                cbar.set_label('Photons Counts (ADU)', fontsize=10, labelpad=15, color='white')
-                                cbar.ax.yaxis.set_tick_params(color='white', labelcolor='white')
+                               
+                                cbar.ax.yaxis.set_tick_params(color='white', labelcolor='white', labelsize=9)
                                 cbar.outline.set_edgecolor('white')
+                                
+                              
+                                fig.subplots_adjust(left=0.05, right=0.85, top=0.9, bottom=0.1)
 
                   
                     diam_slider.on_value_change(update_simulation)
                     time_slider.on_value_change(update_simulation)
                     sky_select.on_value_change(update_simulation)
+                    cmap_select.on_value_change(update_simulation)
                     
                     update_simulation()
                     
