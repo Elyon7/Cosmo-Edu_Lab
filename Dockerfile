@@ -1,27 +1,31 @@
-# Usa un'immagine base leggera con Python 3.10 (NiceGUI testato fino a 3.10)
+
 FROM python:3.10-slim
 
-# Evita interattività e problemi di permessi
-ENV DEBIAN_FRONTEND=noninteractive
-WORKDIR /app
 
-# Installa dipendenze di sistema necessarie per Matplotlib, FastAPI e NiceGUI
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /App
+
+
+
 RUN apt-get update && apt-get install -y \
     git \
+    git-lfs \
     ffmpeg \
     libsm6 \
     libxext6 \
     libgl1 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && git lfs install
 
-# Copia i file nella container
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# Esponi la porta standard di Spaces
 EXPOSE 7860
+ENV MPLCONFIGDIR=/tmp/matplotlib
 
-# Avvia l’app NiceGUI
-CMD ["python", "App/main.py"]
+
+CMD git clone https://$GITHUB_TOKEN@github.com/Elyon7/Cosmo-Edu_Lab.git . && \
+    git lfs pull && \
+    mkdir -p App/student_submissions && \
+    chmod 777 App/student_submissions && \
+    pip install --no-cache-dir -r requirements.txt && \
+    cd App && \
+    python main.py

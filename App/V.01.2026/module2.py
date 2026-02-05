@@ -64,38 +64,13 @@ from core import *
 def create_page():
     @ui.page('/module2')
     def module2():
+     
         ui.add_head_html('''
-    <link rel="stylesheet" href="/static/github.min.css">
-''')
-        #<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        #ui.add_head_html('''    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">''')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    ''')
         ui.add_head_html("""
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        src: url('/static/roboto-v50-latin-300.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        src: url('/static/roboto-v50-latin-regular.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 500;
-        src: url('/static/roboto-v50-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 700;
-        src: url('/static/roboto-v50-latin-700.woff2') format('woff2');
-    }
     body {
         font-family: 'Roboto', sans-serif;
         font-size: 18px;
@@ -307,8 +282,31 @@ def create_page():
                 r *= factor; g *= factor; b *= factor
             return (r, g, b)
         
-       
-    #script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+        ui.add_head_html("""
+    <script>
+    // Configura MathJax solo se non è già presente
+    if (!window.MathJax) {
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']]
+            },
+            startup: {
+                typeset: false
+            }
+        };
+    }
+    </script>
+    <script>
+    // Carica lo script solo se MathJax non è già caricato completamente (controlla .version)
+    if (!window.MathJax.version) {
+        var script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+        script.async = true;
+        document.head.appendChild(script);
+    }
+    </script>
+    """)
+     
         @lru_cache(maxsize=1)
         def get_supernovae_data_cached():
            

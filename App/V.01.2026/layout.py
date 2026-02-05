@@ -16,48 +16,17 @@ from core import app_data, save_data, GROQ_API_KEY, BASE_DIR, DATA_DIR,GEMINI_AP
 #inject_layout_tool()
 
 ui.add_head_html(r'''
-    <link rel="stylesheet" href="/static/github.min.css">
-    <style>
-        /* Questo serve per evitare che lo span.math faccia casini con l'SVG */
-        span.math {
-            display: inline-block;
-        }
-        body { font-family: 'Roboto', sans-serif; }
-    </style>
-
     <script>
     window.MathJax = {
-      // Blocca download esterni (Risolve crash offline)
-      loader: { load: [] },
-      
-      // Rendering manuale (Risolve errori di timing)
-      startup: { typeset: false },
-      
       tex: {
-        // QUI È LA MAGIA: Abilitiamo sia $ che \( ... \)
-        inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-        displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
-        processEscapes: true,
-        processEnvironments: true
+        inlineMath: [['$', '$'], ['\\(', '\\)']]  // Abilita il dollaro singolo
       },
-      
-      // Opzioni SVG
       svg: {
-        fontCache: 'global',
-        scale: 1, // Assicura che le formule non siano enormi o minuscole
-        displayAlign: 'center'
-      },
-      
-      options: {
-        enableMenu: false,
-        // Ignora eventuali classi HTML che potrebbero nascondere le formule
-        ignoreHtmlClass: 'tex2jax_ignore',
-        processHtmlClass: 'tex2jax_process'
+        fontCache: 'global'
       }
     };
     </script>
-    
-    <script id="MathJax-script" async src="/static/tex-svg-full.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 ''')
 ui.add_head_html('''
     <style>
@@ -71,34 +40,9 @@ ui.add_head_html('''
      
     </style>
 ''')
-#<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 ui.add_head_html("""
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
                  <style> 
-                 @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        src: url('/static/roboto-v50-latin-300.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        src: url('/static/roboto-v50-latin-regular.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 500;
-        src: url('/static/roboto-v50-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 700;
-        src: url('/static/roboto-v50-latin-700.woff2') format('woff2');
-    }
                  .description-on-dark {
     color: #ffffff !important;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3); /* Ombra leggermente più leggera rispetto al titolo */
@@ -1201,9 +1145,9 @@ def main_layout(title: str):
 
     with ui.dialog() as ai_dialog, ui.card().classes('w-full max-w-lg h-[80vh] flex flex-col'):
         ui.label('🤖 AI Tutor').classes('text-2xl font-bold text-indigo-700').props('role=heading aria-level=2')
-        ui.markdown(f"Ask a question about: {title}").classes('text-xl text-black-600 mb-2')
+        ui.markdown(f"Ask a question about: **{title}**").classes('text-lg text-black-600 mb-2')
         
-  
+        # Selettore Modello
         model_toggle = ui.toggle(
             options={'groq': '⚡ Groq ', 'gemini': '🧠 Gemini '}, 
             value='gemini'
@@ -1333,7 +1277,7 @@ def main_layout(title: str):
 
        
         ui.label('✍️ New Reflection').classes('text-lg font-bold text-slate-700')
-     
+        ui.markdown(f"Thoughts on: **{title}**")
         refl_input = aria_textarea('Write here...', "Reflection").classes('w-full text-lg')
         
         def save_refl():

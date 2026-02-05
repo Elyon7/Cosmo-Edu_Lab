@@ -14,34 +14,9 @@ import urllib.parse
 from core import *
 from layout import *
 #inject_layout_tool()
-#<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 ui.add_head_html("""
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
                  <style> 
-                 @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        src: url('/static/roboto-v50-latin-300.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        src: url('/static/roboto-v50-latin-regular.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 500;
-        src: url('/static/roboto-v50-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 700;
-        src: url('/static/roboto-v50-latin-700.woff2') format('woff2');
-    }
                  .description-on-dark {
     color: #ffffff !important;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3); /* Ombra leggermente più leggera rispetto al titolo */

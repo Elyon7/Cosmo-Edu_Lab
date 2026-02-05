@@ -93,94 +93,77 @@ MIST_PATH = os.path.join(BASE_DIR, "iso_fe0.01")
 SDSS_MORPHO_PATH = os.path.join(DATA_DIR, "sdss_gal_morfo.txt")
 #cluster_gif_path = os.path.join(BASE_DIR, 'cluster_gif')
 
-SUBMISSIONS_PATH = os.path.join(BASE_DIR, "student_submissions")
-
-if not os.path.exists(SUBMISSIONS_PATH):
-    os.makedirs(SUBMISSIONS_PATH, exist_ok=True)
 if os.path.exists('/data'):
     DATA_FILE = '/data/app_data.json'
 else:
     DATA_FILE = 'app_data.json'
 
 def load_data():
+    """
+    Strategia Ibrida:
+    1. Prova a scaricare dal Cloud (è la fonte di verità).
+    2. Se fallisce (offline/no token), carica dal file locale.
+    """
     global app_data
-  
+    
+    # TENTATIVO 1: CLOUD
     if HF_API_TOKEN:
         try:
-            print("☁️ Attempting to download data from Cloud...", end=" ")
-          
+            print("☁️ Tentativo download dati dal Cloud...", end=" ")
             file_path = hf_hub_download(
                 repo_id=DATASET_REPO_ID,
                 filename=DATASET_FILENAME,
                 repo_type="dataset",
                 token=HF_API_TOKEN,
-                local_dir=BASE_DIR,
-                local_dir_use_symlinks=False,
-                timeout=2
+                local_dir="." # Scarica nella cartella corrente
             )
             with open(file_path, 'r') as f:
                 app_data = json.load(f)
-            print("✅ Success!")
-            return 
+            print("✅ Successo!")
+            return # Se ha funzionato, usciamo
         except Exception as e:
-            print(f"⚠️ Cloud failed ({e}). Falling back to local.")
+            print(f"⚠️ Fallito ({e}). Passo al locale.")
     
+    # TENTATIVO 2: LOCALE (Fallback)
     if os.path.exists(LOCAL_DATA_FILE):
         try:
             with open(LOCAL_DATA_FILE, 'r') as f:
                 app_data = json.load(f)
-            print("🏠 Data loaded from local disk.")
+            print("🏠 Dati caricati dal disco locale.")
         except Exception as e:
-            print(f"❌ Error loading local data: {e}")
+            print(f"❌ Errore caricamento locale: {e}")
 
 def save_data():
+    """
+    Salva SEMPRE in locale, e se possibile sincronizza col Cloud.
+    """
     global app_data
-    # 1. LOCAL SAVE
+    
+    # 1. SALVATAGGIO LOCALE (Immediato)
     try:
-        path_to_save = os.path.join(BASE_DIR, LOCAL_DATA_FILE)
-        with open(path_to_save, 'w') as f:
+        with open(LOCAL_DATA_FILE, 'w') as f:
             json.dump(app_data, f, indent=4)
     except Exception as e:
-        print(f"❌ Error saving local data: {e}")
+        print(f"❌ Errore salvataggio locale: {e}")
 
-    # 2. CLOUD SYNC
+    # 2. SALVATAGGIO CLOUD (Background Sync)
     if HF_API_TOKEN:
+        # Eseguiamo l'upload in un thread separato per non bloccare l'app
         def _upload_task():
             try:
                 api = HfApi(token=HF_API_TOKEN)
-                path_to_upload = os.path.join(BASE_DIR, LOCAL_DATA_FILE)
+                json_bytes = json.dumps(app_data, indent=4).encode('utf-8')
+                bio = BytesIO(json_bytes)
+                
                 api.upload_file(
-                    path_or_fileobj=path_to_upload,
+                    path_or_fileobj=bio,
                     path_in_repo=DATASET_FILENAME,
                     repo_id=DATASET_REPO_ID,
                     repo_type="dataset",
-                    commit_message=f"Update app data {datetime.datetime.now()}"
+                    commit_message="Sync data"
                 )
-                print("☁️ Data synchronized with Cloud.")
+                print("☁️ Dati sincronizzati col Cloud.")
             except Exception as e:
-                print(f"⚠️ Cloud sync error: {e}")
+                print(f"⚠️ Errore sync Cloud: {e}")
         
         threading.Thread(target=_upload_task).start()
-        
-def download_submissions_from_cloud():
-    
-    if HF_API_TOKEN:
-        try:
-            api = HfApi(token=HF_API_TOKEN)
-          
-            all_files = api.list_repo_files(repo_id=DATASET_REPO_ID, repo_type="dataset")
-            
-         
-            submission_files = [f for f in all_files if f.startswith("Exercises/")]
-            
-            for remote_file in submission_files:
-                hf_hub_download(
-                    repo_id=DATASET_REPO_ID,
-                    filename=remote_file,
-                    local_dir=SUBMISSIONS_PATH,
-                    repo_type="dataset",
-                    token=HF_API_TOKEN
-                )
-            print("✅ Exercises synchronized from Cloud.")
-        except Exception as e:
-            print(f"⚠️ Error during initial synchronization of exercises: {e}")

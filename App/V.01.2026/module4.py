@@ -62,51 +62,9 @@ from astropy.cosmology import Planck15 as cosmo
 from astroquery.simbad import Simbad
 import asyncio           
 import logging
-import layout
 from layout import *
-import core
 from core import *
-from huggingface_hub import HfApi
 def create_page():
-    def handle_student_upload(e):
-       
-   
-        file_path = os.path.join(core.SUBMISSIONS_PATH, e.name)
-        with open(file_path, 'wb') as f:
-            f.write(e.content.read())
-        
-       
-        if core.HF_API_TOKEN:
-            try:
-                api = HfApi(token=core.HF_API_TOKEN)
-            
-                api.upload_file(
-                    path_or_fileobj=file_path,
-                    path_in_repo=f"Exercises/{e.name}",
-                    repo_id=core.DATASET_REPO_ID,
-                    repo_type="dataset"
-                )
-                layout.accessible_notify(f'File "{e.name}" saved in Cloud!', type_='success')
-            except Exception as ex:
-                print(f"❌ Error during Cloud synchronization: {ex}")
-                layout.accessible_notify("Error during Cloud synchronization.", type_='error')
-        
-        refreshable_submission_list.refresh()
-
-    @ui.refreshable
-    def refreshable_submission_list():
-     
-        files = os.listdir(core.SUBMISSIONS_PATH) if os.path.exists(core.SUBMISSIONS_PATH) else []
-        if not files:
-            ui.label('No submissions found.').classes('text-gray-400 italic').props('aria-live=polite')
-        else:
-            with ui.column().classes('w-full gap-2 p-2 bg-slate-800 rounded'):
-                for name in files:
-                    with ui.row().classes('w-full justify-between items-center'):
-                        ui.label(name).classes('text-sm text-white font-mono')
-                       
-                        aria_button('Download','download' ,on_click=lambda n=name: ui.download(f'/student_files/{n}')) \
-                            .props('flat dense color=primary')
     def get_data_and_images(data_path, img_path, data_extensions=('.txt','.dat', '.csv'), img_extensions=('.jpg', '.png', '.jpeg')):
     
         data_files = [f for f in os.listdir(data_path) if f.endswith(data_extensions)]
@@ -444,38 +402,13 @@ def create_page():
     @ui.page('/module4')
     def module4():
         #ui.add_head_html('<script src="https://cdn.tailwindcss.com"></script>')
+        
         ui.add_head_html('''
-    <link rel="stylesheet" href="/static/github.min.css">
-''')
-        #ui.add_head_html('''    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">    ''')
-        #<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    ''')
         ui.add_head_html("""
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        src: url('/static/roboto-v50-latin-300.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        src: url('/static/roboto-v50-latin-regular.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 500;
-        src: url('/static/roboto-v50-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 700;
-        src: url('/static/roboto-v50-latin-700.woff2') format('woff2');
-    }
     body {
         font-family: 'Roboto', sans-serif;
         font-size: 18px;
@@ -645,9 +578,8 @@ def create_page():
 
     </style>
     """)
-        #<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
         ui.add_head_html("""
-    <script src="/static/Tone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
     <script>
     let synth;
     let isAudioActive = false;
@@ -775,8 +707,16 @@ def create_page():
     </script>
     """)
         
-   
-        #<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js"></script>
+        ui.add_head_html('''
+    <script>
+    window.MathJax = {
+        tex: {inlineMath: [['$', '$'], ['\\\\(', '\\\\)']]},
+        svg: {fontCache: 'global'}
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    ''')
+        
 
         @lru_cache(maxsize=32) 
         def get_galaxy_data_cached(filename):
@@ -925,25 +865,7 @@ def create_page():
     """).props('role=dialog aria-modal=true aria-label="Descriptive text about Kepler Laws activity"')
 
                         aria_button("Close", "close the box",on_click=lambda:info_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                  
-                    with ui.dialog() as upload_zone_dialog, ui.card().classes('w-full max-w-xl !bg-slate-900'):
-                        ui.label('Submission Exercises').classes('text-2xl font-bold text-cyan-400').props('aria-label="Submission Exercises dialog title"')
-                        
-                      
-                        ui.upload(
-                            label='Select your completed exercise file',
-                            on_upload=handle_student_upload, 
-                            auto_upload=True
-                        ).classes('w-full').props('aria-label="Upload your completed exercise file"')
-                        
-                        ui.separator().classes('bg-slate-700 my-4')
-                        
-                        ui.label('File uploaded:').classes('text-lg font-bold text-white')
-                        
-                      
-                        refreshable_submission_list() 
-                        
-                        aria_button('Close', 'Close', on_click=upload_zone_dialog.close).classes('!bg-orange-500 mt-4')
+
                     with ui.dialog() as data_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                         info_box( "**Dataset variables**: Celestial_Body (name of the planet), SemiMajorAxis(km) (orbital radius in km), Velocity(km/s) (orbital velocity in km/s), Period(days) (orbital period in days), Mass(kg) (mass of the planet in kg).")
                         reference_box(
@@ -958,11 +880,11 @@ def create_page():
                                 .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
                                 .props('aria-label="Download the Kepler Excel dataset"')
 
-                            aria_button('Upload Exercises', 'cloud_upload', 
-                on_click=upload_zone_dialog.open) \
-        .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded') \
-        .props('aria-label="Upload your completed exercises to the app folder"')
-                            #aria_button('Upload Exercises', 'upload', on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')).classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded').props('aria-label="Upload your exercises to Dropbox"')
+                          
+                            aria_button('Upload Exercises', 'upload', 
+                                        on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')) \
+                                .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Upload your exercises to Dropbox"')
                         aria_button("Close", "close the box",on_click=lambda:data_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     with ui.dialog() as cur_kep, ui.card().classes('p-4 w-full max-w-[600px]'):
                         html_info_box(r"""
@@ -1393,10 +1315,11 @@ def create_page():
                                 .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
                                 .props('aria-label="Download the Excel dataset"')
 
-                           
-                            aria_button('Upload Exercises', 'cloud_upload', on_click=upload_zone_dialog.open) \
-        .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded')
-                            #aria_button('Upload Exercises', 'cloud_upload',  on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')).classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded').props('aria-label="Upload your completed exercises to Dropbox"')
+                         
+                            aria_button('Upload Exercises', 'cloud_upload', 
+                                        on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')) \
+                                .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Upload your completed exercises to Dropbox"')
                         aria_button("close",'close',on_click=lambda:data_galaxy.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
     

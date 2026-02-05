@@ -70,38 +70,13 @@ from core import *
 def create_page():
     @ui.page('/module1')
     def introduction():
+
         ui.add_head_html('''
-    <link rel="stylesheet" href="/static/github.min.css">
-''')
-        #ui.add_head_html('''    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"> ''')
-        #<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    ''')
         ui.add_head_html("""
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        src: url('/static/roboto-v50-latin-300.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        src: url('/static/roboto-v50-latin-regular.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 500;
-        src: url('/static/roboto-v50-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 700;
-        src: url('/static/roboto-v50-latin-700.woff2') format('woff2');
-    }
     body {
         font-family: 'Roboto', sans-serif;
         font-size: 18px;
@@ -303,10 +278,21 @@ def create_page():
     </style>
     """)
 
-      
-
-       
-        #s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js';
+        ui.add_body_html("""
+    <script>
+    if (!window.MathJaxLoaded) {
+    window.MathJaxLoaded = true;
+    window.MathJax = {
+        tex: {inlineMath: [['$', '$'], ['\\\\(', '\\\\)']]},
+        svg: {fontCache: 'global'}
+    };
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+    s.async = true;
+    document.head.appendChild(s);
+    }
+    </script>
+    """)
         main_layout("Module 1: Introduction to Cosmology")
         tab_key = 'module1_selected'
         if tab_key not in app.storage.user:
@@ -1057,45 +1043,30 @@ def create_page():
 
                
 
-             
+                def update_math():
    
                   
-                def update_math():
-                    ui.run_javascript(r'''
-        if (window.MathJax) {
-            // Se MathJax è pronto
-            if (window.MathJax.typesetPromise) {
-                // Resetta lo stato interno (evita errori su elementi rimossi)
-                try { MathJax.typesetClear(); } catch(e) {}
-
-                // Ricalcola tutto
-                MathJax.typesetPromise().then(() => {
-                    console.log("MathJax Updated.");
-                }).catch((err) => {
-                    console.log("MathJax Error: " + err.message);
-                });
-            }
-        }
-    ''')
+                    ui.run_javascript('if (window.MathJax && MathJax.typesetPromise) { MathJax.typesetPromise().catch(err => console.log(err)); }')
+            
                 ranges_data = [
-    (r'$ 0 \text{ - } 10^3 \, \mathrm{km} $', 
-     r'$ \approx 0 \, \mathrm{AU} \mid \approx 0 \, \mathrm{pc} $', 
+    (r'<span class="math">\( 0 \text{ - } 10^3 \, \mathrm{km} \)</span>', 
+     r'<span class="math">\( \approx 0 \, \mathrm{AU} \mid \approx 0 \, \mathrm{pc} \)</span>', 
      0, 1e3, "0 - 1000 km"),
 
-    (r'$ 10^3 \text{ - } 10^6 \, \mathrm{km} $', 
-     r'$ 10^{-6} \text{ - } 10^{-3} \, \mathrm{AU} \mid 10^{-11} \text{ - } 10^{-8} \, \mathrm{pc} $', 
+    (r'<span class="math">\( 10^3 \text{ - } 10^6 \, \mathrm{km} \)</span>', 
+     r'<span class="math">\( 6.7 \cdot 10^{-6} \text{ - } 7 \cdot 10^{-3} \, \mathrm{AU} \mid 3.2 \cdot 10^{-11} \text{ - } 3.2 \cdot 10^{-8} \, \mathrm{pc} \)</span>', 
      1e3, 1e6, "10^3 - 10^6 km"),
 
-    (r'$ 10^6 \text{ - } 10^9 \, \mathrm{km} $', 
-     r'$ 10^{-3} \text{ - } 1 \, \mathrm{AU} \mid 10^{-8} \text{ - } 10^{-5} \, \mathrm{pc} $', 
+   (r'<span class="math">\( 10^6 \text{ - } 10^9 \, \mathrm{km} \)</span>', 
+     r'<span class="math">\( 7 \cdot 10^{-3} \text{ - } 6.7 \, \mathrm{AU} \mid 3.2 \cdot 10^{-8} \text{ - } 3.2 \cdot 10^{-5} \, \mathrm{pc} \)</span>', 
      1e6, 1e9, "10^6 - 10^9 km"),
 
-    (r'$ 10^9 \text{ - } 10^{18} \, \mathrm{km} $', 
-     r'$ 1 \text{ - } 10^9 \, \mathrm{AU} \mid 10^{-5} \text{ - } 10^4 \, \mathrm{pc} $', 
+    (r'<span class="math">\( 10^9 \text{ - } 10^{18} \, \mathrm{km} \)</span>', 
+     r'<span class="math">\( 6.7 \text{ - } 6.7 \cdot 10^9 \, \mathrm{AU} \mid 10^{-5} \text{ - } 3.2 \cdot 10^4 \, \mathrm{pc} \)</span>', 
      1e9, 1e18, "10^9 - 10^18 km"),
 
-    (r'$ > 10^{18} \, \mathrm{km} $', 
-     r'$ > 10^9 \, \mathrm{AU} \mid > 10^4 \, \mathrm{pc} $', 
+    (r'<span class="math">\( > 10^{18} \, \mathrm{km} \)</span>', 
+     r'<span class="math">\( > 6.7 \cdot 10^9 \, \mathrm{AU} \mid > 3.2 \cdot 10^4 \, \mathrm{pc} \)</span>', 
      1e18, 1e26, "> 10^18 km"),
 ]
 
@@ -1137,7 +1108,7 @@ def create_page():
 )
                                 drop_zone.props(js_logic)
                     
-                    ui.timer(0.1, update_math, once=True)
+                   
                     #update_math()
              
                 with ui.dialog() as external_resources_dialog, ui.card().classes('p-0 w-full max-w-[600px] overflow-hidden'):
@@ -1238,16 +1209,10 @@ def create_page():
                     aria_button('Units', 'Open Units', 
                         on_click=lambda: (units_dialog.open(), update_math())
                     ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                   
-                   
-
-                   
                     aria_button("Reset", "reset", on_click=lambda: (
     render_drop_column.refresh(), 
-    # Logica JS per ripristinare le immagini...
     ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
-    # TIMER FONDAMENTALE
-    ui.timer(0.2, update_math, once=True) 
+    update_math()
 )).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                 ' Simulators ', 
