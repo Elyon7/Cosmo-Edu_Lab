@@ -62,6 +62,40 @@ app.add_static_files('/cosmic_epochs', os.path.join(BASE_DIR, 'cosmic_epochs'))
 app.add_static_files('/student_files', core.SUBMISSIONS_PATH)
 
 app.add_static_files('/static', os.path.join(BASE_DIR, 'static'))
+
+auth.create_auth_routes()  
+home.create_routes()       
+module1.create_page()    
+module2.create_page()      
+module3.create_page()     
+module4.create_page()     
+
+async def keep_alive():
+    while True:
+        await asyncio.sleep(30)
+        try:
+            ui.run_javascript('void(0);')
+        except:
+            pass
+
+app.on_startup(lambda: asyncio.create_task(keep_alive()))
+
+#inject_layout_tool()
+
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(
+        host="0.0.0.0",
+        port=7860,
+        title='Cosmo-Edu Lab', 
+        storage_secret='CosmoEduSecretKey2024Fixed', 
+        dark=True,
+        reconnect_timeout=30.0,
+        binding_refresh_interval=0.1,
+        reload=False, 
+        show=True    
+    )
 '''
 SPACE_ID = "CosmoEduLab/Cosmo-Edu" 
 TIMEOUT_SECONDS = 15  
@@ -69,7 +103,7 @@ TIMEOUT_SECONDS = 15
 shutdown_timer = None
 
 def pause_space():
-    """Mette in pausa lo Space tramite API di Hugging Face"""
+
     print("⏳ Nessun utente connesso. Metto in pausa lo Space...", flush=True)
     try:
        
@@ -108,36 +142,3 @@ def handle_disconnect():
 app.on_connect(handle_connect)
 app.on_disconnect(handle_disconnect)
 '''
-auth.create_auth_routes()  
-home.create_routes()       
-module1.create_page()    
-module2.create_page()      
-module3.create_page()     
-module4.create_page()     
-
-async def keep_alive():
-    while True:
-        await asyncio.sleep(30)
-        try:
-            ui.run_javascript('void(0);')
-        except:
-            pass
-
-app.on_startup(lambda: asyncio.create_task(keep_alive()))
-
-#inject_layout_tool()
-
-# ----------------------------------------------
-
-if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(
-        host="0.0.0.0",
-        port=7860,
-        title='Cosmo-Edu Lab', 
-        storage_secret='CosmoEduSecretKey2024Fixed', 
-        dark=True,
-        reconnect_timeout=30.0,
-        binding_refresh_interval=0.1,
-        reload=False, 
-        show=True    
-    )

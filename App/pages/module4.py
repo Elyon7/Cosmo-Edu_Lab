@@ -68,6 +68,7 @@ import core
 from core import *
 from huggingface_hub import HfApi
 def create_page():
+    #students uploads
     def handle_student_upload(e):
        
    
@@ -120,7 +121,7 @@ def create_page():
                     break
         return file_map
 
-
+#constants
     rho_crit = 2.775e2
     G_grav = 4.30091e-6   
     c_light = 3e5         
@@ -142,7 +143,7 @@ def create_page():
 
     def get_rhos_rs_from_observed_matching(r, Vobs, Vgas, Vdisk, Vbul, r_match, scale=0.3):
         if r.size == 0 or Vobs.size == 0:
-            raise ValueError("Array r o Vobs vuoti! Controlla il caricamento della galassia.")
+            raise ValueError("Array r o Vobs empty!.")
         
         rho_obs_arr = observed_rho_from_RC(r, Vobs, Vgas, Vdisk, Vbul)
         rho_obs_at_match = np.interp(r_match, r, rho_obs_arr)
@@ -261,11 +262,11 @@ def create_page():
                                     R200_min=100.0, R200_max=5000.0,
                                     verbose=False):
         """
-        Stima M200 e R200 a partire da sigma_los osservata.
+      
         - sigma_obs in km/s
         - rho_crit_local in Msun/kpc^3
-        - G in (kpc * (km/s)^2) / Msun  (come il tuo G_grav)
-        Restituisce (M200 [Msun], R200 [kpc]).
+        - G in (kpc * (km/s)^2) / Msun 
+        Output (M200 [Msun], R200 [kpc]).
     
         """
         import math
@@ -277,7 +278,7 @@ def create_page():
         if sigma_obs <= 0.0:
         
             if verbose:
-                print("estimate_M200_R200_from_sigma: sigma_obs <= 0, uso fallback scaling")
+                print("estimate_M200_R200_from_sigma: sigma_obs <= 0, use fallback scaling")
             M200 = 1e15 * (max(sigma_obs, 1e-6) / 1082.0)**3
             R200 = r200_from_M200(M200, rho_crit_local)
             return M200, R200
@@ -297,7 +298,7 @@ def create_page():
             fmax = func(R200_max)
         except Exception as e:
             if verbose:
-                print("estimate_M200_R200_from_sigma: errore valutando func iniziale:", e)
+                print("estimate_M200_R200_from_sigma: error initial func:", e)
             fmin, fmax = np.nan, np.nan
 
         if verbose:
@@ -443,6 +444,7 @@ def create_page():
 
     @ui.page('/module4')
     def module4():
+        #add custom CSS for the page
         #ui.add_head_html('<script src="https://cdn.tailwindcss.com"></script>')
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
@@ -645,6 +647,8 @@ def create_page():
 
     </style>
     """)
+        
+        #add custom JS for the page
         #<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
         ui.add_head_html("""
     <script src="/static/Tone.min.js"></script>
@@ -777,13 +781,10 @@ def create_page():
         
    
         #<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js"></script>
-
+#functions to load and cache data
         @lru_cache(maxsize=32) 
         def get_galaxy_data_cached(filename):
-            """
-            Carica, pulisce e restituisce il DataFrame della galassia.
-            Il risultato viene salvato in memoria per accessi futuri veloci.
-            """
+           
             if not filename:
                 return None
 
@@ -813,10 +814,7 @@ def create_page():
                 return None
         @lru_cache(maxsize=32)
         def get_cluster_data_cached(filename):
-            """
-            Carica i dati del cluster (Coma o generico), pulisce il DataFrame
-            e lo salva in cache.
-            """
+           
           
             if filename.lower() == "coma_data.csv":
              
@@ -853,9 +851,7 @@ def create_page():
                 return None
         @lru_cache(maxsize=1)
         def get_planets_data_cached():
-            """
-            Carica il dataset dei pianeti, lo pulisce e lo mette in cache.
-            """
+          
             file_path = os.path.join(DATA_DIR, 'Planets.txt')
             
             if not os.path.exists(file_path):
@@ -879,16 +875,16 @@ def create_page():
             plt.style.use('default') 
             plt.rcParams.update({
                 'figure.facecolor': 'white',
-                'axes.facecolor': '#FAFAFA', # Grigio chiarissimo per l'area del grafico
+                'axes.facecolor': '#FAFAFA',
                 'axes.grid': True,
-                'grid.color': '#DDDDDD',     # Griglia leggera
+                'grid.color': '#DDDDDD',     
                 'grid.linestyle': '--',
                 'grid.alpha': 0.7,
                 'axes.edgecolor': '#333333',
                 'axes.linewidth': 1.2,
                 'font.size': 11,
-                'lines.linewidth': 2.5,      # Linee più corpose
-                'figure.autolayout': True    # Gestione automatica spazi
+                'lines.linewidth': 2.5,      
+                'figure.autolayout': True    
             })
 
         set_clean_style()
@@ -906,7 +902,7 @@ def create_page():
 
             with ui.tab_panels(tabs, value='kepler').classes('w-full !bg-transparent'):
                 
-                
+     #panel kepler           
                 with ui.tab_panel('kepler').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg"):
                     description_on_dark("Review the Kepler's Laws and planetary motion to derive the orbital velocity.").classes("title-on-dark")
@@ -975,12 +971,12 @@ def create_page():
 
                     
                 
-                    G = 6.67430e-20            # km^3 / kg / s^2 (unità coerenti con km, kg)
+                    G = 6.67430e-20            # km^3 / kg / s^2 
                     M_sun = 1.98842e30         # kg
                     app.add_static_files('/planet_images', PLANETS_IMG_PATH)
 
                 
-                    file_path = os.path.join(DATA_DIR, 'Planets.txt')   # usa il tuo DATA_DIR
+                    file_path = os.path.join(DATA_DIR, 'Planets.txt')  
                     
 
                 
@@ -1269,7 +1265,7 @@ def create_page():
 
                         
                                 
-
+#panel galaxy rotation curve
                 with ui.tab_panel('gal').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg"):
                     description_on_dark(
@@ -1745,12 +1741,12 @@ def create_page():
                         except Exception as ex:
                            
                             import traceback; traceback.print_exc()
-                            accessible_notify(f"Errore nei plot: {ex}", type_='error')
+                            accessible_notify(f"Error: {ex}", type_='error')
 
                     loaded = load_galaxy_data(default_galaxy)
                     
                     if not loaded:
-                        print(f"Errore: il file {default_galaxy} non è stato caricato correttemente.")
+                        print(f"Error:  file {default_galaxy} not loaded correctly.")
                        
                     else:
                        
@@ -2537,7 +2533,7 @@ def create_page():
                         
 
 
-                    
+#panel galaxy exercise
 
         
                 with ui.tab_panel('galdm').props('role=tabpanel'):
@@ -2990,7 +2986,7 @@ def create_page():
                         aria_button("Open Plots", "Open the two galaxy plots in a popup window",            on_click=lambda: [update_plots_popup(), plots_popup.open()]).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
 
 
-
+#panel cluster
                 with ui.tab_panel('cluster').props('role=tabpanel'):
                  
                     description_on_dark("Analyze the velocity distribution to unveil the reason of larger mass in galaxy clusters.")
@@ -3646,7 +3642,7 @@ def create_page():
                         cluster_state['r_max'] = cluster_state['r_proj_kpc'].max()
                         cluster_state['r_padding'] = 0.1 * (cluster_state['r_max'] - cluster_state['r_min'])
 
-                        # Variabili usate per slider
+                        
                         cluster_state['dm_slider_min'], cluster_state['dm_slider_max'] = 0.0, 50.0
                         f_max = cluster_state['dm_slider_max']
 
@@ -3758,7 +3754,7 @@ def create_page():
                             initialize_cluster_from_df(df)
                         
                         recompute_axis_limits()
-                        # cluster_name = new_value # Non serve se usiamo cluster_state['select']
+                        # cluster_name = new_value
                     
                         dm_slider.value = 0.0
                         refresh_cluster_plots(full_anim=True)
@@ -4139,6 +4135,9 @@ def create_page():
 
                    
                 tabs.on_value_change(handle_tab_change)
+                
+                
+#panel cluster exercise
                 with ui.tab_panel('clusdm').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow-lg"):
                     description_on_dark("Explore how virial theorem reveals dark matter in galaxy clusters. ")

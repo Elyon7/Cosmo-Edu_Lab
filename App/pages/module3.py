@@ -64,6 +64,8 @@ from core import *
 def create_page():
     @ui.page('/module3')
     def module3():
+        
+#load custom CSS 
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
 ''')
@@ -270,7 +272,7 @@ def create_page():
     
        
     #s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js';
-
+#load datasets with caching
         @lru_cache(maxsize=1)
         def get_cobe_data_cached():
           
@@ -301,7 +303,7 @@ def create_page():
                 I_W_m2_Hz_sr = I_MJy_sr * 1e-20           # MJy -> W
                 err_W_m2_Hz_sr = err_kJy_sr * 1e-23       # kJy -> W
 
-                # 3. Conversione da B_nu a B_lambda: B_lambda = B_nu * c / lambda^2
+                # B_lambda = B_nu * c / lambda^2
                 cobeI = I_W_m2_Hz_sr * (c / (cobewl ** 2))
                 cobeErr = err_W_m2_Hz_sr * (c / (cobewl ** 2))
 
@@ -341,6 +343,8 @@ def create_page():
             except Exception as e:
                 print(f"Error loading CMB dataset: {e}")
                 return None
+            
+            
         main_layout("Module 3: Universe History & CMB")
     
         
@@ -353,7 +357,7 @@ def create_page():
             ui.tab('radmat',label='Radiation & Matter').props('aria-label="Activity 3: Radiation & Matter"')
         
 
-        
+#panel planck spectrum
             def add_planck_activity(container):
     
                 h = 6.62607015e-34
@@ -643,7 +647,7 @@ def create_page():
 
                     with ui.dialog() as gen_data_dlg, ui.card().classes('w-full h-full'):
                         with ui.row().classes('w-full items-center justify-between'):
-                            ui.label("Generated spectrum from input peak temperature ").classes('text-lg font-bold')
+                            ui.label("Generated spectrum from input peak temperature ").classes('text-lg font-bold').props('aria-label="Generated spectrum table title"')
     
                         gen_table = ui.table(
                             columns=[
@@ -828,7 +832,7 @@ def create_page():
 
                             refresh_table()
 
-
+#panel cmb adiabatic index
             def add_cmb_activity(container):
 
                 cmb_data = get_cmb_data_cached()
@@ -1054,7 +1058,7 @@ def create_page():
 
                         ui.add_head_html('''
     <style>
-        /* Allineamento alla BASELINE (fondamentale per le formule) */
+      
         .math-text { 
             font-family: 'Times New Roman', serif; 
             font-style: italic; 
@@ -1383,7 +1387,7 @@ def create_page():
                 
                                 aria_button("Check Exercise", "Check all formulas for correctness", on_click=check_and_run_adiabatic).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
                         
-
+#panel radiation-matter
             def add_radiation_matter_activity(container):
             
                 H0 = 2.27e-18  # s^-1
@@ -1495,7 +1499,7 @@ def create_page():
                     
                     ui.add_head_html('''
     <style>
-        /* Allineamento alla BASELINE (fondamentale per le formule) */
+ 
         .math-text { 
             font-family: 'Times New Roman', serif; 
             font-style: italic; 

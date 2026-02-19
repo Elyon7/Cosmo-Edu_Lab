@@ -432,9 +432,9 @@ def load_project_context():
                     full_context += f"\n--- PDF CONTENT: {filename} ---\n{text}\n"
                     #print(f"✅ AI: Letto PDF {filename} (da {found_path})")
                 except Exception as e:
-                    print(f"❌ AI: Errore lettura PDF {filename}: {e}")
+                    print(f"❌ AI: Error reading PDF {filename}: {e}")
             else:
-                print(f"⚠️ AI: File PDF NON TROVATO: {filename} (Controlla che sia nella cartella del progetto)")
+                print(f"⚠️ AI: File PDF Not found: {filename} ")
     
   
     for filename in code_files:
@@ -447,9 +447,9 @@ def load_project_context():
                 full_context += f"\n--- APP SOURCE CODE: {filename} ---\n{code_content}\n"
                 #print(f"✅ AI: Letto Codice {filename}")
             except Exception as e:
-                print(f"❌ AI: Errore lettura codice {filename}: {e}")
+                print(f"❌ AI: Error reading code {filename}: {e}")
         else:
-             print(f"⚠️ AI: File Codice NON TROVATO: {filename}")
+             print(f"⚠️ AI: File Code Not found: {filename}")
 
     return full_context
 
@@ -729,10 +729,10 @@ def submit_reflection(module_name: str, text: str):
 
 
 def set_background():
-    """Imposta l'immagine di sfondo e rende trasparenti i container di Quasar."""
+   
     ui.add_head_html('''
         <style>
-            /* 1. Imposta lo sfondo sul body e html */
+          
             body, html, .q-body--dark {
                 background-image: url('/images/sfondo.jpg') !important;
                 background-size: cover !important;
@@ -742,8 +742,8 @@ def set_background():
                 background-color: #0f172a !important; /* Fallback */
             }
             
-            /* 2. Rendi TRASPARENTI tutti i container strutturali di Quasar 
-               Questo è il punto cruciale: se questi hanno un colore, coprono lo sfondo. */
+          
+              
             #q-app, 
             .q-layout, 
             .q-page-container, 
@@ -756,15 +756,14 @@ def set_background():
                 box-shadow: none !important;
             }
 
-            /* 3. Drawer (Menu Laterale) Semi-trasparente */
-            /* Deve avere un colore per essere leggibile, ma diverso dallo sfondo pagina */
+          
             aside.q-drawer {
                 background-color: rgba(15, 23, 42, 0.85) !important; /* Blu notte scuro semi-trasparente */
                 backdrop-filter: blur(10px) !important;
                 border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
             }
             
-            /* 4. Colore testo nel drawer */
+          
             .q-drawer .q-item, .q-drawer .q-item__label, .q-drawer .q-icon {
                 color: white !important;
             }
@@ -785,7 +784,7 @@ def set_background():
                 background: #00d4ff !important; /* Barra azzurra luminosa sotto */
                 box-shadow: 0 0 10px #00d4ff;
             }
-            /* 5. Stile Bottone 3D (Rilievo) */
+         
             .btn-3d {
                 transition: all 0.1s;
                 border-bottom: 4px solid rgba(0,0,0,0.3) !important;
@@ -1418,15 +1417,15 @@ def main_layout(title: str):
         def toggle_magnifier():
          
             if mag_btn.text == 'Magnifier':
-                mag_btn.text = 'Pointer'           # Cambia testo in Pointer
-                mag_btn.props('icon=mouse')        # Cambia icona in Mouse
+                mag_btn.text = 'Pointer'          
+                mag_btn.props('icon=mouse')       
                 
                 ui.run_javascript("document.body.classList.add('magnifier-active')")
                 accessible_notify("Magnifier Mode ON: Hover over elements to zoom", "info")
             else:
                
-                mag_btn.text = 'Magnifier'         # Torna a Magnifier
-                mag_btn.props('icon=zoom_in')      # Torna icona Lente
+                mag_btn.text = 'Magnifier'     
+                mag_btn.props('icon=zoom_in')    
               
                 ui.run_javascript("document.body.classList.remove('magnifier-active')")
                 accessible_notify("Pointer Mode Active",type_="warning")

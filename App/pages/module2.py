@@ -64,6 +64,8 @@ from core import *
 def create_page():
     @ui.page('/module2')
     def module2():
+        
+#load custom CSS styles
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
 ''')
@@ -266,7 +268,7 @@ def create_page():
     """)
     
     
-        
+        #load datasets in cache
         def wavelength_to_rgb(wl):
     # wl in Angstroms. Convert to nm
             nm = wl / 10.0
@@ -412,7 +414,7 @@ def create_page():
                 candidates = [f for f in os.listdir(base_dir) if f.startswith(prefix) and f.endswith("_lines.csv")]
                 if candidates:
                     chosen = os.path.join(base_dir, candidates[0])
-                    print(f"✅ Trovato file corrispondente in cache: {candidates[0]}")
+                    #print(f"✅ Found file in cache: {candidates[0]}")
                     return pd.read_csv(chosen), chosen
             except OSError:
                 pass
@@ -471,6 +473,8 @@ def create_page():
             df["v_rel_err"] = c_km_s * (4 * (1 + z) * df["zerr"]) / ((term + 1) ** 2)
 
             return df
+        
+    
         main_layout("Module 2: Redshift & Universe Expansion")
      
         tab_key = 'module2_selected'
@@ -480,7 +484,9 @@ def create_page():
             ui.tab('redshift', label='Cosmological Redshift').props('aria-label="Activity 1: Cosmological Redshift"')
             ui.tab('hubble', label='Hubble law').props('aria-label="Activity 2: Hubble law"')
             ui.tab('cmb', label='CMB & Dark Energy ').props('aria-label="Activity 3: Cosmic Microwave Background"')
-            
+    
+    
+   #panel redshift         
         spectra_csv_dir = GALAXY_SPECTRA_PATH
        
     
@@ -709,7 +715,7 @@ def create_page():
                             else:
                                 base_name = "unknown"
                           
-                            raise FileNotFoundError(f"Nessun file *_lines.csv trovato per {base_name}")
+                            raise FileNotFoundError(f"No file *_lines.csv found for {base_name}")
                             
                         return result
                        
@@ -1009,7 +1015,7 @@ def create_page():
 
 
       
-
+#functions for cosmological calculations
         def omega_r_from_Tcmb_h(Tcmb=2.7255, h=0.7, Neff=3.046):
             # Omega_gamma h^2 ≈ 2.472e-5 * (Tcmb/2.7255)^4
             Omega_gamma_h2 = 2.472e-5 * (Tcmb / 2.7255)**4
@@ -1065,6 +1071,8 @@ def create_page():
         #H0_km_s_Mpc = 70.0
         #H0 = H0_km_s_Mpc * 1000.0 / 3.085677581e22  # s^-1
         #rho_crit = 3 * H0**2 / (8 * np.pi * G)
+        
+  #panel for hubble law and cosmological distance measurements      
         def add_hubble_activity(container):
         
 
@@ -1544,7 +1552,7 @@ def create_page():
                 plot_all()
 
 
-        
+   #panel cosmic microwave background     
         def add_cmb_activity(container):
             with container:
                 description_on_dark("Investigate how the Cosmic Microwave Background (CMB) affects the universe composition.")

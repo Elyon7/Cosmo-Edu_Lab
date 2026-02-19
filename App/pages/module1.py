@@ -70,6 +70,7 @@ from core import *
 def create_page():
     @ui.page('/module1')
     def introduction():
+    #add CSS styles
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
 ''')
@@ -320,7 +321,7 @@ def create_page():
             ui.tab('galaxy', label='Galaxy Map').props('aria-label="Galaxy Map"')
             ui.tab('stars', label='Stars Map').props('aria-label="Stars Map"')
             ui.tab('particles', label='Fundamental Particles').props('aria-label="Fundamental Particles"')
-        
+#functions for observational methods and instruments dialog        
         def open_observational_info_dialog():
             with ui.dialog() as dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden'):
      
@@ -503,7 +504,7 @@ def create_page():
             dialog.open()
 
 
-   
+   #panel for observational methods and instruments
         def instrument_page(container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             
@@ -903,7 +904,7 @@ def create_page():
                     cmap_select.on_value_change(update_simulation)
                     
                     update_simulation()
-                    
+#psnel structures of universe                  
         IMAGES_MACRO = [
             {'file': 'images/spiral_galaxy.jpg', 'title': 'Spiral Galaxy',
             'description': 'A spiral galaxy rich in gas, dust, and billions of stars (Messier 77) [NASA](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-77/).', 'size': 9.5e17},
@@ -1282,7 +1283,7 @@ def create_page():
                 
 
         
-            
+    #panel particles        
 
         leptons_nodes = [
     {"id":"leptons_root","label":"LEPTONS","desc":"Fermions (half-integer spin) - Leptons: interact via weak and electromagnetic forces, with integer charges","color":"#7b61ff","shape":"diamond"},
@@ -1980,7 +1981,7 @@ def create_page():
                             x=massive_x,
                             y=[y + np.random.normal(scale=0.06) for _ in massive_x],
                             mode="markers",
-                            # Modifica qui: Bordo bianco spesso e gradiente
+                           
                             marker=dict(
                                 size=14, 
                                 color=root_color, 
@@ -2002,7 +2003,7 @@ def create_page():
                             x=massless_x,
                             y=[y + np.random.normal(scale=0.06) for _ in massless_x],
                             mode="markers",
-                            # Modifica qui: Stesso stile perla
+                      
                             marker=dict(
                                 size=14, 
                                 color=root_color, 
@@ -2025,7 +2026,7 @@ def create_page():
                 x_max_log = max(all_massive_values) * 10.0
 
            
-            log_tickvals = [10**i for i in range(-9, 13)] # Adatta range se serve
+            log_tickvals = [10**i for i in range(-9, 13)] 
             log_ticktext = [_superscript(i) for i in range(-9, 13)]
 
           
@@ -2275,7 +2276,7 @@ def create_page():
 
 
         
-   
+#panel discovery timeline   
                 
         DISCOVERY_EVENTS = {
 
@@ -2565,7 +2566,7 @@ def create_page():
                                     with ui.link(target=target_url, new_tab=True).classes('absolute bottom-2 right-2 z-20 no-underline').on('click.stop', lambda: None):
                             
                                         ui.label(f"Ref: {source_text}").classes('text-[10px] font-mono text-gray-300 bg-black/60 px-2 py-1 rounded border border-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-400 transition-colors')
-
+#panel cosmological timeline
         EPOCHS_EXTENDED = {"Before Big Bang":[
 
         {'name': 'Inflation', 'z_ref': 1e30, 'image': 'inflation.jpg',
@@ -2807,7 +2808,7 @@ def create_page():
             
         
     
-
+#panel stellar evolution
         stellar_nodes = [
             # Root
             {
@@ -3067,12 +3068,10 @@ def create_page():
                 if 'supernova' in pos and 'neutron_star' in pos and 'black_hole' in pos:
                     x_sn, y_sn = pos['supernova']
                     
-                    # Calcola nuova Y (più vicina alla Supernova -> freccia più corta)
-                    # y_level_gap era 0.18, noi usiamo 0.12 per accorciare
+                    
                     new_y = y_sn - 0.12 
                     
-                    # Sposta orizzontalmente rispetto alla Supernova
-                    # Neutron Star a sinistra (-0.12), Black Hole a destra (+0.12)
+                  
                     pos['neutron_star'] = (x_sn - 0.12, new_y)
                     pos['black_hole'] = (x_sn + 0.12, new_y)
             edge_x = []
@@ -3531,7 +3530,7 @@ namelength=-1,
 
 
 
-
+#panel galaxy
 
         def show_galaxy_dialog(df, i):
             with ui.dialog() as dialog, ui.card().classes('w-96'):
@@ -4111,7 +4110,7 @@ namelength=-1,
                     aria_image('/images/mag_gal_z_color.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_button('Close','close button', on_click=lambda: img3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-               
+   #milky way map            
                 IMG_PIXEL_SIZE = 1024  
              
                 REAL_WIDTH_KPC = 40.0 
@@ -4192,17 +4191,17 @@ namelength=-1,
                                 feedback_label = ui.label(' ').classes('absolute top-4 left-4 z-10 bg-black/80 text-white px-4 py-2 rounded font-mono text-lg')
                                 
                                 def on_click(e: MouseEventArguments):
-                                    # 1. Coordinate Click
+                                 
                                     click_x, click_y = e.image_x, e.image_y
                                     
-                                    # 2. Calcolo Distanza (R)
+                               
                                     dx = click_x - CENTER_PX
                                     dy = click_y - CENTER_PX
                                     r_px = math.sqrt(dx**2 + dy**2)
                                     r_kpc = r_px / KPC_TO_PX
                                     dist_error = abs(r_kpc - SUN_DIST_KPC)
                                     
-                                    # 3. Calcolo Angolo (Theta) per verificare il quadrante
+                                 
                                     # Atan2 restituisce radianti tra -pi e pi.
                                     # 0° = Destra, 90° = Giù (Sotto), 180° = Sinistra, -90° = Su
                                     angle_rad = math.atan2(dy, dx)
@@ -4235,7 +4234,7 @@ namelength=-1,
                                     feedback_label.text = status
                                     feedback_label.style(f'color: {color}; border-left: 5px solid {color}')
                                     
-                                    # Disegno SVG
+                                  
                                     svg_content = f'''
                                         <line x1="{click_x-10}" y1="{click_y-10}" x2="{click_x+10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
                                         <line x1="{click_x+10}" y1="{click_y-10}" x2="{click_x-10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
@@ -4279,8 +4278,8 @@ namelength=-1,
                     if gif_marker is None: return
 
                
-                    margin_left_pct = 12.5   # Margine sinistro (asse Y)
-                    margin_bottom_pct = 11.0 # Margine inferiore (asse X)
+                    margin_left_pct = 12.5   
+                    margin_bottom_pct = 11.0 
                     
                   
                     plot_width_pct = 77.5    
@@ -4293,8 +4292,8 @@ namelength=-1,
                 
                     left_pos = margin_left_pct + (norm_ra * plot_width_pct)
                     
-                    # Top: Matplotlib ha 0 in basso, CSS ha 0 in alto. 
-                    # Quindi (1 - norm_dec) inverte l'asse, poi aggiungiamo il margine superiore stmitao
+                    # Matplotlib ha 0 in basso, CSS ha 0 in alto. 
+                    # Quindi (1 - norm_dec) inverte l'asse, poi aggiungiamo il margine superiore 
                     # Margine superiore approx = 100 - margin_bottom - plot_height = 100 - 11 - 77 = 12%
                     margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
                     top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)

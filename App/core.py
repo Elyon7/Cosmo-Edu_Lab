@@ -161,7 +161,7 @@ def save_data():
                 print(f"⚠️ Cloud sync error: {e}")
         
         threading.Thread(target=_upload_task).start()
-        
+
 def download_submissions_from_cloud():
     
     if HF_API_TOKEN:
