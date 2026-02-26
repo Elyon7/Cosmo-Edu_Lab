@@ -904,7 +904,7 @@ def create_page():
                     cmap_select.on_value_change(update_simulation)
                     
                     update_simulation()
-#psnel structures of universe                  
+#panel structures of universe                  
         IMAGES_MACRO = [
             {'file': 'images/spiral_galaxy.jpg', 'title': 'Spiral Galaxy',
             'description': 'A spiral galaxy rich in gas, dust, and billions of stars (Messier 77) [NASA](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-77/).', 'size': 9.5e17},
@@ -1000,6 +1000,8 @@ def create_page():
 
 
         def introduction_page(container):
+            ui.run_javascript('window.gameRunning = false; window.gameScore = 0;')
+            timer_state = {'time': 0, 'running': False}
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
 
@@ -1079,26 +1081,26 @@ def create_page():
         }
     ''')
                 ranges_data = [
-    (r'$ 0 \text{ - } 10^3 \, \mathrm{km} $', 
-     r'$ \approx 0 \, \mathrm{AU} \mid \approx 0 \, \mathrm{pc} $', 
-     0, 1e3, "0 - 1000 km"),
+            (r'$\mathbf{0 \;\text{--}\; 10^3 \, km}$', 
+             r'$\mathit{\approx 0 \, AU \;\mid\; \approx 0 \, pc}$', 
+             0, 1e3, "0 - 1000 km"),
 
-    (r'$ 10^3 \text{ - } 10^6 \, \mathrm{km} $', 
-     r'$ 10^{-6} \text{ - } 10^{-3} \, \mathrm{AU} \mid 10^{-11} \text{ - } 10^{-8} \, \mathrm{pc} $', 
-     1e3, 1e6, "10^3 - 10^6 km"),
+            (r'$\mathbf{10^3 \;\text{--}\; 10^6 \, km}$', 
+             r'$\mathit{10^{-6} \;\text{--}\; 10^{-3} \, AU \;\mid\; 10^{-11} \;\text{--}\; 10^{-8} \, pc}$', 
+             1e3, 1e6, "10^3 - 10^6 km"),
 
-    (r'$ 10^6 \text{ - } 10^9 \, \mathrm{km} $', 
-     r'$ 10^{-3} \text{ - } 1 \, \mathrm{AU} \mid 10^{-8} \text{ - } 10^{-5} \, \mathrm{pc} $', 
-     1e6, 1e9, "10^6 - 10^9 km"),
+            (r'$\mathbf{10^6 \;\text{--}\; 10^9 \, km}$', 
+             r'$\mathit{10^{-3} \;\text{--}\; 1 \, AU \;\mid\; 10^{-8} \;\text{--}\; 10^{-5} \, pc}$', 
+             1e6, 1e9, "10^6 - 10^9 km"),
 
-    (r'$ 10^9 \text{ - } 10^{18} \, \mathrm{km} $', 
-     r'$ 1 \text{ - } 10^9 \, \mathrm{AU} \mid 10^{-5} \text{ - } 10^4 \, \mathrm{pc} $', 
-     1e9, 1e18, "10^9 - 10^18 km"),
+            (r'$\mathbf{10^9 \;\text{--}\; 10^{18} \, km}$', 
+             r'$\mathit{1 \;\text{--}\; 10^9 \, AU \;\mid\; 10^{-5} \;\text{--}\; 10^4 \, pc}$', 
+             1e9, 1e18, "10^9 - 10^18 km"),
 
-    (r'$ > 10^{18} \, \mathrm{km} $', 
-     r'$ > 10^9 \, \mathrm{AU} \mid > 10^4 \, \mathrm{pc} $', 
-     1e18, 1e26, "> 10^18 km"),
-]
+            (r'$\mathbf{> 10^{18} \, km}$', 
+             r'$\mathit{> 10^9 \, AU \;\mid\; > 10^4 \, pc}$', 
+             1e18, 1e26, "> 10^18 km"),
+        ]
 
                
                 @ui.refreshable
@@ -1114,28 +1116,35 @@ def create_page():
                                 drop_zone = ui.column().classes(
                     "gap-1 mt-1 flex-wrap items-center justify-center w-full flex-grow h-full min-h-[60px] rounded bg-gray-50/50 border-2 border-dashed border-gray-300"
                 )
+                                
                                 js_logic = (
-    f'ondragover="event.preventDefault();" '
-    f'ondrop="event.preventDefault(); '
-    f'const data=JSON.parse(event.dataTransfer.getData(\'application/json\')); '
-    f'const size=parseFloat(data.size); '
-    f'if(size < {min_s} || size > {max_s}) {{ '
-    f'  if(window.Quasar && window.Quasar.Notify) {{ '
-    f'    window.Quasar.Notify.create({{ message: data.title + \' does not belong here!\', color: \'negative\', position: \'top\', icon: \'warning\' }}); '
-    f'  }} return; '
-    f'}} '
-    f'const scale=Math.max(55, Math.min(110, size/{max_s}*100)); ' 
-    f'const col=document.createElement(\'div\'); '
-    f'col.style.display=\'flex\'; col.style.flexDirection=\'column\'; col.style.alignItems=\'center\'; col.style.margin=\'3px\'; '
-    f'const img=document.createElement(\'img\'); '
-    f'img.src=data.file; img.width=scale; img.height=scale; img.style.objectFit=\'cover\'; img.className=\'rounded shadow-md\'; '
-    f'const lbl=document.createElement(\'div\'); lbl.innerText=data.title; lbl.style.fontSize=\'10px\'; lbl.style.fontWeight=\'bold\'; lbl.style.textAlign=\'center\'; '
-    f'col.appendChild(img); col.appendChild(lbl); '
-    f'this.appendChild(col); '
-  
-    f'const sourceImg = document.getElementById(\'img-\' + data.safe_id); '
-    f'if(sourceImg) {{ sourceImg.style.opacity = \'0.3\'; sourceImg.style.filter = \'grayscale(1) blur(1px)\'; sourceImg.style.pointerEvents = \'none\'; }}"'
-)
+                                    f'ondragover="event.preventDefault();" '
+                                    f'ondrop="event.preventDefault(); '
+                                    f'if(!window.gameRunning) {{ '
+                                    f'  if(window.Quasar && window.Quasar.Notify) {{ window.Quasar.Notify.create({{ message: \'Premi START prima di giocare!\', color: \'warning\', position: \'top\' }}); }} '
+                                    f'  return; '
+                                    f'}} '
+                                    f'const data=JSON.parse(event.dataTransfer.getData(\'application/json\')); '
+                                    f'const size=parseFloat(data.size); '
+                                    f'if(size < {min_s} || size > {max_s}) {{ '
+                                    f'  window.gameScore -= 0.25; document.getElementById(\'score_display\').innerText = \'Score: \' + window.gameScore; '
+                                    f'  if(window.Quasar && window.Quasar.Notify) {{ '
+                                    f'    window.Quasar.Notify.create({{ message: data.title + \' does not belong here!\', color: \'negative\', position: \'top\', icon: \'warning\' }}); '
+                                    f'  }} return; '
+                                    f'}} '
+                                    f'window.gameScore += 1; document.getElementById(\'score_display\').innerText = \'Score: \' + window.gameScore; '
+                                    f'const scale=Math.max(55, Math.min(110, size/{max_s}*100)); ' 
+                                    f'const col=document.createElement(\'div\'); '
+                                    f'col.style.display=\'flex\'; col.style.flexDirection=\'column\'; col.style.alignItems=\'center\'; col.style.margin=\'3px\'; '
+                                    f'const img=document.createElement(\'img\'); '
+                                    f'img.src=data.file; img.width=scale; img.height=scale; img.style.objectFit=\'cover\'; img.className=\'rounded shadow-md\'; '
+                                    f'const lbl=document.createElement(\'div\'); lbl.innerText=data.title; lbl.style.fontSize=\'10px\'; lbl.style.fontWeight=\'bold\'; lbl.style.textAlign=\'center\'; '
+                                    f'col.appendChild(img); col.appendChild(lbl); '
+                                    f'this.appendChild(col); '
+                                    f'const sourceImg = document.getElementById(\'img-\' + data.safe_id); '
+                                    f'if(sourceImg) {{ sourceImg.style.opacity = \'0.3\'; sourceImg.style.filter = \'grayscale(1) blur(1px)\'; sourceImg.style.pointerEvents = \'none\'; }}"'
+                                )
+                                # ----------------------------------------------------
                                 drop_zone.props(js_logic)
                     
                     ui.timer(0.1, update_math, once=True)
@@ -1218,14 +1227,33 @@ def create_page():
             
                 with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
                     html_info_box(r"""
-        <h3>Distance scales and universe elements</h3>
-        <p> Explore the vast scales of the universe and its fundamental components.</p>
-        <p> Learn about cosmic distance scales and universe elements through interactive simulators and drag-and-drop activities.</p>
-        <p> Move the images of various cosmic structures into their corresponding distance scale categories by dragging and dropping them into the boxes below.</p>
-        <p> Use the "Units" button to review cosmic distance units like kilometers (km), astronomical units (AU), and parsecs (pc).</p>
-        
-     
-    """)
+<div style="font-family: sans-serif; line-height: 1.6;">
+    
+    <h3 style="margin-top: 0; color: #059669; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">1. Universe Structure Challenge</h3>
+    <p>Put your cosmic perspective to the test by organizing structures from the smallest to the largest scales!</p>
+    <ul style="margin-bottom: 25px;">
+        <li>Press <b>Start Mission</b> to activate the timer and start the timer.</li>
+        <li><b>How to Play:</b> Drag the images of various cosmic objects (planets, stars, galaxies, etc.) and drop them into the correct <b>Distance Scale</b> category.</li>
+        <li><b>Scoring:</b> You earn <b>1 point</b> for every correctly categorized structure. An incorrect placement results in a <b>-0.25 point</b> penalty.</li>
+        <li><b>Reset:</b> Use the <b>Reset</b> button if you want to clear the boxes and shuffle the structures to try again.</li>
+        <li>Organize all elements correctly to complete the mission and stop the clock!</li>
+    </ul>
+
+    <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Distance Scales and Universe Elements</h3>
+    <p>Explore the vast scales of the universe and its fundamental components through interactive tools:</p>
+    <ul>
+        <li><strong>Interactive Simulators:</strong> Use the provided simulations to visualize the massive differences in size between atoms, planets, and galaxies.</li>
+        <li><strong>Distance Units:</strong> Use the <b>Units</b> button to review cosmic distance measurements like kilometers (km), astronomical units (AU), parsecs (pc), and light-years (ly).</li>
+    </ul>
+    <p>Move the images of various cosmic structures into their corresponding distance scale categories by dragging and dropping them into the boxes on the main panel.</p>
+    
+    <div style="border-left: 4px solid #3b82f6; padding-left: 15px; margin-top: 20px; background-color: #f0f9ff; padding-top: 10px; padding-bottom: 10px; border-radius: 4px;">
+        <p style="margin: 0; color: #1e40af; font-size: 0.95em;">
+            <strong>Pro Tip:</strong> If you are unsure about an object's scale, check the <b>Distance Simulator</b> first to see where it fits in the scheme of the cosmos!
+        </p>
+    </div>
+</div>
+""").props('tabindex=0 role=document aria-label="Distance scales and game instructions"')
                     aria_button("Close", "close the box",on_click=lambda:intro.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 with ui.row().classes('w-full justify-center gap-6 items-center'):
                 
@@ -1243,13 +1271,40 @@ def create_page():
                    
 
                    
+                    time_label = ui.label('Time: 0s').classes('text-xl font-bold w-28 text-center text-blue-700 bg-white rounded p-1 border border-blue-200')
+                    ui.html('<div id="score_display" class="text-xl font-bold w-32 text-center text-blue-700 bg-white rounded p-1 border border-blue-200">Score: 0</div>')
+
+                   
+                    def update_timer():
+                        if timer_state['running']:
+                            timer_state['time'] += 1
+                            time_label.set_text(f"Time: {timer_state['time']}s")
+                            
+                    ui.timer(1.0, update_timer)
+
+                    def start_game():
+                        timer_state['time'] = 0
+                        timer_state['running'] = True
+                        time_label.set_text("Time: 0s")
+                        ui.run_javascript("window.gameRunning = true; window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
+
+                    def stop_game():
+                        timer_state['running'] = False
+                        ui.run_javascript("window.gameRunning = false;")
+
+                    
+                    aria_button("Start", "start game", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Stop", "stop game", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded")
+
+                    
                     aria_button("Reset", "reset", on_click=lambda: (
-    render_drop_column.refresh(), 
-    # Logica JS per ripristinare le immagini...
-    ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
-    # TIMER FONDAMENTALE
-    ui.timer(0.2, update_math, once=True) 
-)).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
+                        render_drop_column.refresh(),
+                        ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
+                        ui.timer(0.2, update_math, once=True),
+                        stop_game(),
+                        (timer_state.update({'time': 0}) or time_label.set_text('Time: 0s')),
+                        ui.run_javascript("window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
+                    )).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                 ' Simulators ', 
                 "Open external resources list",
@@ -2122,14 +2177,33 @@ def create_page():
     "Dive into the subatomic world to identify the fundamental particles and physical forces that weave the composition of the universe ."
 )
                 with ui.dialog() as instru , ui.card().classes("p-4 w-full max-w-[800px]").props('role=dialog aria-label=Instructions'):
-                    html_info_box("""
-    <h2 class="text-2xl font-bold mb-4">Particle Activity Instructions</h2>
-    <ol class="list-decimal list-inside space-y-2"> 
-       <li> <strong>Explore the Particle Zoo:</strong> Familiarize yourself with the various fundamental particles such as leptons, quarks, bosons, and hadrons. Use the interactive graphs to visualize their properties and relationships.</li>
-       <li> <strong>Understand Mass-Energy Conversion:</strong> Learn how to convert mass in kilograms to energy in electronvolts (eV) using Einstein's mass-energy equivalence principle. Refer to the information boxes for detailed steps and key conversion factors.</li>
-       <li> <strong>Analyze Particle Interactions:</strong> Study the interaction graphs to see how particles interact through fundamental forces. Pay attention to the processes and outcomes of these interactions.</li>
+                    html_info_box(r"""
+<div style="font-family: sans-serif; line-height: 1.6;">
+    
+    <h3 style="margin-top: 0; color: #059669; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">1. Particle Physics Challenge</h3>
+    <p>Put your knowledge of the subatomic world to the test!</p>
+    <ul style="margin-bottom: 25px;">
+        <li>Press <b>Start Game</b> to begin the identification sequence. A timer will track your speed in analyzing the quantum world.</li>
+        <li>For each round, you will be presented with specific properties (like Mass, Charge, or Spin) or a conversion task. Identify the <b>correct particle name</b> or <b>energy value</b>.</li>
+        <li><b>Scoring:</b> You earn <b>1 point</b> for every correct identification. A wrong choice results in a <b>-0.25 point</b> penalty.</li>
+        <li><b>Interactive Tools:</b> Use the information you've gathered from the interactive graphs to solve the most difficult questions.</li>
+        <li>Complete the full sequence of particles to stop the clock and achieve "Quantum Mastery".</li>
+    </ul>
+
+    <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Particle Activity Instructions</h3>
+    <ol style="padding-left: 20px;">
+        <li style="margin-bottom: 10px;"><strong>Explore the Particle Zoo:</strong> Familiarize yourself with the various fundamental particles such as leptons, quarks, bosons, and hadrons. Use the interactive graphs to visualize their properties and relationships.</li>
+        <li style="margin-bottom: 10px;"><strong>Understand Mass-Energy Conversion:</strong> Learn how to convert mass in kilograms to energy in electronvolts (eV) using Einstein's mass-energy equivalence principle ($E=mc^2$). Refer to the information boxes for detailed steps and key conversion factors.</li>
+        <li style="margin-bottom: 10px;"><strong>Analyze Particle Interactions:</strong> Study the interaction graphs to see how particles interact through fundamental forces. Pay attention to the processes and outcomes of these interactions.</li>
     </ol>
-                        """)
+    
+    <div style="border-left: 4px solid #10b981; padding-left: 15px; margin-top: 20px; background-color: #ecfdf5; padding-top: 10px; padding-bottom: 10px; border-radius: 4px;">
+        <p style="margin: 0; color: #064e3b; font-size: 0.95em;">
+            <strong>Tip:</strong> Keep the <b>Mass-Energy Calculator</b> ready! Some game questions will ask you to calculate the energy equivalent of a particle's rest mass.
+        </p>
+    </div>
+</div>
+""")
                     aria_button("Close", "close popup", on_click=lambda:instru.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                 with ui.dialog() as info_dialog, ui.card().classes('w-[800px] h-[80vh] overflow-y-auto'):
@@ -2229,7 +2303,8 @@ def create_page():
                     aria_button("Close", "close", on_click=lambda:cur_part.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
               
-                
+                def open_particles():
+                        ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
                 with ui.dialog() as mass, ui.card().classes('p-4 w-full h-auto min-w-[1200px] overflow-x-auto'):
                     plot_mass_strip(container, height=400, width=1000)
                     aria_button("Close", 'close',on_click=lambda: mass.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -2237,29 +2312,176 @@ def create_page():
                     plot_particle_graph(
                             "Cosmological Processes ",    processes_nodes,  processes_edges,is_process_graph=True,            height=700 , width=500                     )
                     aria_button("Close", 'close',on_click=lambda: relation.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                
+             
+                with ui.dialog() as diag_leptons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                    aria_button("X", "close", on_click=diag_leptons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=600, width=800)
+
+                with ui.dialog() as diag_quarks, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                    aria_button("X", "close", on_click=diag_quarks.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=600, width=800)
+
+                with ui.dialog() as diag_bosons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                    aria_button("X", "close", on_click=diag_bosons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=600, width=800)
+
+                with ui.dialog() as diag_hadrons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                    aria_button("X", "close", on_click=diag_hadrons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=600, width=800)
+
                 with ui.row().classes('w-full justify-center gap-2'):
                     aria_button("Instructions", "Open instructions", on_click=lambda:instru.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button("Particles Info ", "Open particle guide", on_click=lambda:[ info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     create_mass_conversion_dialog()
+                    aria_button(" Leptons", "Open Leptons", on_click=diag_leptons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Quarks", "Open Quarks", on_click=diag_quarks.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Bosons", "Open Bosons", on_click=diag_bosons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Hadrons", "Open Hadrons", on_click=diag_hadrons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+
                     aria_button("Cosmological Processes","Cosmological Processes",on_click=lambda: relation.open(),).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     
                     aria_button("Mass Particle plot","Mass Particle plot",on_click=lambda: mass.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_part.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                   
                     
+                    aria_button(
+                        'Particles Intro', 
+                        'Open Introductory Slides: Particles',
+                        on_click=open_particles
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    
+                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_part.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
 
-                with ui.row().classes("w-full flex-nowrap items-stretch justify-center gap-0 "):
-                    with ui.column().classes("w-1/4 min-w-0 p-0 border border-gray-300 overflow-hidden"):
-                        plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=520,width=450)
-                    with ui.column().classes("w-1/4 min-w-0 p-0 border border-gray-300 overflow-hidden"):
-                        plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=520,width=450)
+                ui.run_javascript('window.particleGameRunning = false; window.particleScore = 0;')
+                timer_state = {'time': 0, 'running': False}
 
-        
-                    with ui.column().classes("w-1/4 min-w-0 p-0 border border-gray-300 overflow-hidden"):
-                        plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=520,width=450)
-                    with ui.column().classes("w-1/4 min-w-0 p-0 border border-gray-300 overflow-hidden"):
-                        plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=520,width=450)
+                
+                GAME_PARTICLES = [
+                    {"symbol": "e⁻", "color": "#c8b8ff", "targets": ["Fermions", "Leptons"]},
+                    {"symbol": "μ⁻", "color": "#bda0ff", "targets": ["Fermions", "Leptons"]},
+                    {"symbol": "νₑ", "color": "#e6e0ff", "targets": ["Fermions", "Leptons"]},
+                    {"symbol": "u", "color": "#ffb4b4", "targets": ["Fermions", "Quarks"]},
+                    {"symbol": "d", "color": "#ffbcbc", "targets": ["Fermions", "Quarks"]},
+                    {"symbol": "s", "color": "#ff9a9a", "targets": ["Fermions", "Quarks"]},
+                    {"symbol": "γ", "color": "#fff1c2", "targets": ["Bosons"]},
+                    {"symbol": "g", "color": "#ffe59a", "targets": ["Bosons"]},
+                    {"symbol": "W±", "color": "#ffd27a", "targets": ["Bosons"]},
+                    {"symbol": "H", "color": "#ffe082", "targets": ["Bosons"]},
+                    {"symbol": "p", "color": "#cfe9ff", "targets": ["Fermions", "Hadrons", "Baryons"]},
+                    {"symbol": "n", "color": "#dff2ff", "targets": ["Fermions", "Hadrons", "Baryons"]},
+                    {"symbol": "π", "color": "#bfe0ff", "targets": ["Bosons", "Hadrons", "Mesons"]}
+                ]
+                CATEGORIES = ["Fermions", "Leptons", "Quarks", "Bosons", "Hadrons", "Mesons", "Baryons"]
 
+            
+                pool_items = []
+                for p in GAME_PARTICLES:
+                    for i in range(len(p['targets'])):
+                        pool_items.append({
+                            "uid": f"ball_{p['symbol'].replace('⁻', '_').replace('±', '_')}_{i}",
+                            "symbol": p["symbol"],
+                            "color": p["color"],
+                            "targets": p["targets"]
+                        })
+                
+               
+                random.shuffle(pool_items)
+
+                with ui.card().classes('w-full max-w-[1200px] p-6 bg-slate-800 rounded-xl shadow-2xl border border-slate-600 mx-auto'):
+                    ui.label('Particle Classification Challenge').classes('text-2xl font-bold text-center text-white w-full mb-4 uppercase tracking-widest drop-shadow-md')
+
+             
+                    with ui.row().classes('w-full justify-center gap-6 items-center mb-6 bg-slate-700 p-3 rounded-lg border border-slate-500'):
+                        time_label = ui.label('Time: 0s').classes('text-xl font-bold w-28 text-center text-blue-300')
+                        ui.html('<div id="particle_score" class="text-xl font-bold w-32 text-center text-green-400">Score: 0</div>')
+
+                        def update_timer():
+                            if timer_state['running']:
+                                timer_state['time'] += 1
+                                time_label.set_text(f"Time: {timer_state['time']}s")
+                        ui.timer(1.0, update_timer)
+
+                        def start_game():
+                            timer_state['time'] = 0
+                            timer_state['running'] = True
+                            time_label.set_text("Time: 0s")
+                            ui.run_javascript("window.particleGameRunning = true; window.particleScore = 0; document.getElementById('particle_score').innerText = 'Score: 0';")
+
+                        def stop_game():
+                            timer_state['running'] = False
+                            ui.run_javascript("window.particleGameRunning = false;")
+
+                        aria_button("Start", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                        aria_button("Stop", "stop", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded")
+                        aria_button("Reset", "reset", on_click=lambda: (
+                            stop_game(),
+                            timer_state.update({'time': 0}),
+                            time_label.set_text("Time: 0s"),
+                            ui.run_javascript("window.particleScore = 0; document.getElementById('particle_score').innerText = 'Score: 0';"),
+                            render_game.refresh()
+                        )).classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+
+                
+                    @ui.refreshable
+                    def render_game():
+                        with ui.row().classes('w-full items-start justify-between gap-6 flex-wrap md:flex-nowrap'):
+                            
+                        
+                            with ui.column().classes('w-full md:w-1/3 min-h-[500px] bg-slate-900 rounded-lg p-4 border border-slate-600 shadow-inner'):
+                                ui.label('Particle Pool').classes('text-lg font-bold text-gray-300 mb-2 text-center w-full border-b border-slate-600 pb-2')
+                                with ui.row().classes('w-full flex-wrap gap-3 justify-center mt-2'):
+                                    for item in pool_items:
+                                        ball = ui.label(item['symbol']).classes(
+                                            'w-10 h-10 rounded-full flex items-center justify-center font-bold text-black shadow-md cursor-grab active:cursor-grabbing hover:scale-110 transition-transform'
+                                        ).style(f"background-color: {item['color']};")
+                                        
+                                        ball.props('draggable="true"')
+                                        ball.props(f'id="{item["uid"]}"')
+                                        
+                                        
+                                        target_str = ",".join(item['targets']) 
+                                        
+                                        ball.props(f'ondragstart="event.dataTransfer.setData(\'application/json\', JSON.stringify({{uid:\'{item["uid"]}\', symbol:\'{item["symbol"]}\', color:\'{item["color"]}\', targets:\'{target_str}\'}}))"')
+
+                            
+                            with ui.column().classes('w-full md:w-2/3 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4'):
+                                for box_name in CATEGORIES:
+                                    with ui.card().classes('bg-slate-700 border-2 border-dashed border-slate-400 rounded-lg p-2 min-h-[140px] flex flex-col items-center shadow-lg'):
+                                        ui.label(box_name).classes('text-sm font-bold text-white mb-2 uppercase tracking-wide border-b border-slate-500 w-full text-center pb-1')
+                                        
+                                        drop_zone = ui.row().classes('w-full h-full flex-wrap gap-1 justify-center items-start content-start min-h-[100px]')
+
+                                        
+                                        js_logic = (
+                                            f'ondragover="event.preventDefault();" '
+                                            f'ondrop="event.preventDefault(); '
+                                            f'if(!window.particleGameRunning) {{ '
+                                            f'  if(window.Quasar && window.Quasar.Notify) {{ window.Quasar.Notify.create({{ message: \'Press START to play!\', color: \'warning\', position: \'top\' }}); }} '
+                                            f'  return; '
+                                            f'}} '
+                                            f'const rawData = event.dataTransfer.getData(\'application/json\'); '
+                                            f'if(!rawData) return; ' 
+                                            f'const data = JSON.parse(rawData); '
+                                            f'const targetCat = \'{box_name}\'; '
+                                            f'const targetArray = data.targets.split(\',\'); ' 
+                                            f'if(!targetArray.includes(targetCat)) {{ '
+                                            f'  window.particleScore -= 0.25; document.getElementById(\'particle_score\').innerText = \'Score: \' + window.particleScore; '
+                                            f'  if(window.Quasar && window.Quasar.Notify) {{ window.Quasar.Notify.create({{ message: data.symbol + \' is not a \' + targetCat + \'!\', color: \'negative\', position: \'top\', icon: \'cancel\' }}); }} '
+                                            f'  return; '
+                                            f'}} '
+                                            f'window.particleScore += 1; document.getElementById(\'particle_score\').innerText = \'Score: \' + window.particleScore; '
+                                            f'const ball = document.createElement(\'div\'); '
+                                            f'ball.className = \'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-md m-0.5 text-black\'; '
+                                            f'ball.style.backgroundColor = data.color; '
+                                            f'ball.innerText = data.symbol; '
+                                            f'this.appendChild(ball); '
+                                            f'const sourceBall = document.getElementById(data.uid); '
+                                            f'if(sourceBall) {{ sourceBall.style.visibility = \'hidden\'; sourceBall.style.pointerEvents = \'none\'; }}"'
+                                        )
+                                        drop_zone.props(js_logic)
+
+                   
+                    render_game()
+                
         
                     
                     
@@ -2494,44 +2716,146 @@ def create_page():
                 info_box(formatted_desc).props('tabindex=0 role=document aria-label=Event description')
                 aria_button('Close','close button', on_click=dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
             dialog.open()
-     
+        def start_history_quiz():
+            
+            questions = [{'era': k, 'data': v} for k, items in DISCOVERY_EVENTS.items() for v in items]
+            random.shuffle(questions)
+            
+           
+            q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
+            
+            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-slate-50'):
+                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
+                
+                ui.label('History of Astronomy Quiz').classes('text-2xl font-bold text-blue-600 mb-4 text-center')
+                
+                with ui.row().classes('w-full justify-between mb-4 bg-gray-200 p-3 rounded-lg border border-gray-300 shadow-inner'):
+                    time_lbl = ui.label('Time: 0s').classes('text-lg text-black font-bold')
+                    score_lbl = ui.label('Score: 0').classes('text-lg text-blue-700 font-bold')
+                
+                q_text = ui.label('').classes('text-xl font-semibold text-black text-center mb-6 h-16 flex items-center justify-center')
+                
+               
+                with ui.grid(columns=2).classes('w-full gap-4') as btn_container:
+                    for era in DISCOVERY_EVENTS.keys():
+                        aria_button(era, f"Select {era}", on_click=lambda e=era: check_ans(e)).classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 rounded shadow-md')
+                
+               
+                with ui.row().classes('w-full justify-center gap-4 mt-6') as action_row:
+                    explore_btn = aria_button("Explore Topic", "Read more", on_click=lambda: show_event_dialog(questions[q_state['idx']]['data'])).classes('!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded shadow-md')
+                    next_btn = aria_button("Next Question ➔", "Next", on_click=lambda: next_question()).classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-md')
+                
+                def update_ui():
+                    if q_state['idx'] < len(questions):
+                        q_state['correct'] = False
+                        evt_title = questions[q_state['idx']]['data']['title']
+                        q_text.set_text(f"In which era did this occur: {evt_title}?")
+                        explore_btn.set_visibility(False)
+                        next_btn.set_visibility(False)
+                    else:
+                        q_text.set_text("Quiz Completed! Awesome job. 🎉")
+                        btn_container.set_visibility(False)
+                        explore_btn.set_visibility(False)
+                        next_btn.set_visibility(False)
+                        q_timer.deactivate()
+                        ui.notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
+                
+                def next_question():
+                    q_state['idx'] += 1
+                    update_ui()
+
+                def check_ans(selected_era):
+                    if q_state['correct']: return 
+                    correct_era = questions[q_state['idx']]['era']
+                    
+                    if selected_era == correct_era:
+                        q_state['score'] += 1
+                        q_state['correct'] = True
+                        score_lbl.set_text(f"Score: {q_state['score']}")
+                        ui.notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
+                        explore_btn.set_visibility(True)
+                        next_btn.set_visibility(True)
+                    else:
+                        q_state['score'] -= 0.25
+                        score_lbl.set_text(f"Score: {q_state['score']}")
+                        ui.notify('Wrong era! Try again.', color='negative', position='top', icon='cancel')
+                
+                def tick():
+                    q_state['time'] += 1
+                    time_lbl.set_text(f"Time: {q_state['time']}s")
+                
+                q_timer = ui.timer(1.0, tick)
+                q_dialog.on('hide', q_timer.deactivate) 
+                
+                update_ui()
+                q_dialog.open()
         def astronomy_timeline(container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
                 with ui.dialog() as introd, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
                     html_info_box(r"""
-        <h3>Timeline of Astronomical Discoveries</h3>
-        <p>The history of astronomy can be divided into different eras: Prehistory and Ancient, Classical and Renaissance, Eighteenth and Early Twentieth Century, Space Age, Modern Epoch, and Present Time. </p>
-        <p>Select an Era to explore Astronomy events and discoveries in the history.</p>
-    """)
+<div style="font-family: sans-serif; line-height: 1.6;">
+    
+    <h3 style="margin-top: 0; color: #16a34a; border-bottom: 2px solid #22c55e; padding-bottom: 10px; margin-bottom: 15px;">1. Astronomical Milestones Quiz</h3>
+    <p>Test your knowledge of the greatest discoveries in human history!</p>
+    <ul style="margin-bottom: 25px;">
+        <li>Press <b>Start Quiz</b> to begin the challenge. A timer will track how fast you can navigate through history.</li>
+        <li>For each question, identify which <b>historical event or milestone</b> corresponds to the description provided.</li>
+        <li><b>Scoring:</b> You earn <b>1 point</b> for every correct answer. A wrong choice costs a <b>-0.25 point</b> penalty.</li>
+        <li><b>Interactive Learning:</b> When you answer correctly, you can use the <b>Explore Topic</b> button to see images and detailed scientific references about that discovery, then press <b>Next Question ➔</b> to continue.</li>
+        <li>Complete all milestones to reach the "End Game" and stop the clock.</li>
+    </ul>
+
+    <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Timeline of Astronomical Discoveries</h3>
+    <p>The history of astronomy is a journey through time, divided into different key eras:</p>
+    <ul>
+        <li><b>Prehistory and Ancient:</b> The earliest observations of the stars and planets.</li>
+        <li><b>Classical and Renaissance:</b> The birth of modern physics and the heliocentric model.</li>
+        <li><b>Eighteenth and Early Twentieth Century:</b> The discovery of new planets and the scale of the Milky Way.</li>
+        <li><b>Space Age:</b> The era of satellites and the first steps beyond Earth.</li>
+        <li><b>Modern Epoch and Present Time:</b> From the discovery of exoplanets to the latest deep-space missions.</li>
+    </ul>
+    <p>Select an <b>Era</b> on the main panel to explore specific events, analyze discoveries, and understand how our view of the cosmos has evolved.</p>
+    
+    <div style="border-left: 4px solid #1d4ed8; padding-left: 15px; margin-top: 20px; background-color: #f0f9ff; padding-top: 10px; padding-bottom: 10px; border-radius: 4px;">
+        <p style="margin: 0; color: #1e40af; font-size: 0.95em;">
+            <strong>Tip:</strong> If you find a question difficult, try exploring the eras in the timeline first to find the answer!
+        </p>
+    </div>
+</div>
+""")
                     aria_button("Close", "close the box",on_click=lambda:introd.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 with ui.row().classes('w-full gap-1 mb-4 items-center justify-center'):
+                    
+                  
+                    aria_button("Instructions", "Open introduction", on_click=lambda:introd.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Start Quiz", "Start interactive quiz", on_click=start_history_quiz).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-lg animate-pulse")
                     description_on_dark(
     "Trace the evolution of human discoveries of the cosmos, from ancient observations to the breakthroughs of modern astrophysics."
 )
-                  
-                    aria_button("Instructions", "Open introduction", on_click=lambda:introd.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                timeline_container = ui.column().classes('w-full items-center justify-center')
-
-              
                 def load_era(era_name):
-                    timeline_container.clear() 
                     selected_events = DISCOVERY_EVENTS[era_name]
                     
-                    with timeline_container:
-                        ui.label(f"Era: {era_name}").classes('text-xl font-bold text-blue-400 mb-2 ml-2')
+                 
+                    with ui.dialog() as timeline_dialog, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-slate-50 overflow-hidden shadow-none'):
                         
-              
-                        with ui.row().classes('w-full overflow-x-auto no-wrap p-4 gap-8 !bg-gray-100 rounded-lg shadow-inner'):
+                        
+                        aria_button('X', 'Close timeline', on_click=timeline_dialog.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
+                        
+                        ui.label(f"Era: {era_name}").classes('text-2xl font-bold text-blue-600 mb-4')
+                        
+                      
+                        with ui.row().classes('w-full h-full items-center justify-center overflow-x-auto no-wrap p-4 gap-4 bg-gray-100 rounded-lg shadow-inner'):
                             for event in selected_events:
-                                with ui.column().classes('items-center min-w-[100px]'): 
+                                with ui.column().classes('items-center min-w-[100px] relative'): 
                                     ui.element('div').classes('absolute top-5 w-full h-1 bg-gray-600 -z-10')
                                     aria_button(str(event['year']), f"Open event: {event['title']}",
                                                 on_click=lambda e=event: show_event_dialog(e)
-                                                ).classes('!bg-blue-600 text-white hover:!bg-blue-800 transition-transform hover:scale-110')
+                                                ).classes('!bg-blue-600 text-white hover:!bg-blue-800 transition-transform hover:scale-110 z-10')
                                     
                                     ui.label(event['title']).classes('text-sm text-center w-40 text-black leading-tight mt-2').props('tabindex=0 aria-label=Event title')
-
+                    
+                    timeline_dialog.open()
               
                 with ui.grid(columns=3).classes('w-full gap-6 mb-8 justify-center'):
                     for era_key in DISCOVERY_EVENTS.keys():
@@ -2696,7 +3020,76 @@ def create_page():
             dialog.open()
         
 
-     
+        def start_cosmic_quiz():
+    
+            questions = [{'era': k, 'data': v} for k, items in EPOCHS_EXTENDED.items() for v in items]
+            random.shuffle(questions)
+            
+            q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
+            
+            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-gray-900 border border-gray-700'):
+                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
+                
+                ui.label('Cosmological Epochs Quiz').classes('text-2xl font-bold text-green-400 mb-4 text-center drop-shadow-md')
+                
+                with ui.row().classes('w-full justify-between mb-4 bg-gray-800 p-3 rounded-lg border border-gray-600 shadow-inner'):
+                    time_lbl = ui.label('Time: 0s').classes('text-lg text-white font-bold')
+                    score_lbl = ui.label('Score: 0').classes('text-lg text-blue-400 font-bold')
+                
+                q_text = ui.label('').classes('text-xl font-semibold text-gray-100 text-center mb-6 h-16 flex items-center justify-center')
+                
+                with ui.grid(columns=2).classes('w-full gap-4') as btn_container:
+                    for era in EPOCHS_EXTENDED.keys():
+                        aria_button(era, f"Select {era}", on_click=lambda e=era: check_ans(e)).classes('!bg-gray-700 hover:!bg-blue-600 border border-gray-500 text-white font-bold py-3 rounded shadow-lg transition-colors')
+                
+                with ui.row().classes('w-full justify-center gap-4 mt-6') as action_row:
+                    explore_btn = aria_button("Explore Topic", "Read more", on_click=lambda: show_epoch_dialog(questions[q_state['idx']]['data'])).classes('!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded shadow-md')
+                    next_btn = aria_button("Next Question ➔", "Next", on_click=lambda: next_question()).classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-md')
+                
+                def update_ui():
+                    if q_state['idx'] < len(questions):
+                        q_state['correct'] = False
+                        evt_name = questions[q_state['idx']]['data']['name']
+                        q_text.set_text(f"Which phase does this belong to: {evt_name}?")
+                        explore_btn.set_visibility(False)
+                        next_btn.set_visibility(False)
+                    else:
+                        q_text.set_text("Quiz Completed! The Universe has no secrets for you. 🌌")
+                        btn_container.set_visibility(False)
+                        explore_btn.set_visibility(False)
+                        next_btn.set_visibility(False)
+                        q_timer.deactivate()
+                        ui.notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
+
+                def next_question():
+                    q_state['idx'] += 1
+                    update_ui()
+
+                def check_ans(selected_era):
+                    if q_state['correct']: return
+                    correct_era = questions[q_state['idx']]['era']
+                    
+                    if selected_era == correct_era:
+                        q_state['score'] += 1
+                        q_state['correct'] = True
+                        score_lbl.set_text(f"Score: {q_state['score']}")
+                        ui.notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
+                        explore_btn.set_visibility(True)
+                        next_btn.set_visibility(True)
+                    else:
+                        q_state['score'] -= 0.25
+                        score_lbl.set_text(f"Score: {q_state['score']}")
+                        ui.notify('Wrong phase! Try again.', color='negative', position='top', icon='cancel')
+                
+                def tick():
+                    q_state['time'] += 1
+                    time_lbl.set_text(f"Time: {q_state['time']}s")
+                
+                q_timer = ui.timer(1.0, tick)
+                q_dialog.on('hide', q_timer.deactivate)
+                
+                update_ui()
+                q_dialog.open()
         def cosmic_timeline(container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             def get_button_color(epoch_name):
@@ -2712,32 +3105,51 @@ def create_page():
             with container:
                 with ui.dialog() as introc, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
                     html_info_box(r"""
-                <h3>Timeline of universe evolution</h3>
-                <p>The history of the universe can be divided into different cosmological epochs: Before Big Bang, Early Universe, Structures Formation, and Cosmic Web.</p>
-                <p>Theoretical epochs are phases predicted by cosmological models but not directly observable, while observational epochs are supported by empirical evidence.</p>
-                <p> The redshift (z) indicates how much the universe has expanded since that epoch; higher z values correspond to earlier times.</p>
-                <p>The age of the universe at each epoch is given in gigayears (1Gyr=10^9 years) and seconds (s) where applicable.</p>
-                <p> The Big Bang marks the beginning of the observable universe approximately 13.8 billion years ago (z → ∞).</p>
-                <p>Select an epoch to explore the universe evolution and analyze each phase.</p>
-                
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+<div style="font-family: sans-serif; line-height: 1.6;">
+    
+    <h3 style="margin-top: 0; color: #16a34a; border-bottom: 2px solid #22c55e; padding-bottom: 10px; margin-bottom: 15px;">1. Cosmological Epochs Quiz</h3>
+    <p>Test your knowledge of the history of the Universe with this interactive challenge!</p>
+    <ul style="margin-bottom: 25px;">
+        <li>Press <b>Start Quiz</b> to begin the journey from the Big Bang to the present day. A timer will track your performance.</li>
+        <li>For each question, identifying the correct cosmological phase related to the cosmic event described.</li>
+        <li><b>Scoring:</b> You earn <b>1 point</b> for every correct answer. A wrong choice results in a <b>-0.25 point</b> penalty.</li>
+        <li><b>Interactive Learning:</b> When you answer correctly, two buttons will appear:
+            <ul>
+                <li><b>Explore Topic:</b> Opens a detailed window with images and scientific references about that specific event.</li>
+                <li><b>Next Question ➔:</b> Proceeds to the next stage of cosmic history.</li>
+            </ul>
+        </li>
+        <li>Finish all events to stop the timer and complete the "End Game".</li>
+    </ul>
 
-                <div style="font-size: 0.9em;">
-                    <strong>Legend</strong>
-                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 8px;">
-                        <span style="display: flex; align-items: center;">
-                            <span style="margin-right: 6px; font-size: 1.2em;">🟩</span> Theoretical epochs (not directly observable)
-                        </span>
-                        <span style="display: flex; align-items: center;">
-                            <span style="margin-right: 6px; font-size: 1.2em;">🟦</span> Observational epochs (supported by evidence)
-                        </span>
-                    </div>
-                </div>
-            """)
+    <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Timeline of Universe Evolution</h3>
+    <p>The history of the universe can be divided into different cosmological epochs: Before Big Bang, Early Universe, Structures Formation, and Cosmic Web.</p>
+    <p>Theoretical epochs are phases predicted by cosmological models but not directly observable, while observational epochs are supported by empirical evidence.</p>
+    <p>The redshift (z) indicates how much the universe has expanded since that epoch; higher z values correspond to earlier times.</p>
+    <p>The age of the universe at each epoch is given in gigayears (1Gyr=10^9 years) and seconds (s) where applicable.</p>
+    <p>The Big Bang marks the beginning of the observable universe approximately 13.8 billion years ago (z → ∞).</p>
+    <p>Select an epoch on the main panel to explore the universe evolution and analyze each phase.</p>
+    
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+
+    <div style="font-size: 0.9em; background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <strong style="display: block; margin-bottom: 8px; color: #475569;">Map Legend</strong>
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <span style="display: flex; align-items: center;">
+                <span style="margin-right: 6px; font-size: 1.2em;">🟩</span> Theoretical epochs (not directly observable)
+            </span>
+            <span style="display: flex; align-items: center;">
+                <span style="margin-right: 6px; font-size: 1.2em;">🟦</span> Observational epochs (supported by evidence)
+            </span>
+        </div>
+    </div>
+</div>
+""")
                     aria_button("Close", "close the box",on_click=lambda:introc.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
                 with ui.row().classes('w-full items-center justify-center flex-nowrap '):
                     aria_button("Instructions", "Open introduction", on_click=lambda:introc.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Start Quiz", "Start interactive quiz", on_click=start_cosmic_quiz).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg animate-pulse")
                     description_on_dark(
     "Explore the chronology of the Universe from the Big Bang to the present day, witnessing the major epochs of cosmic evolution."
 )
@@ -2749,28 +3161,29 @@ def create_page():
 
 
 
-                timeline_container = ui.column().classes('w-full items-center justify-center mt-8')
-
-       
                 def load_cosmic_era(era_name):
-                    timeline_container.clear()
-          
                     selected_epochs = EPOCHS_EXTENDED.get(era_name, [])
                     
-                    with timeline_container:
-                        ui.label(f"Phase: {era_name}").classes('text-2xl font-bold text-blue-400 mb-4 ml-2 animate-pulse')
-                        with ui.row().classes('w-full items-center justify-center overflow-x-auto no-wrap p-6 gap-10 !bg-gray-800 rounded-xl shadow-2xl border border-gray-700'):
+                   
+                    with ui.dialog() as timeline_dialog2, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-gray-900 overflow-hidden shadow-none'):
+                        
+                     
+                        aria_button('X', 'Close timeline', on_click=timeline_dialog2.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
+                        
+                        ui.label(f"Phase: {era_name}").classes('text-2xl font-bold text-blue-400 mb-4 animate-pulse')
+                        
+                        with ui.row().classes('w-full h-full items-center justify-center overflow-x-auto no-wrap p-6 gap-6 bg-gray-800 rounded-xl shadow-2xl border border-gray-700'):
                             for epoch in selected_epochs:
                                 with ui.column().classes('items-center min-w-[140px] relative group'):
                                     btn_color = get_button_color(epoch['name'])
                             
-                      
                                     aria_button(epoch['name'], f"Open epoch: {epoch['name']}",
                                         on_click=lambda e=epoch: show_epoch_dialog(e)
                                         ).classes(f'{btn_color} text-white text-xs font-bold w-24 h-24 rounded-full shadow-lg border-4 border-gray-700 hover:scale-110 transition-transform z-10 text-center break-words p-1 flex items-center justify-center')
 
-                                    ui.label(f"z ≈ {epoch['z_ref']:.2e}").classes('text-md text-center text-white').props('tabindex=0 aria-label=Redshift value')
+                                    ui.label(f"z ≈ {epoch['z_ref']:.2e}").classes('text-md text-center text-gray-300 mt-2').props('tabindex=0 aria-label=Redshift value')
 
+                    timeline_dialog2.open()
                 with ui.grid(columns=2).classes('w-full items-center justify-center gap-6 mb-8'):
             
                     for era_key in EPOCHS_EXTENDED.keys():
@@ -3374,30 +3787,40 @@ namelength=-1,
 
                 with ui.dialog() as introd, ui.card().classes('p-4 w-full max-w-[600px]'):
                     html_info_box(r"""
-                    <h3>Stars characteristics and evolution</h3>
-                    <p>Stars are massive celestial bodies composed primarily of hydrogen and helium undergoing nuclear fusion in their cores. This fusion process releases energy, producing light and heat that radiate into space. The life cycle of a star is determined mainly by its mass, influencing its temperature, luminosity, size, and lifespan.</p>
-                    <p>Stars form from clouds of gas and dust in space, known as nebulae. When regions within these clouds collapse under gravity, they form protostars that eventually ignite nuclear fusion. Depending on their initial mass, stars can follow different evolutionary paths:</p>
-                    <p> The animation on the left illustrates the H-R diagram: star classification based on temperature and luminosity and stars appears ordered by their age: first the main sequence, then giants and supergiants, and finally white dwarfs.</p>
-                    <p>The plot on the right illustrates the life cycle of stars based on their mass:start with stellar nebulas and then the smaller stars evolve into red giants and white dwarfs, while the bigger stars evolve into red supergiants and eventually explode as supernovae.</p>
-                    <li> Explore the H-R diagram to see how stars are classified based on their temperature and luminosity.</li>
-                    <li> Observe how stars of different masses evolve through various stages, from main sequence to giants and supergiants, and finally to white dwarfs or supernova remnants.</li>
-                    """)
+                    <div style="font-family: sans-serif; line-height: 1.6;">
+                        
+                        <h3 style="margin-top: 0; color: #b45309; border-bottom: 2px solid #f59e0b; padding-bottom: 10px; margin-bottom: 15px;">1. Stellar Roleplay: You Are a Star!</h3>
+                        <p>Embark on a cosmic journey and experience the life cycle of a star firsthand!</p>
+                        <ul style="margin-bottom: 25px;">
+                            <li>Press <b>Start Evolution</b> to be "born" in a stellar nursery. You will be assigned a random <b>Solar Mass (M☉)</b>.</li>
+                            <li>Your destiny depends on your mass: low-mass stars, high-mass stars, and extremely massive stars follow very different paths.</li>
+                            <li>At each step, you must select the <b>correct next evolutionary phase</b> from the options provided.</li>
+                            <li><b>Scoring:</b> You earn <b>1 point</b> for every correct stage reached. A wrong choice destabilizes your core, resulting in a <b>-0.25 point</b> penalty.</li>
+                            <li>Complete the sequence to reach your final remnant state (White Dwarf, Neutron Star, or Black Hole) and finish the game.</li>
+                        </ul>
+
+                        <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Interactive Visualizations</h3>
+                        <p>Use these tools to help you understand the physics of stars or to find clues for the game:</p>
+                        <ul>
+                            <li><b> H-R Animation:</b> Opens an animation of the <b>Hertzsprung-Russell diagram</b>. It illustrates star classification based on temperature and luminosity. Stars appear ordered by their age: first the main sequence, then giants and supergiants, and finally white dwarfs.</li>
+                            <li><b> Evolution Graph:</b> Opens a structural plot illustrating the <b>Life Cycle of a Star</b> based on its mass. It shows how stars start from stellar nebulae and evolve into different remnants depending on their initial size.</li>
+                        </ul>
+
+                        <h3 style="margin-top: 20px; color: #1f2937;">3. Star Characteristics and Evolution</h3>
+                        <p>Stars are massive celestial bodies composed primarily of hydrogen and helium undergoing nuclear fusion in their cores. This fusion process releases energy, producing light and heat that radiate into space. The life cycle of a star is determined mainly by its mass, influencing its temperature, luminosity, size, and lifespan.</p>
+                        <p>Stars form from clouds of gas and dust in space, known as nebulae. When regions within these clouds collapse under gravity, they form protostars that eventually ignite nuclear fusion. Depending on their initial mass, stars follow different evolutionary paths: smaller stars evolve into red giants and white dwarfs, while bigger stars evolve into red supergiants and eventually explode as supernovae.</p>
+
+                        <div style="border-left: 4px solid #f59e0b; padding-left: 15px; margin: 15px 0; background-color: #fffbeb; padding-top: 10px; padding-bottom: 10px; border-radius: 4px;">
+                            <p style="margin: 0; color: #92400e;">
+                                <strong>Tip:</strong> If you are stuck in the game, open the <b>View Evolution Graph</b> to see the branches of the stellar family tree!
+                            </p>
+                        </div>
+                    </div>
+                    """).props('tabindex=0 role=document aria-label="Stellar evolution instructions"')
                     
                
                     aria_button("Close", "close", on_click=lambda:introd.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
-
-                with ui.dialog() as data_info, ui.card().classes('w-96'):
-                    info_box("Dataset Gaia DR3: RA (right ascension),DEC(declination),z (redshift),mag_ur(magnitude in u-band filter, r-band filter). Dataset MIST:logTeff (effective temperature),logL (luminosity),stellar_mass")
-                    reference_box(""" **Dataset reference**: [GAIA SDR3](https://gea.esac.esa.int/archive/), Sysoliatina Kseniia 2022 JJ-model isochrone set: PARSEC MIST and BaSTI stellar evolution, [MIST](https://doi.org/10.11588/DATA/ZCXHOE) """)
-                    aria_button('Close','close button', on_click=data_info.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.row().classes('w-full justify-center items-center gap-4'):
-                    aria_button('Instructions','Introduction to the stars activity', on_click=lambda:[introd.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Info H-R stars','Information about H-R diagram stars', on_click=lambda:[hr_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Dataset','Datasets info and references', on_click=lambda:[data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    
-                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                
-
+               
                 def gaia_plot():
                     ISO_DF, ISO_TREE = load_isochrones_cached(MIST_PATH)
                     GAIA_DF = load_gaia_cached(STAR_GAIA_PATH)
@@ -3496,29 +3919,143 @@ namelength=-1,
 
 
                     plot.on('plotly_click', lambda e: show_star_dialog(df, e.args['points'][0]['pointIndex']))
-  
-                with ui.row().classes("w-full max-w-screen-xl mx-auto no-wrap items-center justify-center gap-8 p-4 overflow-x-auto"):
+                with ui.dialog() as evolution_graph_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center'):
+                    aria_button('X', 'Close', on_click=evolution_graph_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    plot_star_graph(title="Life Cycle of a Star", nodes=stellar_nodes, edges=stellar_edges, height=600, width=800)
 
-                    with ui.column().classes('shrink-0 min-w-[600px]'): 
-                        #with ui.card().classes('w-full p-0'):
-                        aria_image(f'/images/hr_diagram_evolution.gif?t={time.time()}', "Plot star evolution H-R diagram").classes(' w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                        #gaia_plot()
-                        #plot = ui.plotly(fig)
-
-
-                        #plot.on('plotly_click', lambda e: show_star_dialog(df, e.args['points'][0]['pointIndex']))
-                    with ui.column().classes('shrink-0'):
+             
+                with ui.dialog() as evolution_gif_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center'):
+                    aria_button('X', 'Close', on_click=evolution_gif_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                    
-                        plot_star_graph(
-            title="Life Cycle of a Star",
-            nodes=stellar_nodes,
-            edges=stellar_edges,
-        
-            height=480
-        
-        
-            
-        )
+
+                    @ui.refreshable
+                    def render_gif():
+                      
+                        ui.html(f'<img src="/images/hr_diagram_evolution.gif?t={time.time()}" alt="Star evolution HR diagram" class="w-full max-w-[800px] h-auto rounded-lg shadow-lg border border-gray-300">')
+                    
+                    render_gif()
+
+                def open_animated_gif():
+                   
+                    render_gif.refresh()
+                   
+                    evolution_gif_dialog.open()
+                with ui.dialog() as data_info, ui.card().classes('w-96'):
+                    info_box("Dataset Gaia DR3: RA (right ascension),DEC(declination),z (redshift),mag_ur(magnitude in u-band filter, r-band filter). Dataset MIST:logTeff (effective temperature),logL (luminosity),stellar_mass")
+                    reference_box(""" **Dataset reference**: [GAIA SDR3](https://gea.esac.esa.int/archive/), Sysoliatina Kseniia 2022 JJ-model isochrone set: PARSEC MIST and BaSTI stellar evolution, [MIST](https://doi.org/10.11588/DATA/ZCXHOE) """)
+                    aria_button('Close','close button', on_click=data_info.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                with ui.row().classes('w-full justify-center items-center gap-4'):
+                    aria_button('Instructions','Introduction to the stars activity', on_click=lambda:[introd.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button('Info H-R stars','Information about H-R diagram stars', on_click=lambda:[hr_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button('Dataset','Datasets info and references', on_click=lambda:[data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Evolution Graph", "Open Graph", on_click=evolution_graph_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" H-R Animation", "Open GIF", on_click=open_animated_gif).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-md")
+                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                
+
+                game_state = {'running': False, 'mass': 0, 'step': 0, 'score': 0, 'time': 0, 'path': []}
+                node_names = {n['id']: n['label'] for n in stellar_nodes}
+
+              
+                with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
+                    ui.label("Stellar Roleplay: You Are a Star!").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider")
+                    
+                  
+                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner'):
+                        lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold')
+                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold')
+                        
+                    def game_tick():
+                        if game_state['running']:
+                            game_state['time'] += 1
+                            lbl_time.set_text(f"Time: {game_state['time']}s")
+                    ui.timer(1.0, game_tick)
+                    
+                    def start_game():
+                        import random
+                      
+                        game_state['running'] = True
+                        game_state['time'] = 0
+                        game_state['score'] = 0
+                      
+                        game_state['step'] = 1 
+                        lbl_time.set_text("Time: 0s")
+                        lbl_score.set_text("Score: 0")
+                        
+                       
+                        mass = random.randint(1, 40)
+                        game_state['mass'] = mass
+                        if mass <= 8:
+                            game_state['path'] = ["stellar_nebula", "average_star", "red_giant", "planetary_nebula", "white_dwarf"]
+                        elif mass <= 20:
+                            game_state['path'] = ["stellar_nebula", "massive_star", "red_supergiant", "supernova", "neutron_star"]
+                        else:
+                            game_state['path'] = ["stellar_nebula", "massive_star", "red_supergiant", "supernova", "black_hole"]
+                            
+                        render_game_ui.refresh()
+
+                    def stop_game():
+                        game_state['running'] = False
+                        render_game_ui.refresh()
+
+                    with ui.row().classes('gap-6 mb-8'):
+                        aria_button("Start Evolution", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg animate-pulse")
+                        aria_button("Stop", "stop", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg")
+
+                  
+                    @ui.refreshable
+                    def render_game_ui():
+                        import random
+                        if not game_state['running']:
+                            ui.label("Awaiting birth in the stellar nursery... Press Start!").classes("text-slate-400 italic text-center mt-4 text-xl")
+                            return
+                        
+                        if game_state['step'] >= len(game_state['path']):
+                            ui.label("Evolution Complete!").classes("text-4xl text-green-400 font-bold text-center mt-6")
+                            ui.label("You have reached your final destiny in the cosmos. 🌌").classes("text-white text-center mt-3 text-2xl")
+                            return
+                    
+                        current_phase_id = game_state['path'][game_state['step'] - 1]
+                        current_phase_name = node_names[current_phase_id]
+                        
+                        ui.label(f"Your Mass: {game_state['mass']} M☉").classes("text-3xl text-orange-400 font-bold text-center mb-4 bg-slate-800 px-8 py-3 rounded-lg border-2 border-orange-500 shadow-lg")
+                        ui.label(f"Current Phase: {current_phase_name}").classes("text-2xl text-cyan-300 font-bold text-center mb-6")
+                        ui.label("Select your NEXT evolutionary phase:").classes("text-gray-200 mb-6 text-center text-xl")
+                        
+                      
+                        correct_id = game_state['path'][game_state['step']]
+                        all_ids = list(node_names.keys())
+                        options = [correct_id]
+                        
+                        while len(options) < 4:
+                            c = random.choice(all_ids)
+                          
+                            if c not in options and c != "stellar_nebula":
+                                options.append(c)
+                                
+                        random.shuffle(options)
+                        
+                        def check_ans(choice):
+                            if choice == game_state['path'][game_state['step']]:
+                                game_state['score'] += 1
+                                game_state['step'] += 1
+                                lbl_score.set_text(f"Score: {game_state['score']}")
+                                ui.notify("Correct evolution!", color="positive", position="top", icon="check_circle")
+                                if game_state['step'] >= len(game_state['path']):
+                                    game_state['running'] = False
+                                    ui.notify("End Game! Destiny reached.", color="purple", position="top", icon="emoji_events")
+                            else:
+                                game_state['score'] -= 0.25
+                                lbl_score.set_text(f"Score: {game_state['score']}")
+                                ui.notify("Wrong phase! Core destabilized...", color="negative", position="top", icon="warning")
+                            render_game_ui.refresh()
+
+                        with ui.grid(columns=2).classes('w-full max-w-[800px] gap-6'):
+                            for opt in options:
+                                aria_button(node_names[opt], "choose phase", on_click=lambda o=opt: check_ans(o)).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-5 px-4 rounded-lg w-full shadow-lg text-xl transition-transform hover:scale-105")
+
+                    render_game_ui()
+               
                     
 
     
@@ -3648,18 +4185,14 @@ namelength=-1,
 
 
             
-            ui.label("Selext a galaxy:").classes('text-lg mt-4').props('tabindex=0 aria-label=Select a galaxy instruction')
+            #ui.label("Selext a galaxy:").classes('text-lg mt-4').props('tabindex=0 aria-label=Select a galaxy instruction')
 
             options = [
                 (f"{row['specobj_id']} ", i)
                 for i, row in df.iterrows()
             ]
 
-            selected = ui.select(
-                options=options,
-                label='Galaxy ID',
-                with_input=True
-            ).classes('w-80').props('aria-label=Galaxy selection dropdown')
+            #selected = ui.select(            options=options,                label='Galaxy ID',                with_input=True            ).classes('w-80').props('aria-label=Galaxy selection dropdown')
 
             def on_select(e):
                 data = e.args
@@ -3678,7 +4211,7 @@ namelength=-1,
                             
                             on_galaxy_select(row['ra_deg'], row['dec_deg'])
 
-            selected.on('update:model-value', on_select)    
+            #selected.on('update:model-value', on_select)    
         def show_morphology_dialog(df, i):
             row = df.iloc[i]
           
@@ -3872,9 +4405,12 @@ namelength=-1,
                     
         def galaxy_map_page( container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
-            full_df = SDSS_GALAXY_DF.copy() # Assicurati che SDSS_GALAXY_DF sia accessibile qui
-    
-            # Coordinate e pulizia identiche allo script della GIF
+            full_df = SDSS_GALAXY_DF.copy() 
+            mem_state = {
+                'running': False, 'time': 0, 'score': 0,
+                'cards': [], 'flipped': [], 'matched': set(), 'lock': False
+            }
+           
             coords = SkyCoord(full_df['ra'].values, full_df['dec'].values, unit=(u.hourangle, u.deg), frame='icrs')
             full_df['ra_deg'] = coords.ra.degree
             full_df['dec_deg'] = coords.dec.degree
@@ -3936,25 +4472,39 @@ namelength=-1,
                             
                 with ui.dialog() as info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                     html_info_box(r"""
-                                  
                     <div style="font-family: sans-serif; line-height: 1.6;">
                         
-                        <h3>Galaxies on the Map</h3>
-                        <p>The gif plot on the left represents galaxies located in two clusters by their celestial coordinates (Right Ascension / Declination).</p>
-                        <p>The animation on the right represents galaxy morphology classification: elliptical, lenticular, spiral, and irregular.</p>
-                        <p> The galaxies in the plots appear ordered by their redshift (z), which is a measure of how much the wavelength of light has stretched due to the expansion of the Universe. Higher redshift values indicate objects that are further away and observed further back in time.</p>
-                        <li> Explore the galaxy distribution to understand large-scale structures in the Universe.</li>
-                        <li> Observe how galaxy morphology varies with redshift, providing insights into galaxy evolution over cosmic time.</li>
-                        </p>
-                        <div style="border-left: 4px solid #3b82f6; padding-left: 15px; margin: 15px 0; background-color: #f9fafb; padding-top: 5px; padding-bottom: 5px;">
+                        <h3 style="margin-top: 0; color: #047857; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">1. Galaxy Morphology Memory Game</h3>
+                        <p>Test your pattern recognition skills by matching galaxies based on their morphological types!</p>
+                        <ul style="margin-bottom: 25px;">
+                            <li>Press <b>Start</b> to deal 24 hidden galaxy images face down and start the timer.</li>
+                            <li>Click on two cards to reveal them. Your goal is not to find two identical images, but to match <b>two different galaxies of the SAME classification</b> (e.g., two Spirals, or two Ellipticals).</li>
+                            <li>If they match, you earn <b>1 point</b> and the cards stay face up.</li>
+                            <li>If they are a wrong pair, you lose <b>0.25 points</b> and the cards will flip back over after 1 second. Try to memorize them!</li>
+                            <li>Clear the entire cosmic board to win. Use the <b>Reset</b> button if you want to restart the timer and shuffle again.</li>
+                        </ul>
+
+                        <h3 style="margin-top: 0; color: #1d4ed8; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 15px;">2. Galaxies on the Map</h3>
+                        <p>Use the buttons on the main panel to open the interactive plots:</p>
+                        <ul>
+                            <li><b> Map Animation:</b> Opens the gif plot that represents galaxies located in two clusters by their celestial coordinates (Right Ascension / Declination).</li>
+                            <li><b> Morpho Animation:</b> Opens the animation representing galaxy morphology classification: elliptical, lenticular, spiral, and irregular.</li>
+                        </ul>
+                        <p>The galaxies in the plots appear ordered by their redshift (z), which is a measure of how much the wavelength of light has stretched due to the expansion of the Universe. Higher redshift values indicate objects that are further away and observed further back in time.</p>
+                        <ul>
+                            <li>Explore the galaxy distribution to understand large-scale structures in the Universe.</li>
+                            <li>Observe how galaxy morphology varies with redshift, providing insights into galaxy evolution over cosmic time.</li>
+                        </ul>
+                        
+                        <div style="border-left: 4px solid #3b82f6; padding-left: 15px; margin: 15px 0; background-color: #f9fafb; padding-top: 10px; padding-bottom: 10px; border-radius: 4px;">
                             <p style="margin: 0; color: #1f2937;">
-                                <strong>Interact:</strong> Select a galaxy ID to find further details about morphology, redshift, and distance from Earth.
+                                <strong>Interact:</strong> Inside the <b>Map Animation</b> dialog, use the dropdown menu to select a <b>Galaxy ID</b>. This will place a marker on the exact coordinates of the map and open a separate window with further details about that galaxy's morphology, redshift, and distance from Earth.
                             </p>
                         </div>
 
                         <br>
 
-                        <h3 style="margin-top: 0; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px;">Data Fields Glossary</h3>
+                        <h3 style="margin-top: 0; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px;">3. Data Fields Glossary</h3>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
                             
@@ -4012,7 +4562,6 @@ namelength=-1,
                             </div>
                         </div>
                     </div>
-                    
                     """).props('tabindex=0 role=document aria-label="Galaxy map instructions"')
                     
                     aria_button('Close', 'close button', on_click=lambda: info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
@@ -4272,37 +4821,120 @@ namelength=-1,
                     
                     
                 gif_marker = None 
-        
+                
                 def move_marker_on_gif(ra, dec):
-                  
                     if gif_marker is None: return
-
-               
                     margin_left_pct = 12.5   
                     margin_bottom_pct = 11.0 
-                    
-                  
                     plot_width_pct = 77.5    
                     plot_height_pct = 77.0   
-                    
-                   
                     norm_ra = (ra - RA_MIN) / RA_SPAN
                     norm_dec = (dec - DEC_MIN) / DEC_SPAN
-
-                
                     left_pos = margin_left_pct + (norm_ra * plot_width_pct)
-                    
-                    # Matplotlib ha 0 in basso, CSS ha 0 in alto. 
-                    # Quindi (1 - norm_dec) inverte l'asse, poi aggiungiamo il margine superiore 
-                    # Margine superiore approx = 100 - margin_bottom - plot_height = 100 - 11 - 77 = 12%
                     margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
                     top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
-
-                  
                     gif_marker.classes(remove='hidden')
-                  
                     gif_marker.style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
                     gif_marker.update()
+
+               
+                with ui.dialog() as map_gif_dialog:
+             
+                    with ui.card().style('width: 850px; max-width: 95vw; overflow: visible !important;').classes('p-6 bg-slate-900 flex flex-col items-center'):
+                        aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
+                        
+                        ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-white')
+                        
+                     
+                        marker_state = {'element': None}
+                        
+                        def move_marker_on_gif(ra, dec):
+                            if marker_state['element'] is None: return
+                            margin_left_pct = 12.5   
+                            margin_bottom_pct = 11.0 
+                            plot_width_pct = 77.5    
+                            plot_height_pct = 77.0   
+                            norm_ra = (ra - RA_MIN) / RA_SPAN
+                            norm_dec = (dec - DEC_MIN) / DEC_SPAN
+                            left_pos = margin_left_pct + (norm_ra * plot_width_pct)
+                            margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
+                            top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
+                         
+                            marker_state['element'].classes(remove='hidden')
+                            marker_state['element'].style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
+
+                       
+                        with ui.row().classes('w-full justify-center items-center mb-4 z-50 gap-4'):
+                            ui.label("Select a galaxy:").classes('text-lg font-bold text-gray-200')
+                            
+                         
+                            local_df = full_df.dropna(subset=['ra_deg','dec_deg','z']).copy()
+                            if len(local_df) > 100:
+                                local_df = local_df.sample(100, random_state=1).reset_index(drop=True)
+                            
+                            local_df['age_gyr'] = local_df['z'].apply(lambda z: cosmo.age(z).value)
+                            local_df['dist_comoving_mpc'] = local_df['z'].apply(lambda z: cosmo.comoving_distance(z).value)
+                            local_df['image_url'] = (
+                                "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?"
+                                "ra=" + local_df['ra_deg'].astype(str) +
+                                "&dec=" + local_df['dec_deg'].astype(str) +
+                                "&scale=0.2&width=100&height=100"
+                            )
+                            local_df['galaxy_name'] = 'Unknown'
+
+                           
+                            options = {i: str(row['specobj_id']) for i, row in local_df.iterrows()}
+
+                            def on_select(e):
+                              
+                                if e.value is not None and e.value in local_df.index:
+                                    i = e.value
+                                    show_galaxy_dialog(local_df, i) # 1. Apre box info
+                                    row = local_df.loc[i]
+                                    move_marker_on_gif(row['ra_deg'], row['dec_deg']) # 2. Muove e mostra il pallino
+
+                            ui.select(
+                                options=options,
+                                label='Galaxy ID',
+                                with_input=True,
+                                on_change=on_select
+                            ).classes('w-80').props('dark aria-label=Galaxy selection dropdown').props('aria-label=Galaxy selection dropdown')
+
+                       
+                        with ui.element('div').classes('w-full max-w-[800px] relative rounded-lg shadow-lg border border-gray-300'):
+                            @ui.refreshable
+                            def render_map_gif():
+                                import time
+                                ui.html(f'<img src="/images/sdss_distribution_z.gif?t={time.time()}" alt="Distribution of galaxies" class="w-full h-auto block m-0 p-0 rounded-lg">')
+                            
+                            render_map_gif()
+                            
+                          
+                            marker_state['element'] = ui.element('div').classes(
+                                'absolute w-6 h-6 bg-cyan-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(0,255,255,1)] z-50 hidden'
+                            ).style('transform: translate(-50%, -50%); transition: top 0.5s ease-out, left 0.5s ease-out;')
+
+                def open_map_gif():
+                    render_map_gif.refresh()
+                
+                    if marker_state['element']:
+                        marker_state['element'].classes(add='hidden')
+                    map_gif_dialog.open()
+
+               
+                with ui.dialog() as morpho_gif_dialog:
+                    with ui.element('div').classes('relative inline-block rounded-xl overflow-hidden shadow-2xl bg-white p-2'):
+                        aria_button('X', 'Close', on_click=morpho_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
+                        
+                        @ui.refreshable
+                        def render_morpho_gif():
+                            import time
+                            ui.html(f'<img src="/images/galaxy_evolution.gif?t={time.time()}" alt="Plot concentration vs color u-r" class="w-full max-w-[800px] h-auto block m-0 p-0 border-none">')
+                        render_morpho_gif()
+
+                def open_morpho_gif():
+                    render_morpho_gif.refresh()
+                    morpho_gif_dialog.open()
                 
                 with ui.row().classes('w-full items-center justify-center no-wrap ' ):
                     galaxy_map(GAL_SDSS_PATH,on_galaxy_select=move_marker_on_gif)
@@ -4319,29 +4951,170 @@ namelength=-1,
                         "📍 Locate Earth", label="Find the Earth position in Milky Way galaxy",
                         on_click=open_find_sun_game
                     ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Map Animation", "Open Map GIF", on_click=open_map_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Morpho Animation", "Open Morpho GIF", on_click=open_morpho_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                     aria_button("Galaxy Plot z","Show Galaxy plot",on_click=lambda: img2.open(),).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                     aria_button("Galaxy Plot r-mag vs color","Plot r-mag vs u-r",on_click=lambda: img3.open(),).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                with ui.row().classes("w-full max-w-screen-xl mx-auto no-wrap items-center justify-center gap-8 p-4 overflow-x-auto"):
+                    
 
-                    with ui.column().classes('shrink-0 min-w-[600px] relative'):
-                #with ui.row().classes("w-full no-wrap items-start gap-4"):
-                #    with ui.card().classes('w-1/2 p-0'):
-                        with ui.card().classes('w-full p-0 relative overflow-hidden rounded-lg shadow-lg border border-gray-300'):
+               
+                with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
+                    ui.label("Galaxy Morphology Memory").classes("text-3xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider")
                     
-                 
-                            aria_image(f'/images/sdss_distribution_z.gif?t={time.time()}', "Distribution of galaxies").classes('w-full h-auto block')
-                    
-              
-                            gif_marker = ui.element('div').classes(
-                        'absolute w-6 h-6 bg-cyan-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(0,255,255,1)] z-50 hidden'
-                    ).style('transform: translate(-50%, -50%); transition: top 0.5s ease-out, left 0.5s ease-out;')
+                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
+                        lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
+                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold w-32 text-center')
+                        
+                        def game_tick():
+                            if mem_state['running']:
+                                mem_state['time'] += 1
+                                lbl_time.set_text(f"Time: {mem_state['time']}s")
+                        ui.timer(1.0, game_tick)
+                        
+                        def start_memory():
+                            import random
+                            mem_state['running'] = True
+                            mem_state['time'] = 0
+                            mem_state['score'] = 0
+                            mem_state['flipped'].clear()
+                            mem_state['matched'].clear()
+                            mem_state['lock'] = False
+                            lbl_time.set_text("Time: 0s")
+                            lbl_score.set_text("Score: 0")
                             
-                    with ui.column().classes('shrink-0 min-w-[600px]'):
-                    #with ui.card().classes('w-1/2 p-0 overflow-hidden'):
-                        #galaxy_morphology_page(SDSS_MORPHO_PATH)
-                        aria_image(f'/images/galaxy_evolution.gif?t={time.time()}', "Plot concentration vs color u-r").classes('w-full mx-auto h-auto rounded-lg shadow-lg border border-gray-300')
-                    
-                
+                            memory_deck = [
+                                # --- IRREGULAR (6) ---
+                                {'type': 'Irregular', 'img': 'images/IC559_irregular.jpg'},
+                                {'type': 'Irregular', 'img': 'images/IC4710_irregular.jpg'},
+                                {'type': 'Irregular', 'img': 'images/NGC1427_irregular.jpg'},
+                                {'type': 'Irregular', 'img': 'images/NGC7292_irregular.jpg'},
+                                {'type': 'Irregular', 'img': 'images/NGC55_irregular.jpg'},
+                                {'type': 'Irregular', 'img': 'images/NGC5264_irregular.jpeg'}, 
+
+                                # --- LENTICULAR (6) ---
+                                {'type': 'Lenticular', 'img': 'images/NGC4921_lenticular.jpg'},
+                                {'type': 'Lenticular', 'img': 'images/NGC1387_lenticular.png'},
+                                {'type': 'Lenticular', 'img': 'images/NGC2787_lenticular.jpg'},
+                                {'type': 'Lenticular', 'img': 'images/NGC5866_lenticular.png'},
+                                {'type': 'Lenticular', 'img': 'images/NGC5010_lenticular.jpg'},
+                                {'type': 'Lenticular', 'img': 'images/NGC4886_lenticular.jpeg'},
+
+                                # --- ELLIPTICAL (6) ---
+                                {'type': 'Elliptical', 'img': 'images/NGC221_elliptical.jpg'},
+                                {'type': 'Elliptical', 'img': 'images/NGC4365_elliptical.png'},
+                                {'type': 'Elliptical', 'img': 'images/IC2006_elliptical.jpg'},
+                                {'type': 'Elliptical', 'img': 'images/NGC1316_elliptical.jpg'},
+                                {'type': 'Elliptical', 'img': 'images/NGC4150_elliptical.jpg'},
+                                {'type': 'Elliptical', 'img': 'images/NGC2865_elliptical.jpeg'},
+
+                                # --- SPIRAL (6) ---
+                                {'type': 'Spiral', 'img': 'images/NGC1068_spiral.jpg'},
+                                {'type': 'Spiral', 'img': 'images/NGC1232_spiral.jpg'},
+                                {'type': 'Spiral', 'img': 'images/NGC_6217_spiral.jpg'},
+                                {'type': 'Spiral', 'img': 'images/NGC5335_spiral.jpg'},
+                                {'type': 'Spiral', 'img': 'images/NGC1365_spiral.jpg'},
+                                {'type': 'Spiral', 'img': 'images/NGC1300_spiral.jpg'}
+                            ]
+                            
+                            random.shuffle(memory_deck)
+                            mem_state['cards'] = [{'id': i, 'type': c['type'], 'img': c['img']} for i, c in enumerate(memory_deck)]
+                            render_memory_board.refresh()
+                            
+                        def stop_memory():
+                            mem_state['running'] = False
+
+                        def reset_memory():
+                            stop_memory()
+                            mem_state['time'] = 0
+                            mem_state['score'] = 0
+                            mem_state['flipped'].clear()
+                            mem_state['matched'].clear()
+                            mem_state['lock'] = False
+                            lbl_time.set_text("Time: 0s")
+                            lbl_score.set_text("Score: 0")
+                            # Resetta la vista nascondendo le carte
+                            mem_state['cards'] = []
+                            render_memory_board.refresh()
+
+                        with ui.row().classes('gap-4'):
+                            aria_button("Start", "start", on_click=start_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
+                            aria_button("Stop", "stop", on_click=stop_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
+                            # Aggiunto bottone Reset
+                            aria_button("Reset", "reset", on_click=reset_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
+                    @ui.refreshable
+                    def render_memory_board():
+                        if not mem_state['running'] and not mem_state['cards']:
+                            ui.label("Press Start to reveal the cosmos!").classes("text-slate-400 italic text-center text-xl")
+                            return
+
+                        if len(mem_state['matched']) == len(mem_state['cards']) and len(mem_state['cards']) > 0:
+                            ui.label("Universe Unlocked! All pairs found. 🌌").classes("text-3xl text-green-400 font-bold text-center mt-6")
+                            mem_state['running'] = False
+                            return
+
+                        current_client = ui.context.client
+
+                        async def handle_match():
+                            import asyncio
+                          
+                            await asyncio.sleep(1.0)
+                            
+                          
+                            with current_client:
+                              
+                                if len(mem_state['flipped']) != 2:
+                                    return
+                                    
+                                id1, id2 = mem_state['flipped'][0], mem_state['flipped'][1]
+                                card1 = next(c for c in mem_state['cards'] if c['id'] == id1)
+                                card2 = next(c for c in mem_state['cards'] if c['id'] == id2)
+                                
+                            
+                                if card1['type'] == card2['type']:
+                                    mem_state['matched'].update([id1, id2])
+                                    mem_state['score'] += 1
+                                    ui.notify(f"Correct! Found two {card1['type']}.", color='positive', position='top', icon='check_circle')
+                                else:
+                                    mem_state['score'] -= 0.25
+                                    ui.notify("Wrong pair! Memorize and try again...", color='negative', position='top', icon='cancel')
+                                    
+                                lbl_score.set_text(f"Score: {mem_state['score']}")
+                                
+                              
+                                mem_state['flipped'].clear()
+                                mem_state['lock'] = False
+                                render_memory_board.refresh()
+
+                        def flip_card(card_id):
+                           
+                            if not mem_state['running'] or mem_state['lock'] or card_id in mem_state['flipped'] or card_id in mem_state['matched']:
+                                return
+                            
+                           
+                            mem_state['flipped'].append(card_id)
+                            render_memory_board.refresh()
+                            
+                          
+                            if len(mem_state['flipped']) == 2:
+                                mem_state['lock'] = True
+                                from nicegui import background_tasks
+                                background_tasks.create(handle_match())
+
+                      
+                        with ui.grid(columns=6).classes('w-full max-w-[1000px] gap-3'):
+                            for card in mem_state['cards']:
+                                is_revealed = card['id'] in mem_state['flipped'] or card['id'] in mem_state['matched']
+                                
+                                with ui.card().classes('p-0 cursor-pointer h-32 flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').on('click', lambda c_id=card['id']: flip_card(c_id)):
+                                    if is_revealed:
+                                        
+                                        ui.image(card['img']).classes('w-full h-full object-cover')
+                                    else:
+                                       
+                                        ui.element('div').classes('w-full h-full bg-blue-900 flex items-center justify-center').style('background-image: radial-gradient(circle, #1e3a8a, #0f172a);')
+                                        ui.label('?').classes('text-white text-4xl font-bold absolute')
+
+                    render_memory_board()
                         
 
             
