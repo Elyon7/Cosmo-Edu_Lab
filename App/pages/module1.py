@@ -2845,7 +2845,7 @@ def create_page():
                         ui.label(f"Era: {era_name}").classes('text-2xl font-bold text-blue-600 mb-4')
                         
                       
-                        with ui.row().classes('w-full h-full items-center justify-center overflow-x-auto no-wrap p-4 gap-4 bg-gray-100 rounded-lg shadow-inner'):
+                        with ui.row().classes('w-full h-full items-start justify-center overflow-x-auto no-wrap p-4 gap-4 bg-gray-100 rounded-lg shadow-inner'):
                             for event in selected_events:
                                 with ui.column().classes('items-center min-w-[100px] relative'): 
                                     ui.element('div').classes('absolute top-5 w-full h-1 bg-gray-600 -z-10')
@@ -2890,6 +2890,7 @@ def create_page():
                                     with ui.link(target=target_url, new_tab=True).classes('absolute bottom-2 right-2 z-20 no-underline').on('click.stop', lambda: None):
                             
                                         ui.label(f"Ref: {source_text}").classes('text-[10px] font-mono text-gray-300 bg-black/60 px-2 py-1 rounded border border-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-400 transition-colors')
+
 #panel cosmological timeline
         EPOCHS_EXTENDED = {"Before Big Bang":[
 
@@ -3172,7 +3173,7 @@ def create_page():
                         
                         ui.label(f"Phase: {era_name}").classes('text-2xl font-bold text-blue-400 mb-4 animate-pulse')
                         
-                        with ui.row().classes('w-full h-full items-center justify-center overflow-x-auto no-wrap p-6 gap-6 bg-gray-800 rounded-xl shadow-2xl border border-gray-700'):
+                        with ui.row().classes('w-full h-full items-start justify-center overflow-x-auto no-wrap p-6 gap-6 bg-gray-800 rounded-xl shadow-2xl border border-gray-700'):
                             for epoch in selected_epochs:
                                 with ui.column().classes('items-center min-w-[140px] relative group'):
                                     btn_color = get_button_color(epoch['name'])
@@ -4958,8 +4959,7 @@ namelength=-1,
                     
 
                
-                with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
-                    ui.label("Galaxy Morphology Memory").classes("text-3xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider")
+                with ui.column().classes('w-full p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
                     
                     with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
                         lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
@@ -5032,14 +5032,14 @@ namelength=-1,
                             mem_state['lock'] = False
                             lbl_time.set_text("Time: 0s")
                             lbl_score.set_text("Score: 0")
-                            # Resetta la vista nascondendo le carte
+                          
                             mem_state['cards'] = []
                             render_memory_board.refresh()
 
                         with ui.row().classes('gap-4'):
                             aria_button("Start", "start", on_click=start_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
                             aria_button("Stop", "stop", on_click=stop_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
-                            # Aggiunto bottone Reset
+                          
                             aria_button("Reset", "reset", on_click=reset_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
                     @ui.refreshable
                     def render_memory_board():
@@ -5101,11 +5101,11 @@ namelength=-1,
                                 background_tasks.create(handle_match())
 
                       
-                        with ui.grid(columns=6).classes('w-full max-w-[1000px] gap-3'):
+                        with ui.grid(columns=8).classes('w-full gap-4'):
                             for card in mem_state['cards']:
                                 is_revealed = card['id'] in mem_state['flipped'] or card['id'] in mem_state['matched']
                                 
-                                with ui.card().classes('p-0 cursor-pointer h-32 flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').on('click', lambda c_id=card['id']: flip_card(c_id)):
+                                with ui.card().style('aspect-ratio: 1').classes('p-0 cursor-pointer w-full flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').on('click', lambda c_id=card['id']: flip_card(c_id)):
                                     if is_revealed:
                                         
                                         ui.image(card['img']).classes('w-full h-full object-cover')
