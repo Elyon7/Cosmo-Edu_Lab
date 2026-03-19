@@ -921,34 +921,177 @@ def create_page():
     """).props('role=dialog aria-modal=true aria-label="Descriptive text about Kepler Laws activity"')
 
                         aria_button("Close", "close the box",on_click=lambda:info_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                  
-                    with ui.dialog() as upload_zone_dialog, ui.card().classes('w-full max-w-xl !bg-slate-900'):
-                        ui.label('Submission Exercises').classes('text-2xl font-bold text-cyan-400').props('aria-label="Submission Exercises dialog title"')
+                    with ui.dialog() as instr_kepler_phase1, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 1: Kepler & The Solar System</h3>
+                        <p>Your goal is to build a gravity model based on a known system (our Solar System) to test the article's claim.</p>
                         
-                      
-                        ui.upload(
-                            label='Select your completed exercise file',
-                            on_upload=handle_student_upload, 
-                            auto_upload=True
-                        ).classes('w-full').props('aria-label="Upload your completed exercise file"')
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Analyze the dataset:</b> Download the planets dataset from the App. Look at the data for the planets in the solar system, specifically focusing on the velocity and distance (semi-major axis) columns.</li>
+                            <li><b>Build Model 1:</b> Try to find the mathematical relationship between velocity (v) and distance (d). Using the Excel file, calculate the following columns: <i>v</i> &middot; <i>d</i>, <i>v</i><sup>2</sup> &middot; <i>d</i>, and <i>v</i><sup>3</sup> &middot; <i>d</i>. Check which of these calculations results in a nearly constant value.</li>
+                            <li><b>Plot the data:</b> Build a Scatter Plot (<i>v</i><sup>2</sup> vs 1/<i>d</i>) in Excel.</li>
+                            <li><b>Compare with the App:</b> Look at the "Keplerian orbital velocity curve Plot" in the App (velocity vs distance) and compare it with your findings.</li>
+                            <li><b>Analytical Derivation:</b> Use the formulas for centripetal force and gravitational force to analytically derive the orbital velocity.</li>
+                        </ol>
+
+                        <h4>Guiding Questions:</h4>
+                        <ul>
+                            <li>Looking at the Solar System data, which planets move faster? The ones closer to the Sun, or the ones further away?</li>
+                            <li>If we draw a plot of velocity (y-axis) vs distance (x-axis), what shape does it have?</li>
+                            <li>Based on your scatter plot, what does the relationship <i>v</i><sup>2</sup> &middot; <i>d</i> equal to?</li>
+                            <li>What fundamental force acts in the universe to keep planets in orbit?</li>
+                            <li>Does Newton's gravity model work perfectly in the solar system?</li>
+                        </ul>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Kepler Phase 1"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_kepler_phase1.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    
+                    
+                    
+                    def handle_url_submission(url_input, name_input):
+                        url = url_input.value
+                        student_name = name_input.value
                         
+                        if not url or not student_name:
+                            layout.accessible_notify('Please enter your name and the sheet link!', type_='warning')
+                            return
+                        
+                    
+                        match = re.search(r'/d/([a-zA-Z0-9-_]+)', url)
+                        if match:
+                            sheet_id = match.group(1)
+                          
+                            export_url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx'
+                            
+                            try:
+                               
+                                response = requests.get(export_url)
+                                
+                                if response.status_code == 200:
+                                
+                                    file_name = f"{student_name.replace(' ', '_')}_exercise.xlsx"
+                                    file_path = os.path.join(core.SUBMISSIONS_PATH, file_name)
+                                    
+                                    with open(file_path, 'wb') as f:
+                                        f.write(response.content)
+                                        
+                                  
+                                    if core.HF_API_TOKEN:
+                                        try:
+                                            api = HfApi(token=core.HF_API_TOKEN)
+                                            api.upload_file(
+                                                path_or_fileobj=file_path,
+                                                path_in_repo=f"Exercises/{file_name}",
+                                                repo_id=core.DATASET_REPO_ID,
+                                                repo_type="dataset"
+                                            )
+                                            layout.accessible_notify(f'File "{file_name}" saved in Cloud!', type_='success')
+                                        except Exception as ex:
+                                            print(f"❌ Error during Cloud synchronization: {ex}")
+                                            layout.accessible_notify("Error during Cloud synchronization.", type_='error')
+                                    else:
+                                        layout.accessible_notify(f'File "{file_name}" saved locally!', type_='success')
+                                
+                                    
+                            
+                                    url_input.value = ''
+                                    name_input.value = ''
+                                    
+                                  
+                                    refreshable_submission_list.refresh()
+                                else:
+                                    layout.accessible_notify('Error! Did you set sharing to "Anyone with the link"?', type_='error')
+                            except Exception as e:
+                                print(f"❌ Error during cloud download: {e}")
+                                layout.accessible_notify("Google connection error.", type_='error')
+                        else:
+                            layout.accessible_notify('Invalid Google Sheets link.', type_='error')
+                   
+                    with ui.dialog() as upload_zone_dialog, ui.card().classes('w-full max-w-2xl !bg-slate-900'):
+                        ui.label('Submission Area').classes('text-2xl font-bold text-cyan-400')
+                        
+                        with ui.tabs().classes('w-full text-white') as upload_tabs:
+                            ui.tab('Local File (Offline)', icon='upload_file')
+                            ui.tab('Google Sheets (Online)', icon='cloud')
+                            
+                        with ui.tab_panels(upload_tabs, value='Local File (Offline)').classes('w-full bg-transparent p-0 mt-4'):
+                            
+                          
+                            with ui.tab_panel('Local File (Offline)'):
+                                html_info_box(r"""
+                                    <b>Offline Work with Excel/Calc</b><br>
+                                    1. <b>Download the file:</b> <a href="/dataset/planets_dataset.xlsx" download style="color: #2563eb; text-decoration: underline;">Click here to download the Template</a><br>
+                                    2. Work offline on your computer.<br>
+                                    3. Use the button below to submit the completed <b>.xlsx</b> file.
+                                """)
+                              
+                                def safe_offline_upload(e):
+                                    file_path = os.path.join(core.SUBMISSIONS_PATH, e.name)
+                                    with open(file_path, 'wb') as f:
+                                        f.write(e.content.read())
+                                    
+                               
+                                    if core.HF_API_TOKEN:
+                                        try:
+                                            api = HfApi(token=core.HF_API_TOKEN)
+                                            api.upload_file(
+                                                path_or_fileobj=file_path,
+                                                path_in_repo=f"Exercises/{e.name}",
+                                                repo_id=core.DATASET_REPO_ID,
+                                                repo_type="dataset"
+                                            )
+                                            layout.accessible_notify(f'File "{e.name}" saved in locale and on Cloud!', type_='success')
+                                        except Exception:
+                                            layout.accessible_notify(f'You are offline. File "{e.name}" saved only on the computer!', type_='warning')
+                                    else:
+                                        layout.accessible_notify(f'File "{e.name}" saved locally!', type_='success')
+                                    
+                                    refreshable_submission_list.refresh()
+
+                                ui.upload(
+                                    label='Select your completed Excel file',
+                                    on_upload=safe_offline_upload, 
+                                    auto_upload=True
+                                ).classes('w-full mt-2')
+
+                         
+                            with ui.tab_panel('Google Sheets (Online)'):
+                                warning_box("Warning: this function requires internet connection.")
+                                
+                                html_info_box(r"""
+                                    <b>Upload via link</b><br>
+                                    1. Setting the share to <b>"Everyone with the link"</b>.<br>
+                                    2. Past link here.
+                                """)
+                                student_name = ui.input('Name/ Group').classes('w-full bg-slate-800 text-white px-2 rounded mt-2')
+                                sheet_link = ui.input('Paste Google Sheets link').classes('w-full bg-slate-800 text-white px-2 rounded mt-2')
+                                
+                                aria_button('Dowload and Save', 'cloud_download', 
+                                            on_click=lambda: handle_url_submission(sheet_link, student_name)) \
+                                    .classes('w-full !bg-green-600 hover:!bg-green-800 text-white font-bold py-2 mt-4 rounded')
+
                         ui.separator().classes('bg-slate-700 my-4')
                         
-                        ui.label('File uploaded:').classes('text-lg font-bold text-white')
-                        
-                      
+                        ui.label('File saved!').classes('text-lg font-bold text-white')
                         refreshable_submission_list() 
                         
-                        aria_button('Close', 'Close', on_click=upload_zone_dialog.close).classes('!bg-orange-500 mt-4')
+                        aria_button('Close', 'close', on_click=upload_zone_dialog.close).classes('!bg-orange-500 mt-4')
                     with ui.dialog() as data_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                         info_box( "**Dataset variables**: Celestial_Body (name of the planet), SemiMajorAxis(km) (orbital radius in km), Velocity(km/s) (orbital velocity in km/s), Period(days) (orbital period in days), Mass(kg) (mass of the planet in kg).")
                         reference_box(
         """**Dataset reference**: [NASA-SSD](https://ssd.jpl.nasa.gov/planets/) ;[Orbital Mechanics](https://orbital-mechanics.space/reference/planetary-parameters) ;Ryan S. Park, William M. Folkner, James G. Williams, and Dale H. Boggs. The JPL Planetary and Lunar Ephemerides DE440 and DE441. The Astronomical Journal, 161(3):105, February 2021.; Brandon Rhodes. Skyfield: high precision research-grade positions for planets and Earth satellites generator. July 2019""")
                         
+                        template_url ="https://docs.google.com/spreadsheets/d/1NmaAMkyIgv3Ln_6-DNEECDQfPw64kItJ/copy"
                         
                         with ui.row().classes('w-full justify-center gap-4 mt-4'):
         
-                       
+                            aria_button('Build Google Sheet', 'Create copy Google Sheet', 
+                on_click=lambda: ui.run_javascript(f'window.open("{template_url}", "_blank")')) \
+        .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+        .props('aria-label="Create personal copy of Google Sheets"')
+
+    
+        
                             aria_button('Download Dataset', 'download', 
                                         on_click=lambda: ui.run_javascript('window.location.href = "/dataset/planets_dataset.xlsx"')) \
                                 .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
@@ -1253,6 +1396,7 @@ def create_page():
                         with ui.column().classes('w-full md:w-auto shrink-0'):
                         
                             plot_velocity(selector.value).classes('max-w-full')
+                            aria_button("Activity Kepler", "Instructions for Kepler velocity plot", on_click=lambda:instr_kepler_phase1.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4")
                             
                             
                     
@@ -1381,7 +1525,17 @@ def create_page():
                     
                         reference_box(
         """**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
+                        template_url_gal ="https://docs.google.com/spreadsheets/d/1gvHeXHzKx8DcJgpZdXX1iUYvs2W7_sDd/copy"
+                        
                         with ui.row().classes('w-full justify-center gap-4 mt-4'):
+        
+                            aria_button('Build Google Sheet', 'Create copy Google Sheet', 
+                on_click=lambda: ui.run_javascript(f'window.open("{template_url_gal}", "_blank")')) \
+        .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+        .props('aria-label="Create personal copy of Google Sheets"')
+
+    
+                         
         
                            
                             aria_button('Download Dataset', 'download', 
@@ -1545,7 +1699,76 @@ def create_page():
                     with ui.dialog() as morpho, ui.card().classes('w-full max-w-xl mx-auto h-auto '):
                         morph_plot_container = ui.column().classes("w-full h-auto")
                         aria_button('close','close', on_click=lambda:morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    
+                    with ui.dialog() as instr_galaxy_phase2_3, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 2 & 3: Galaxy Rotation Curves</h3>
+                        <p>Now, you will use your Solar System model (Model 1) to make a prediction about a new context: Galaxies.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Formulate a hypothesis:</b> Before looking at the data, draw your prediction. Discuss with your group whether Model 1 is valid for the context of galaxies.</li>
+                            <li><b>Observe the data:</b> Select a real galaxy dataset from the dropdown menu in the App.</li>
+                            <li><b>Compare:</b> Look at the "Observed Data" (blue points) and the Newton theoretical curve (red line) on the plot. Compare the real observations with the prediction.</li>
+                            <li><b>Revise the model:</b> Look back at the Keplerian formula you derived in Phase 1. You must hypothesize a mathematical solution for the discrepancy between the real data and Newton's model.</li>
+                        </ol>
+
+                        <h4>Guiding Questions:</h4>
+                        <ul>
+                            <li>If the news article is true and physics is the same everywhere, what should the velocity graph of stars in a galaxy look like as you move further from the center?</li>
+                            <li>Observing the data and the prediction in the App, are the two curves different? Why? Which of the two is correct?</li>
+                            <li>Why do the stars move so fast even far from the galactic center?</li>
+                            <li>Look at your Keplerian equation. If the velocity remains constant while the radius increases (as seen in the blue data points), what must the mass do for the equation to remain mathematically correct?</li>
+                            <li>Is this required increasing mass luminous (stars/gas), or is it something else?</li>
+                        </ul>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Galaxy Phase 2 and 3"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_phase2_3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    with ui.dialog() as instr_galaxy_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 4: Dark Matter Slider & Sonification</h3>
+                        <p>Verify if Model 2 (with Dark Matter) fits the real galaxy data using multisensorial analysis.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Assign Roles:</b> Each group member must take one of the following roles (rotate later):
+                                <ul>
+                                    <li><i>Navigator:</i> Operates the Dark Matter slider in the App.</li>
+                                    <li><i>Data Analyst:</i> Monitors the numerical value of the Chi-Squared (\(\chi^2\)).</li>
+                                    <li><i>Listener:</i> Wears headphones to listen to the data sonification.</li>
+                                </ul>
+                            </li>
+                            <li><b>Select Dataset:</b> Choose a galaxy dataset to analyze.</li>
+                            <li><b>Use the Slider:</b> The green curve starts identical to the red (Keplerian) curve. The <i>Navigator</i> must slowly move the "Dark Matter" slider to add invisible mass to the system and observe how the green simulated curve changes in real-time.</li>
+                            <li><b>Audio Matching:</b> The <i>Listener</i> must listen to the pitch of the observed data curve vs the simulated curve. Say "Stop!" exactly when the sound of the simulated curve matches the sound of the real data.</li>
+                            <li><b>Verify:</b> The <i>Data Analyst</i> must read the Chi-Squared value at that exact moment. Check the velocity plot and the mass vs radius plot.</li>
+                        </ol>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Galaxy Slider and Sonification"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_slider.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+
+                    with ui.dialog() as instr_galaxy_chi2, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 4: Statistical Verification (\(\chi^2\))</h3>
+                        <p>Find the exact mathematical value of Dark Matter by minimizing the statistical error.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Understand the Error:</b> The \(\chi^2\) represents the distance between the blue points (Observed data) and the green line (our simulated Model).</li>
+                            <li><b>Minimization:</b> Your goal is to find the exact Dark Matter value that makes the \(\chi^2\) as small as possible.</li>
+                            <li><b>Parabolic Fit:</b> Try 3 entirely different Dark Matter values using the slider and record the \(\chi^2\) for each. Input these 3 points into the tool to calculate the vertex of the parabola (the absolute minimum).</li>
+                        </ol>
+
+                        <h4>Guiding Questions:</h4>
+                        <ul>
+                            <li>Let's call \(O\) the Observed value (blue point) and \(A\) the expected value from the model. What happens if I sum all the distances \((O - A)\), knowing some points are above the curve (positive) and some are below (negative)?</li>
+                            <li>How do we mathematically solve the problem of negative numbers if we only want to sum positive error quantities?</li>
+                            <li>Should an error of 10 km/s on a slow, nearby star have the same weight as an error of 10 km/s on a very fast, distant star? How do we adjust for this?</li>
+                            <li>If you select a random mass value with the slider, how do you know if it is the absolute minimum error?</li>
+                            <li>If we draw a graph where the X-axis is Dark Matter and the Y-axis is \(\chi^2\), and we connect two points, we get a descending line. Can we simply follow this line infinitely to find the lowest error? Why or why not?</li>
+                            <li>What is the simplest geometric shape that describes a concavity with a single minimum point?</li>
+                            <li>According to Euclidean geometry, what is the minimum number of points needed to uniquely define a parabola and calculate its vertex?</li>
+                        </ul>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Chi-Squared activity"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_chi2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     with ui.dialog() as chi2_info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                         html_info_box(r"""
         <style>
@@ -1967,6 +2190,9 @@ def create_page():
      
                         with ui.column().classes('w-full md:w-[30%] min-w-[300px] items-center'):
                             plot_container = ui.column().classes('w-full')
+                            with ui.row().classes('w-full justify-center items-center gap-4 px-1 '):
+                                aria_button("Activity build model ", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Activity verify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                            
                         with ui.column().classes('w-full items-center justify-center md:w-[30%] min-w-[300px] gap-1'):
             
@@ -1981,7 +2207,7 @@ def create_page():
 
                             with ui.row().classes("w-full justify-center items-center gap-4 px-1 "):
                 
-                              
+                                aria_button("Activity quantify model ", "Instruction for chi2 activity", on_click=lambda: [instr_galaxy_chi2.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                                 aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 roundedm")
                                 
                                 aria_button("Tool", "Open dialog", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 rounded")
@@ -3077,13 +3303,98 @@ def create_page():
     </div>
 """).props('aria-label="Descriptive text about galaxy cluster activity"')
                         aria_button("Close","Close the box", on_click=lambda:instruction_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    
+                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 5: Galaxy Clusters & The Virial Theorem</h3>
+                        <p>Verify if Model 2 (Dark Matter) is valid in entirely different cosmic contexts: Galaxy Clusters.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Analyze the Context:</b> Consider a galaxy cluster as a system of thousands of galaxies rotating around a common center of mass. Formulate a prediction about whether Dark Matter is needed here too.</li>
+                            <li><b>Write Energy Formulas:</b> Write down the general formulas for Kinetic Energy (\(K\)) and Gravitational Potential Energy (\(U\)).</li>
+                            <li><b>Dynamics Equation:</b> Write the dynamics equation (\(F = ma\)) by setting the Gravitational Force equal to the Centripetal Force.</li>
+                            <li><b>Derive the Relationship:</b> Manipulate these equations step-by-step to find the mathematical relationship between \(K\) and \(U\) for a system in equilibrium.</li>
+                        </ol>
+
+                        <h4>Guiding Questions:</h4>
+                        <ul>
+                            <li>Is the presence of dark matter an isolated case only found in individual galaxies, or does it apply to the whole Universe?</li>
+                            <li>Consider a satellite of mass \(m\) in a stable circular orbit of radius \(r\) around a massive object \(M\). What are the two forms of energy it possesses?</li>
+                            <li>What fundamental force keeps the satellite in a circular orbit?</li>
+                            <li>Looking at your force equation, try multiplying both sides by \(r\). What expression do you get on the right side?</li>
+                            <li>Look at your Kinetic Energy formula. Substitute the expression you just found into it. What is the new formula?</li>
+                            <li>Compare this new expression of \(K\) with the Potential Energy \(U\) formula. What is the exact mathematical relationship between them?</li>
+                        </ul>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Cluster Virial Theorem"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_virial.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+
+                    with ui.dialog() as instr_cluster_mass, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 5: Calculating Cluster Virial Mass</h3>
+                        <p>Apply the Virial Theorem to calculate the true dynamic mass of the cluster and compare it to what we can see.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Derive the Mass Formula:</b> Substitute your expressions for \(K\) and \(U\) into the Virial Theorem formula. Isolate the mass (\(M\)) to create the inverse formula.</li>
+                            <li><b>Adapt for Clusters:</b> Since a cluster has many galaxies with different velocities, replace the standard velocity in your formula with "velocity dispersion" (\(\sigma\)).</li>
+                            <li><b>Extract Data:</b> Select a cluster dataset in the App to extract the required data (average velocities and cluster radius).</li>
+                            <li><b>Calculate Virial Mass:</b> Calculate the total dynamic mass (Virial Mass) of the cluster using your derived formula.</li>
+                            <li><b>Calculate Luminous Mass:</b> Sum the pre-calculated visible mass of all the individual galaxies provided in the dataset to find the total Luminous Mass of the cluster.</li>
+                            <li><b>Compare:</b> Calculate the ratio: Virial Mass / Luminous Mass.</li>
+                        </ol>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for calculating Cluster Virial Mass"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_mass.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+
+                    with ui.dialog() as instr_cluster_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        html_info_box(r"""
+                        <h3>Phase 5: Cluster Slider Activity</h3>
+                        <p>Visualize the missing mass by analyzing the velocity distribution of the cluster.</p>
+                        
+                        <h4>Step-by-Step Instructions:</h4>
+                        <ol>
+                            <li><b>Observe the Histograms:</b> Look at the generated histograms (velocity vs number of galaxies) and the scatter plot (velocity vs distance).</li>
+                            <li><b>Analyze the Discrepancy:</b> Compare the blue histogram (real observed velocities) with the red histogram (predicted velocities if only visible mass existed). Notice the visual shift indicating "excess kinetic energy".</li>
+                            <li><b>Use the Slider:</b> Move the Dark Matter slider to add invisible mass to the cluster.</li>
+                            <li><b>Fit the Data:</b> Adjust the slider until the simulated green histogram and scatter plot perfectly overlap with the observed blue data.</li>
+                            <li><b>Compare Contexts:</b> Note the final Dark Matter values required for the cluster and compare them to the amounts required for the single galaxies you studied earlier.</li>
+                        </ol>
+
+                        <h4>Guiding Questions:</h4>
+                        <ul>
+                            <li>Looking at the blue and red histograms, are the real galaxies moving slower or faster than they should be based on the visible matter?</li>
+                        </ul>
+                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Cluster Slider activity"')
+                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_slider.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     with ui.dialog() as dataset_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto aria-label=Dataset info'):
                 
                 
                         info_box("**Dataset variables**: objid (galaxy ID),ra (right ascension),dec (declination),modelmag_r (apparent magnitude in r band),modelmagerr_r (magnitude error),extinction_r,redshift (z),zErr (redshift error)")
                                                     
                         reference_box("""**Dataset reference**: [Kaggle:Coma cluster](https://www.kaggle.com/datasets/mertalkan98/coma-cluster) ; [SDSS](https://www.sdss.org/science/data-release-publications)""").classes('text-base italic')
+                        template_url_clu ="https://docs.google.com/spreadsheets/d/1LTZNHpg2BlkKZyMrsV_KxcaTGasa7EhD/copy"
+                        with ui.row().classes('w-full justify-center gap-4 mt-4'):
+        
+                            aria_button('Build Google Sheet', 'Create copy Google Sheet', 
+                on_click=lambda: ui.run_javascript(f'window.open("{template_url_clu}", "_blank")')) \
+        .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+        .props('aria-label="Create personal copy of Google Sheets"')
+
+    
+        
+        
+                           
+                            aria_button('Download Dataset', 'download', 
+                                        on_click=lambda: ui.run_javascript('window.location.href = "/dataset/Cluster_dataset.xlsx"')) \
+                                .classes('!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded') \
+                                .props('aria-label="Download the Excel dataset"')
+
+                           
+                            aria_button('Upload Exercises', 'cloud_upload', on_click=upload_zone_dialog.open) \
+        .classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded')
+                          
+                    
                         aria_button("Close","Close the box", on_click=lambda:dataset_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 
                     with ui.row().classes('w-full justify-center '):
@@ -3700,10 +4011,13 @@ def create_page():
                             with ui.column().classes('flex-1 items-center'):
                                 
                                 plot_container_scatter = ui.column()
-                            
+                                with ui.row().classes('w-full justify-center gap-4'):
+                                    aria_button("Activity virial theorem", "Read the instructions for activity 1", on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")   
+                                    aria_button("Activity virial mass", "Read the instructions for activity 2", on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
     
                             with ui.column().classes('flex-1 items-center'):
                                 plot_container_histo = ui.column()
+                                aria_button("Activity cluster", "Read the instructions for activity 3", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                                 
                             
                     
