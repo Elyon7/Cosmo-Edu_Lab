@@ -921,31 +921,108 @@ def create_page():
     """).props('role=dialog aria-modal=true aria-label="Descriptive text about Kepler Laws activity"')
 
                         aria_button("Close", "close the box",on_click=lambda:info_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as instr_kepler_phase1, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 1: Kepler & The Solar System</h3>
-                        <p>Your goal is to build a gravity model based on a known system (our Solar System) to test the article's claim.</p>
-                        
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Analyze the dataset:</b> Download the planets dataset from the App. Look at the data for the planets in the solar system, specifically focusing on the velocity and distance (semi-major axis) columns.</li>
-                            <li><b>Build Model 1:</b> Try to find the mathematical relationship between velocity (v) and distance (d). Using the Excel file, calculate the following columns: <i>v</i> &middot; <i>d</i>, <i>v</i><sup>2</sup> &middot; <i>d</i>, and <i>v</i><sup>3</sup> &middot; <i>d</i>. Check which of these calculations results in a nearly constant value.</li>
-                            <li><b>Plot the data:</b> Build a Scatter Plot (<i>v</i><sup>2</sup> vs 1/<i>d</i>) in Excel.</li>
-                            <li><b>Compare with the App:</b> Look at the "Keplerian orbital velocity curve Plot" in the App (velocity vs distance) and compare it with your findings.</li>
-                            <li><b>Analytical Derivation:</b> Use the formulas for centripetal force and gravitational force to analytically derive the orbital velocity.</li>
-                        </ol>
-
-                        <h4>Guiding Questions:</h4>
-                        <ul>
-                            <li>Looking at the Solar System data, which planets move faster? The ones closer to the Sun, or the ones further away?</li>
-                            <li>If we draw a plot of velocity (y-axis) vs distance (x-axis), what shape does it have?</li>
-                            <li>Based on your scatter plot, what does the relationship <i>v</i><sup>2</sup> &middot; <i>d</i> equal to?</li>
-                            <li>What fundamental force acts in the universe to keep planets in orbit?</li>
-                            <li>Does Newton's gravity model work perfectly in the solar system?</li>
-                        </ul>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Kepler Phase 1"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_kepler_phase1.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
+                    kepler_exercise_state = {'step': 0}
+
+                   
+                    kepler_exercises_html = [
+                        r"""
+                        <h3>Part 1: Dataset Analysis</h3>
+                        <ul>
+                            <li>Open the App and go to the "Kepler Panel" section of module 4.</li>
+                            <li>Download or open the worksheet with the Solar System planets' data by clicking the 'dataset' button.</li>
+                            <li>Analyze the columns related to "Velocity" and "Distance" (semi-major axis).</li>
+                            <li>Looking at the Solar System data, how would you write the velocity-distance relationship of the Planets?</li>
+                            <li>If we draw a graph with velocity on the Y-axis and distance on the X-axis, what shape does the curve take?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Part 2: Building Model 1 - Exercise 2.1</h3>
+                        <ul>
+                            <li>On your spreadsheet, try to find the mathematical relationship between velocity and distance.</li>
+                            <li>Create three new columns and calculate the following values for each planet: <i>v &middot; d</i>, <i>v<sup>2</sup> &middot; d</i>, and <i>v<sup>3</sup> &middot; d</i>. Observe which of these three operations returns an almost constant value.</li>
+                            <li>Considering the velocity-distance relationship you chose, create two new columns in the Excel sheet respectively for the square of the velocity (=(F2:F10)^2) and the reciprocal of the semi-major axis (=1/(B2:B10)). Use the data to build a scatter plot by putting the squared velocity on the Y-axis and 1/d on the X-axis. Select the two columns simultaneously and insert the scatter plot using the corresponding button in the 'insert chart' section.</li>
+                            <li>What geometric shape did you find in the graph?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Part 3: Building Model 1 - Exercise 2.2</h3>
+                        <ul>
+                            <li>Considering the line passing through the origin, substitute the equation <i>y = mx</i> with velocity (y) and distance (x) for different values of the dataset and analyze the results.</li>
+                            <li>How does the slope (angular coefficient) of the line behave for different values?</li>
+                            <li>Based on your scatter plot, what does the velocity-distance relationship equal?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Part 4: Mathematical Derivation - Exercise 3.1</h3>
+                        <ul>
+                            <li>Consider the context of the planets rotating around the Sun, where the force of gravity and centripetal acceleration act. The goal is to find the rotation velocity to understand what the constant <i>c</i> equals.</li>
+                            <li>Write the formula for the gravitational force and the centripetal force of circular motion.</li>
+                            <li>How can we derive the orbital velocity using these two formulas?</li>
+                            <li>Write the equivalence: <i>F<sub>grav</sub> = F<sub>cent</sub></i>.</li>
+                            <li>Perform the simplifications of the mass and distance terms on both sides of the equation.</li>
+                            <li>Derive <i>v<sup>2</sup></i> by manipulating the equation and then find the velocity (without the square).</li>
+                            <li>What terms does the constant include?</li>
+                            <li>What relationship is there between the variables you find in the formula?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Part 5: Mathematical Derivation - Exercise 3.2</h3>
+                        <ul>
+                            <li>To numerically verify the terms of the constant using the dataset data (velocity and distance), find the inverse formula deriving the mass <i>M</i>. Apply the formula by calculating the mass for each planet (the variables are velocity and distance) and calculate its average.</li>
+                            <li>What does the obtained mass refer to?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Part 6: Comparison with the App</h3>
+                        <ul>
+                            <li>The obtained formula contains two constants (G and the mass of the Sun) and two variables (velocity and distance).</li>
+                            <li>Create the scatter plot by putting the semi-major axis (distance) on the X-axis and the velocity on the Y-axis (select the corresponding columns).</li>
+                            <li>In the App, module 4, Kepler panel, observe the orbital velocity graph ("Keplerian orbital velocity curve Plot").</li>
+                            <li>Compare the curve generated by the App with the graph you just created. Are they the same?</li>
+                            <li>We call this resulting model, which is valid for the Solar System: <b>Model 1</b>.</li>
+                        </ul>
+                        """
+                    ]
+
+
+                    with ui.dialog() as instr_kepler_phase1, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        
+                        @ui.refreshable
+                        def kepler_exercises_content():
+                            current_step = kepler_exercise_state['step']
+                          
+                            html_info_box(kepler_exercises_html[current_step])
+                            
+                          
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                               
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label() 
+                                
+                             
+                                ui.label(f"Step {current_step + 1} of {len(kepler_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                               
+                                if current_step < len(kepler_exercises_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_kepler_phase1.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+                        def change_step(delta):
+                            kepler_exercise_state['step'] += delta
+                            kepler_exercises_content.refresh()
+
+                       
+                        instr_kepler_phase1.on('open', lambda: kepler_exercise_state.update({'step': 0}) or kepler_exercises_content.refresh())
+
+                      
+                        kepler_exercises_content()
                     
                     
                     def handle_url_submission(url_input, name_input):
@@ -1396,7 +1473,7 @@ def create_page():
                         with ui.column().classes('w-full md:w-auto shrink-0'):
                         
                             plot_velocity(selector.value).classes('max-w-full')
-                            aria_button("Activity Kepler", "Instructions for Kepler velocity plot", on_click=lambda:instr_kepler_phase1.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4")
+                            aria_button("Activity 1:Kepler", "Instructions for Kepler velocity plot", on_click=lambda:instr_kepler_phase1.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4")
                             
                             
                     
@@ -1699,76 +1776,178 @@ def create_page():
                     with ui.dialog() as morpho, ui.card().classes('w-full max-w-xl mx-auto h-auto '):
                         morph_plot_container = ui.column().classes("w-full h-auto")
                         aria_button('close','close', on_click=lambda:morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                  
+                    galaxy_exercise_state = {'step': 0}
+
+                  
+                    galaxy_exercises_html = [
+                        r"""
+                        <h3>Phase 2: Galaxy Panel – Predicting in a New Context (Galaxies)</h3>
+                        <p><b>Goal:</b> Use the Solar System Model you just created to make a prediction in the context of galaxies.</p>
+                        
+                        <h4>Formulate your prediction:</h4>
+                        <ul>
+                            <li>Before looking at the App's data, gather in your group and draw your prediction on a piece of paper: what do you expect the velocity graph of stars rotating around the center of a galaxy to look like as you move further from the center?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Observation of Real Data:</h3>
+                        <ul>
+                            <li>In the App, module 4, "Galaxy Panel" section, select a real galaxy (dataset) from the dropdown menu.</li>
+                            <li>Observe the left graph representing the rotation velocity of stars as a function of distance from the galactic center: the blue points represent the "Observed Data" (real measurements with optical instruments), while the red line represents the theoretical Keplerian curve (what you would expect based on the formula found for the Solar System).</li>
+                            <li>Observing the App's graph, why are the two curves (red line and blue points) different? Which curve do you think is correct for galaxies and why?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Phase 3: Galaxy Panel – Formulating a New Hypothesis</h3>
+                        <p><b>Goal:</b> Find a mathematical solution to the discrepancy that emerged in Phase 2.</p>
+                        
+                        <h4>Analysis of the Discrepancy:</h4>
+                        <ul>
+                            <li>Take back the Keplerian orbital velocity formula that you derived in Phase 1.</li>
+                            <li>Look at the observational data in the graph (blue points): the velocity does not drop, but remains almost constant even at very large distances. The Keplerian prediction (red curve) does not match the experimental data.</li>
+                            <li>Why do the peripheral stars of the galaxy travel so fast?</li>
+                            <li>How can the discrepancy between observations and prediction be resolved?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Building Model 2:</h3>
+                        <ul>
+                            <li>Look at the equation: if the radius in the denominator grows (as we see in the graph), what must happen to the Mass in the numerator so that the velocity remains constant and the equation remains mathematically correct?</li>
+                            <li>If we had to add mass, is it luminous mass (visible stars, dust, gas) or is it something else?</li>
+                        </ul>
+                        """
+                    ]
+
+
                     with ui.dialog() as instr_galaxy_phase2_3, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 2 & 3: Galaxy Rotation Curves</h3>
-                        <p>Now, you will use your Solar System model (Model 1) to make a prediction about a new context: Galaxies.</p>
                         
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Formulate a hypothesis:</b> Before looking at the data, draw your prediction. Discuss with your group whether Model 1 is valid for the context of galaxies.</li>
-                            <li><b>Observe the data:</b> Select a real galaxy dataset from the dropdown menu in the App.</li>
-                            <li><b>Compare:</b> Look at the "Observed Data" (blue points) and the Newton theoretical curve (red line) on the plot. Compare the real observations with the prediction.</li>
-                            <li><b>Revise the model:</b> Look back at the Keplerian formula you derived in Phase 1. You must hypothesize a mathematical solution for the discrepancy between the real data and Newton's model.</li>
-                        </ol>
+                        @ui.refreshable
+                        def galaxy_exercises_content():
+                            current_step = galaxy_exercise_state['step']
+                            
+                           
+                            html_info_box(galaxy_exercises_html[current_step])
+                            
+                          
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                                
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_galaxy(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label()
+                                
+                               
+                                ui.label(f"Step {current_step + 1} of {len(galaxy_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                              
+                                if current_step < len(galaxy_exercises_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_galaxy(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_galaxy_phase2_3.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                        <h4>Guiding Questions:</h4>
+                        def change_step_galaxy(delta):
+                            galaxy_exercise_state['step'] += delta
+                            galaxy_exercises_content.refresh()
+
+                       
+                        instr_galaxy_phase2_3.on('open', lambda: galaxy_exercise_state.update({'step': 0}) or galaxy_exercises_content.refresh())
+
+                       
+                        galaxy_exercises_content()
+                  
+                    slider_exercise_state = {'step': 0}
+
+                
+                    slider_exercises_html = [
+                        r"""
+                        <h3>Phase 4: Galaxy Panel – Quantifying Model 2</h3>
+                        <p><b>Goal:</b> Verify if Model 2 fits the real data using multisensorial and statistical analysis.</p>
+                        
+                        <h4>Roles Distribution:</h4>
+                        <p>Divide the following roles within the group (you can rotate during the activity):</p>
                         <ul>
-                            <li>If the news article is true and physics is the same everywhere, what should the velocity graph of stars in a galaxy look like as you move further from the center?</li>
-                            <li>Observing the data and the prediction in the App, are the two curves different? Why? Which of the two is correct?</li>
-                            <li>Why do the stars move so fast even far from the galactic center?</li>
-                            <li>Look at your Keplerian equation. If the velocity remains constant while the radius increases (as seen in the blue data points), what must the mass do for the equation to remain mathematically correct?</li>
-                            <li>Is this required increasing mass luminous (stars/gas), or is it something else?</li>
+                            <li><b>Navigator:</b> Moves the slider in the App to add dark matter; the green simulated curve moves and must reach the observations.</li>
+                            <li><b>Listener:</b> Wears headphones to listen to the "Sonification" (data converted into sound) and find the sound match between the data and the simulated curve.</li>
+                            <li><b>Data Analyst:</b> Monitors the mathematical values and the "Chi-Squared" generated by the App to quantify the additional mass and reduce the discrepancy between data and theory.</li>
                         </ul>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Galaxy Phase 2 and 3"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_phase2_3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+                        <hr style="margin: 15px 0;">
+
+                        <h4>Exercise 1: Slider Exercise</h4>
+                        <ul>
+                            <li>The Navigator selects a galaxy from the dropdown menu (module 4 – Galaxy panel) and starts adding mass by moving the slider. Observe the green curve (simulated) moving. Try different mass values until you get a good match between the simulated curve and the data.</li>
+                            <li>When you have reached the match between the simulated curve and the data, what dark matter value do you read on the graph? The Data Analyst checks the dark matter value and also takes care of the following statistical exercise.</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Exercise 2: Multisensory Exercise</h3>
+                        <ul>
+                            <li>The data is converted into sound frequencies (high pitch = high velocity values, low pitch = low values) to perceive the velocity values in a multisensory way.</li>
+                            <li>The Listener clicks the 'activate audio' button and listens to the sound of the data by selecting (one at a time) 'observed velocity', 'baryonic velocity', and 'simulated velocity'. Listen to both the sound of the entire curve and the average.</li>
+                            <li>Try different simulated velocity values by moving the slider, and each time listen to the sound and compare it with the observed data. Look for the audio match between the observed and simulated curves.</li>
+                            <li>When the simulation sound matches the real data sound perfectly, say "Stop!" so the Navigator can select the correct mass value with the slider.</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Exercise 3: Statistical Exercise (Chi-Squared Minimization)</h3>
+                        <ul>
+                            <li>Let's call <b>O</b> the Observed value (blue point) and <b>E</b> the Expected value from the model. The distance/error is (O - E). If we sum all these distances (some positive above the curve, others negative below), what happens mathematically?</li>
+                            <li>How do we solve the problem of negative numbers in statistics if we only want to sum positive error quantities?</li>
+                            <li>Does a 10 km/s error on a very slow star weigh the same as a 10 km/s error on a very fast one? How is the formula modified to account for this?</li>
+                            <li>The Chi-Squared calculates the difference between the blue points (observations) and the green line (simulated model based on a mass density distribution).</li>
+                            <li>By moving the slider we can add points, how do we know we have found the absolute minimum error value? What geometric shape has a minimum value?</li>
+                            <li>The Data Analyst and the Navigator must collaborate to try 3 completely different Dark Matter values on the slider and check their respective 3 Chi-Squared values.</li>
+                            <li>Insert 3 points into the center graph by moving the slider and clicking 'add point' after selecting each value. What geometric shape did you get? What (minimum) value does the vertex correspond to? Find the smallest vertex value by trying different combinations of 3 values.</li>
+                            <li>Why do we need to calculate exactly a parabola and need exactly 3 points to find the minimum error?</li>
+                        </ul>
+                        """
+                    ]
+
+
                     with ui.dialog() as instr_galaxy_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 4: Dark Matter Slider & Sonification</h3>
-                        <p>Verify if Model 2 (with Dark Matter) fits the real galaxy data using multisensorial analysis.</p>
                         
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Assign Roles:</b> Each group member must take one of the following roles (rotate later):
-                                <ul>
-                                    <li><i>Navigator:</i> Operates the Dark Matter slider in the App.</li>
-                                    <li><i>Data Analyst:</i> Monitors the numerical value of the Chi-Squared (\(\chi^2\)).</li>
-                                    <li><i>Listener:</i> Wears headphones to listen to the data sonification.</li>
-                                </ul>
-                            </li>
-                            <li><b>Select Dataset:</b> Choose a galaxy dataset to analyze.</li>
-                            <li><b>Use the Slider:</b> The green curve starts identical to the red (Keplerian) curve. The <i>Navigator</i> must slowly move the "Dark Matter" slider to add invisible mass to the system and observe how the green simulated curve changes in real-time.</li>
-                            <li><b>Audio Matching:</b> The <i>Listener</i> must listen to the pitch of the observed data curve vs the simulated curve. Say "Stop!" exactly when the sound of the simulated curve matches the sound of the real data.</li>
-                            <li><b>Verify:</b> The <i>Data Analyst</i> must read the Chi-Squared value at that exact moment. Check the velocity plot and the mass vs radius plot.</li>
-                        </ol>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Galaxy Slider and Sonification"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_slider.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                        @ui.refreshable
+                        def slider_exercises_content():
+                            current_step = slider_exercise_state['step']
+                            
+                            
+                            html_info_box(slider_exercises_html[current_step])
+                            
+                           
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                               
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_slider(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label() 
+                                
+                              
+                                ui.label(f"Step {current_step + 1} of {len(slider_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                                
+                                if current_step < len(slider_exercises_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_slider(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_galaxy_slider.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
+                        def change_step_slider(delta):
+                            slider_exercise_state['step'] += delta
+                            slider_exercises_content.refresh()
 
-                    with ui.dialog() as instr_galaxy_chi2, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 4: Statistical Verification (\(\chi^2\))</h3>
-                        <p>Find the exact mathematical value of Dark Matter by minimizing the statistical error.</p>
-                        
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Understand the Error:</b> The \(\chi^2\) represents the distance between the blue points (Observed data) and the green line (our simulated Model).</li>
-                            <li><b>Minimization:</b> Your goal is to find the exact Dark Matter value that makes the \(\chi^2\) as small as possible.</li>
-                            <li><b>Parabolic Fit:</b> Try 3 entirely different Dark Matter values using the slider and record the \(\chi^2\) for each. Input these 3 points into the tool to calculate the vertex of the parabola (the absolute minimum).</li>
-                        </ol>
+                       
+                        instr_galaxy_slider.on('open', lambda: slider_exercise_state.update({'step': 0}) or slider_exercises_content.refresh())
 
-                        <h4>Guiding Questions:</h4>
-                        <ul>
-                            <li>Let's call \(O\) the Observed value (blue point) and \(A\) the expected value from the model. What happens if I sum all the distances \((O - A)\), knowing some points are above the curve (positive) and some are below (negative)?</li>
-                            <li>How do we mathematically solve the problem of negative numbers if we only want to sum positive error quantities?</li>
-                            <li>Should an error of 10 km/s on a slow, nearby star have the same weight as an error of 10 km/s on a very fast, distant star? How do we adjust for this?</li>
-                            <li>If you select a random mass value with the slider, how do you know if it is the absolute minimum error?</li>
-                            <li>If we draw a graph where the X-axis is Dark Matter and the Y-axis is \(\chi^2\), and we connect two points, we get a descending line. Can we simply follow this line infinitely to find the lowest error? Why or why not?</li>
-                            <li>What is the simplest geometric shape that describes a concavity with a single minimum point?</li>
-                            <li>According to Euclidean geometry, what is the minimum number of points needed to uniquely define a parabola and calculate its vertex?</li>
-                        </ul>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Chi-Squared activity"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_galaxy_chi2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                       
+                        slider_exercises_content()
+
+                   
                     with ui.dialog() as chi2_info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                         html_info_box(r"""
         <style>
@@ -2191,8 +2370,8 @@ def create_page():
                         with ui.column().classes('w-full md:w-[30%] min-w-[300px] items-center'):
                             plot_container = ui.column().classes('w-full')
                             with ui.row().classes('w-full justify-center items-center gap-4 px-1 '):
-                                aria_button("Activity build model ", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                                aria_button("Activity verify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Activity 2-3:build model ", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Activity 4:quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                            
                         with ui.column().classes('w-full items-center justify-center md:w-[30%] min-w-[300px] gap-1'):
             
@@ -2207,7 +2386,7 @@ def create_page():
 
                             with ui.row().classes("w-full justify-center items-center gap-4 px-1 "):
                 
-                                aria_button("Activity quantify model ", "Instruction for chi2 activity", on_click=lambda: [instr_galaxy_chi2.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                               
                                 aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 roundedm")
                                 
                                 aria_button("Tool", "Open dialog", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 rounded")
@@ -3303,70 +3482,205 @@ def create_page():
     </div>
 """).props('aria-label="Descriptive text about galaxy cluster activity"')
                         aria_button("Close","Close the box", on_click=lambda:instruction_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 5: Galaxy Clusters & The Virial Theorem</h3>
-                        <p>Verify if Model 2 (Dark Matter) is valid in entirely different cosmic contexts: Galaxy Clusters.</p>
+                  
+                    cluster_exercise_state = {'step': 0}
+
+             
+                    cluster_exercises_html = [
+                        r"""
+                        <h3>Phase 5: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
+                        <p><b>Goal:</b> Verify if Dark Matter is also present in galaxy clusters, using different mathematical tools.</p>
                         
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Analyze the Context:</b> Consider a galaxy cluster as a system of thousands of galaxies rotating around a common center of mass. Formulate a prediction about whether Dark Matter is needed here too.</li>
-                            <li><b>Write Energy Formulas:</b> Write down the general formulas for Kinetic Energy (\(K\)) and Gravitational Potential Energy (\(U\)).</li>
-                            <li><b>Dynamics Equation:</b> Write the dynamics equation (\(F = ma\)) by setting the Gravitational Force equal to the Centripetal Force.</li>
-                            <li><b>Derive the Relationship:</b> Manipulate these equations step-by-step to find the mathematical relationship between \(K\) and \(U\) for a system in equilibrium.</li>
-                        </ol>
-
-                        <h4>Guiding Questions:</h4>
+                        <h4>1. Formulation of Predictions:</h4>
                         <ul>
-                            <li>Is the presence of dark matter an isolated case only found in individual galaxies, or does it apply to the whole Universe?</li>
-                            <li>Consider a satellite of mass \(m\) in a stable circular orbit of radius \(r\) around a massive object \(M\). What are the two forms of energy it possesses?</li>
-                            <li>What fundamental force keeps the satellite in a circular orbit?</li>
-                            <li>Looking at your force equation, try multiplying both sides by \(r\). What expression do you get on the right side?</li>
-                            <li>Look at your Kinetic Energy formula. Substitute the expression you just found into it. What is the new formula?</li>
-                            <li>Compare this new expression of \(K\) with the Potential Energy \(U\) formula. What is the exact mathematical relationship between them?</li>
+                            <li>Considering a Cluster, formed by many galaxies rotating around the center of mass of the cluster, is Model 2 valid in this context as well?</li>
+                            <li>Is the presence of dark matter an isolated case concerning individual galaxies or is it a general rule of the Universe? Justify your answer.</li>
                         </ul>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Cluster Virial Theorem"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_virial.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                        """,
+                        r"""
+                        <h3>Phase 5: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
+                        <p><b>Goal:</b> Verify if Dark Matter is also present in galaxy clusters, using different mathematical tools.</p>
+                        
+                        <h4>2. Derivation of the Virial Theorem:</h4>
+                        <ul>
+                            <li>Consider a satellite of mass <i>m</i> in a circular orbit of radius <i>r</i> around a mass <i>M</i> (planet). On your notebook or in the 'Reflection' section in the App's side menu, write the formulas for Kinetic Energy (<i>K</i>) and Gravitational Potential Energy (<i>U</i>).</li>
+                            <li>Write Newton's equation of dynamics (<i>F = ma</i>) by inserting the relationship between Gravitational Force and Centripetal Force (replace <i>F</i> with the gravitational force and '<i>m*a</i>' with the centripetal force).</li>
+                            <li>Multiply both sides of the force equation by <i>r</i>.</li>
+                            <li>Use the result obtained to manipulate the formula for Kinetic Energy and compare it with the formula for Gravitational Potential to find the mathematical relationship that links them (Virial Theorem).</li>
+                        </ul>
+                        """
+                    ]
 
+                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        
+                        @ui.refreshable
+                        def cluster_exercises_content():
+                            current_step = cluster_exercise_state['step']
+                            
+                           
+                            html_info_box(cluster_exercises_html[current_step])
+                            
+                           
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                                
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label() 
+                                
+                              
+                                ui.label(f"Step {current_step + 1} of {len(cluster_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                                
+                                if current_step < len(cluster_exercises_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_virial.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+                        def change_step_cluster(delta):
+                            cluster_exercise_state['step'] += delta
+                            cluster_exercises_content.refresh()
+
+                        
+                        instr_cluster_virial.on('open', lambda: cluster_exercise_state.update({'step': 0}) or cluster_exercises_content.refresh())
+
+                  
+                        cluster_exercises_content()
+
+                   
+                    cluster_mass_exercise_state = {'step': 0}
+
+                 
+                    cluster_mass_exercises_html = [
+                        r"""
+                        <h3>Phase 5: Calculating Cluster Mass</h3>
+                        <h4>Exercise 2.1:</h4>
+                        <ul>
+                            <li>Open the App, Module 4 in the "Cluster Panel" section, and select a Galaxy Cluster (dataset) from the dropdown menu.</li>
+                            <li>From the Virial formula just found, replace <i>K</i> with the kinetic energy formula and <i>U</i> with the potential energy formula, and perform the appropriate simplifications.</li>
+                            <li>Derive the inverse formula to find the Total Mass.</li>
+                            <li><b>Note:</b> The cluster is made up of many galaxies, each with a different velocity. Therefore, we have a velocity distribution, and usually, the velocity dispersion (standard deviation) is considered instead of the sum of the velocities.</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Phase 5: Calculating Cluster Mass</h3>
+                        <h4>Exercise 2.2:</h4>
+                        <ul>
+                            <li>Use the data from the dataset downloadable from the App (radius and average velocities of the galaxies) to calculate the total mass of the cluster and the luminous mass (only stars, dust, gas).</li>
+                            <li>Download the cluster dataset from the App (Module 4 - Cluster panel - dataset). Analyze the data (velocity RV and radius of each galaxy in the cluster) by selecting a cluster dataset from the Excel spreadsheet.</li>
+                            <li>To calculate the Total Mass using the formula <i>M=(r*&sigma;<sup>2</sup>)/G</i>, first perform the following steps. Find the maximum radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
+                            <li>Calculate the standard deviation of the velocity using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
+                            <li>To obtain the total mass of the cluster, multiply the maximum radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
+                            <li>Calculate the Luminous Mass (stars, dust, gas) by summing the values of each galaxy in the Luminous_Mass column of the dataset <code>=SUM(G2:G108)</code>.</li>
+                            <li>Compare the results of the luminous mass and total mass. Calculate the ratio: Total_Mass / Luminous_Mass. What value do you get? Which of the two masses is larger and why?</li>
+                            <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
+                        </ul>
+                        """
+                    ]
 
                     with ui.dialog() as instr_cluster_mass, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 5: Calculating Cluster Virial Mass</h3>
-                        <p>Apply the Virial Theorem to calculate the true dynamic mass of the cluster and compare it to what we can see.</p>
                         
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Derive the Mass Formula:</b> Substitute your expressions for \(K\) and \(U\) into the Virial Theorem formula. Isolate the mass (\(M\)) to create the inverse formula.</li>
-                            <li><b>Adapt for Clusters:</b> Since a cluster has many galaxies with different velocities, replace the standard velocity in your formula with "velocity dispersion" (\(\sigma\)).</li>
-                            <li><b>Extract Data:</b> Select a cluster dataset in the App to extract the required data (average velocities and cluster radius).</li>
-                            <li><b>Calculate Virial Mass:</b> Calculate the total dynamic mass (Virial Mass) of the cluster using your derived formula.</li>
-                            <li><b>Calculate Luminous Mass:</b> Sum the pre-calculated visible mass of all the individual galaxies provided in the dataset to find the total Luminous Mass of the cluster.</li>
-                            <li><b>Compare:</b> Calculate the ratio: Virial Mass / Luminous Mass.</li>
-                        </ol>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for calculating Cluster Virial Mass"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_mass.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                        @ui.refreshable
+                        def cluster_mass_exercises_content():
+                            current_step = cluster_mass_exercise_state['step']
+                            
+                          
+                            html_info_box(cluster_mass_exercises_html[current_step])
+                            
+                         
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                               
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster_mass(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label() 
+                                
+                               
+                                ui.label(f"Step {current_step + 1} of {len(cluster_mass_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                              
+                                if current_step < len(cluster_mass_exercises_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_mass(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_mass.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
+                        def change_step_cluster_mass(delta):
+                            cluster_mass_exercise_state['step'] += delta
+                            cluster_mass_exercises_content.refresh()
+
+                        instr_cluster_mass.on('open', lambda: cluster_mass_exercise_state.update({'step': 0}) or cluster_mass_exercises_content.refresh())
+
+                       
+                        cluster_mass_exercises_content()
+
+                 
+                    cluster_slider_state = {'step': 0}
+
+                  
+                    cluster_slider_html = [
+                        r"""
+                        <h3>Phase 5: Observation of plots and Slider exercise</h3>
+                        <h4>Exercise 3.1:</h4>
+                        <ul>
+                            <li>Look at the histogram generated by the App (velocity vs number of galaxies) and the scatter plot (velocity vs distance). Compare the plots representing the observed data (blue) with those of the predicted velocities using only the visible mass (red).</li>
+                            <li>Looking at the red and blue histograms on the App, are the real galaxies in the cluster moving slower or faster than they should be, and why?</li>
+                            <li>Use the slider to add mass; the simulated graph (green) will move. The goal is to find the amount of mass to add to make the simulated graph match the observations. Check the dark matter value (plot label) needed to obtain the match with the data.</li>
+                            <li>In conclusion, is dark matter present in clusters? Why?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Phase 5: Observation of plots and Slider exercise</h3>
+                        <h4>Exercise 3.2:</h4>
+                        <ul>
+                            <li>Compare the dark matter values obtained in the context of galaxies and the cluster by analyzing the plot labels (Galaxy Panel and Cluster Panel). Verify in which context there is more dark matter and justify your answer.</li>
+                        </ul>
+                        """
+                    ]
 
                     with ui.dialog() as instr_cluster_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
-                        html_info_box(r"""
-                        <h3>Phase 5: Cluster Slider Activity</h3>
-                        <p>Visualize the missing mass by analyzing the velocity distribution of the cluster.</p>
                         
-                        <h4>Step-by-Step Instructions:</h4>
-                        <ol>
-                            <li><b>Observe the Histograms:</b> Look at the generated histograms (velocity vs number of galaxies) and the scatter plot (velocity vs distance).</li>
-                            <li><b>Analyze the Discrepancy:</b> Compare the blue histogram (real observed velocities) with the red histogram (predicted velocities if only visible mass existed). Notice the visual shift indicating "excess kinetic energy".</li>
-                            <li><b>Use the Slider:</b> Move the Dark Matter slider to add invisible mass to the cluster.</li>
-                            <li><b>Fit the Data:</b> Adjust the slider until the simulated green histogram and scatter plot perfectly overlap with the observed blue data.</li>
-                            <li><b>Compare Contexts:</b> Note the final Dark Matter values required for the cluster and compare them to the amounts required for the single galaxies you studied earlier.</li>
-                        </ol>
+                        @ui.refreshable
+                        def cluster_slider_content():
+                            current_step = cluster_slider_state['step']
+                            
+                          
+                            html_info_box(cluster_slider_html[current_step])
+                            
+                          
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                           
+                                if current_step > 0:
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster_slider(-1)) \
+                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label() 
+                                
+                               
+                                ui.label(f"Step {current_step + 1} of {len(cluster_slider_html)}").classes('text-gray-500 font-bold')
+                                
+                             
+                                if current_step < len(cluster_slider_html) - 1:
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_slider(1)) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_slider.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                        <h4>Guiding Questions:</h4>
-                        <ul>
-                            <li>Looking at the blue and red histograms, are the real galaxies moving slower or faster than they should be based on the visible matter?</li>
-                        </ul>
-                    """).props('role=dialog aria-modal=true aria-label="Student instructions for Cluster Slider activity"')
-                        aria_button("Close", "close the box", on_click=lambda:instr_cluster_slider.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                        def change_step_cluster_slider(delta):
+                            cluster_slider_state['step'] += delta
+                            cluster_slider_content.refresh()
+
+                 
+                        instr_cluster_slider.on('open', lambda: cluster_slider_state.update({'step': 0}) or cluster_slider_content.refresh())
+
+                     
+                        cluster_slider_content()
                     with ui.dialog() as dataset_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto aria-label=Dataset info'):
                 
                 
@@ -4012,12 +4326,12 @@ def create_page():
                                 
                                 plot_container_scatter = ui.column()
                                 with ui.row().classes('w-full justify-center gap-4'):
-                                    aria_button("Activity virial theorem", "Read the instructions for activity 1", on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")   
-                                    aria_button("Activity virial mass", "Read the instructions for activity 2", on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                    aria_button("Activity 5.1: virial theorem", "Read the instructions for activity 1", on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")   
+                                    aria_button("Activity 5.2: cluster mass", "Read the instructions for activity 2", on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
     
                             with ui.column().classes('flex-1 items-center'):
                                 plot_container_histo = ui.column()
-                                aria_button("Activity cluster", "Read the instructions for activity 3", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Activity 5.3: verify model", "Read the instructions for activity 3", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                                 
                             
                     
