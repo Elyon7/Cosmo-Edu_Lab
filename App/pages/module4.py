@@ -3479,6 +3479,7 @@ def create_page():
         <p style="margin-bottom: 5px;"><b>Coma Kinematics:</b> Lokas & Mamon (2003), "Dark matter distribution in the Coma cluster from galaxy kinematics".</p>
         <p style="margin-bottom: 5px;"><b>Virial Mass Estimators:</b> Mamon & Łokas (2005), "Dark matter in elliptical galaxies - II. Estimating the mass within the virial radius".</p>
         <p style="margin-bottom: 5px;"><b>Halo Concentrations:</b> Duffy et al. (2008), "Dark matter halo concentrations in the WMAP5 cosmology".</p>
+    <p style="margin-bottom: 5px;"><b>Baryon Fractions:</b> Giodini, S. et al. (2009), "Stellar and Total Baryon Mass Fractions in Groups and Clusters Since Redshift 1", The Astrophysical Journal, 703:982-993. </p>
     </div>
 """).props('aria-label="Descriptive text about galaxy cluster activity"')
                         aria_button("Close","Close the box", on_click=lambda:instruction_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -3573,8 +3574,8 @@ def create_page():
                             <li>Download the cluster dataset from the App (Module 4 - Cluster panel - dataset). Analyze the data (velocity RV and radius of each galaxy in the cluster) by selecting a cluster dataset from the Excel spreadsheet.</li>
                             <li>To calculate the Total Mass using the formula <i>M=(r*&sigma;<sup>2</sup>)/G</i>, first perform the following steps. Find the maximum radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
                             <li>Calculate the standard deviation of the velocity using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
-                            <li>To obtain the total mass of the cluster, multiply the maximum radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
-                            <li>Calculate the Luminous Mass (stars, dust, gas) by summing the values of each galaxy in the Luminous_Mass column of the dataset <code>=SUM(G2:G108)</code>.</li>
+                            <li>To obtain the total mass of the cluster, multiply the mean radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
+                            <li>Calculate the Luminous Mass (stars, dust, gas) by summing the values of each galaxy in the Star_Mass column of the dataset <code>=SUM(G2:G108)</code> and adding the Gas_Mass column. </li>
                             <li>Compare the results of the luminous mass and total mass. Calculate the ratio: Total_Mass / Luminous_Mass. What value do you get? Which of the two masses is larger and why?</li>
                             <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
                         </ul>
@@ -3769,11 +3770,14 @@ def create_page():
 
             <li><b>Step 18:</b> Stellar/baryonic mass:<br>
             <span class="math">\( M_{\mathrm{bar}} = (M/L)\,L_r, \;\; (M/L = 2) \)</span></li>
+            <li><b>Step 19:</b> Gas mass (Giodini 2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+    <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
 
-            <li><b>Step 19:</b> Total mass (DM + baryonic, linked to slider):<br>
+
+            <li><b>Step 21:</b> Total mass (DM + baryonic, linked to slider):<br>
             <span class="math">\( M_{\mathrm{tot}}(i) = M_{\mathrm{bar}}(i) + f \cdot M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) \)</span></li>
 
-            <li><b>Step 20:</b> Velocity dispersions:
+            <li><b>Step 22:</b> Velocity dispersions:
                 <ul style="margin-top:5px; list-style-type:circle;">
                     <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{bar}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
                     <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
@@ -4477,20 +4481,35 @@ def create_page():
                         
 
                             M_dm_at_gal = Mc_nfw_enclosed(r_safe, M200, c, rho_crit)
+                            h = 0.7
+                     
+                            m_vir_global = np.sum(m_bary_at_gal) + f * M200
+                            m_500_global = 0.7 * m_vir_global
+                            
+                            f_gas_global = 0.093 * ((m_500_global / (2e14 / h))**0.21)
+                            m_gas_global = m_500_global * f_gas_global
 
+                           
+                            ratio_stars_gas = (np.sum(m_bary_at_gal) + m_gas_global) / np.sum(m_bary_at_gal)
+                            m_bary_tot_at_gal = m_bary_at_gal * ratio_stars_gas
+                            
 
-                            M_total_at_gal = np.maximum(m_bary_at_gal + f * M_dm_at_gal, 1e-6)
-                        
+                            M_total_at_gal = np.maximum(m_bary_tot_at_gal + f * M_dm_at_gal, 1e-6)
                         
                             sigma_los_loc = np.sqrt(np.maximum(0.0, G_grav * M_total_at_gal / (3.0 * r_safe))) 
                             sigma_fit = np.std(observed_vel) 
                             
-                            M_bar_tot = np.sum(m_bary_at_gal)
+                            M_bar_tot = np.sum(m_bary_tot_at_gal) 
                             M_tot = M_bar_tot + f * M200
                             R_cluster = r200_from_M200(M_tot, rho_crit)
                             v_center_tot = np.sqrt(np.maximum(0.0, G_grav * M_tot / R_cluster))
                         
-                            sigma_bar = np.sqrt(np.maximum(0.0, G_grav * m_bary_at_gal / (3.0 * r_safe)))
+                            sigma_bar = np.sqrt(np.maximum(0.0, G_grav * m_bary_tot_at_gal / (3.0 * r_safe))) 
+                        
+                        
+                       
+                        
+                          
                     
                             R_cluster_bar = r200_from_M200(M_bar_tot, rho_crit)
                             v_center_bar = np.sqrt(np.maximum(0.0, G_grav * M_bar_tot / (R_cluster_bar + 1e-12)))
@@ -4798,8 +4817,11 @@ def create_page():
             <li><b>Step 5:</b> Absolute magnitude:<br> <span class="math">\( M_{\mathrm{abs}} = b_{\mathrm{mag}} - \text{distmod} \)</span></li>
             <li><b>Step 6:</b> Luminosity (<span class="math">\( M_{\odot,B} = 5.48 \)</span>):<br> <span class="math">\( L_B = 10^{-0.4 (M_{\mathrm{abs}} - M_{\odot,B})} \)</span></li>
             <li><b>Step 7:</b> Total cluster luminosity:<br> <span class="math">\( L_r = \sum_i L_{B,i} \)</span></li>
-            <li><b>Step 8:</b> Luminous mass (<span class="math">\( M/L = 5 \)</span>):<br> <span class="math">\( M_{\mathrm{lum}} = (M/L) \cdot L_r \)</span></li>
-        </ul>
+            <li><b>Step 8:</b> Stars mass (<span class="math">\( M/L = 5 \)</span>):<br> <span class="math">\( M_{\mathrm{stars}} = (M/L) \cdot L_r \)</span></li>
+           
+<li><b>Step 9:</b> Gas mass (Giodini,2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+    <li><b>Step 10:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
+ </ul>
 
         <h4>Virial Theorem Setup</h4>
         
@@ -5158,8 +5180,9 @@ def create_page():
                                         # 17) LUMINOUS MASS
                                         ui.label("17) Compute luminous mass:").classes('text-blue-200 font-bold text-lg')
                                         with ui.row().classes('items-center gap-1 math-text'):
-                                            ui.html('M<span class="math-sub">lum</span>(r) = (M/L) &middot; ')
+                                            ui.html('M<span class="math-sub">lum</span>(r) = (M/L) &middot ')
                                             answer_Mlum['el'] = aria_formula_input().props('dense filled').classes('w-12')
+                                            ui.html('+ M_gas; ')
 
                                         # 18) PLOT
                                         ui.label("18) Compare mass and density profiles").classes('text-blue-200 font-bold text-lg')
@@ -5253,6 +5276,11 @@ def create_page():
 
                                     sigma_global = np.std(members["RV"] - np.median(members["RV"]))
                                     M_tot_r = (3.0 * sigma_global**2 * R_cum) / G 
+                                    h = 0.7  
+                                    m_500_r = 0.7 * M_tot_r
+                                    f_gas_r = 0.093 * ((m_500_r / (2e14 / h))**0.21)
+                                    m_gas_r = m_500_r * f_gas_r
+                                    M_baryonic_r = M_lum_r + m_gas_r
 
                                     def positive_floor(arr):
                                         pos = arr[np.isfinite(arr) & (arr > 0)]
@@ -5262,13 +5290,13 @@ def create_page():
                                         return np.where(arr <= 0, floor, arr)
 
                                     M_tot_r = positive_floor(M_tot_r)
-                                    M_lum_r = positive_floor(M_lum_r)
+                                    M_baryonic_r = positive_floor(M_baryonic_r)
 
                                     with ui.column().classes('flex-1 items-center'):  
                                         with ui.pyplot(figsize=(8,6)):
                                     
-                                            mask_lum = M_lum_r > 0
-                                            plt.plot(R_cum[mask_lum], M_lum_r[mask_lum], label='Luminous Mass', color='red')
+                                            mask_lum = M_baryonic_r > 0
+                                            plt.plot(R_cum[mask_lum], M_baryonic_r[mask_lum], label='Luminous Mass', color='red')
                                             plt.plot(R_cum, M_tot_r, label='Total Mass (Virial)', color='blue')
                                             plt.xscale('log'); plt.yscale('log')
                                             plt.xlabel('Radius (kpc)'); plt.ylabel('Mass ($M_\\odot$)')
@@ -5278,7 +5306,7 @@ def create_page():
         'role=img tabindex=0 aria-label=Plot showing the mass profile (in solar mass) in function to the radius (in kpc) of the selected galaxy cluster, comparing luminous mass and total mass'
     )
                                 
-                                        rho_lum_cum = M_lum_r / ((4.0/3.0) * np.pi * R_cum**3)
+                                        rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
                                         rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
                                     with ui.column().classes('flex-1 items-center'):
                                         with ui.pyplot(figsize=(8,6)):
@@ -5394,7 +5422,11 @@ def create_page():
 
                             sigma_global = np.std(members["RV"] - np.median(members["RV"]))
                             M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
-
+                            h = 0.7  
+                            m_500_r = 0.7 * M_tot_r
+                            f_gas_r = 0.093 * ((m_500_r / (2e14 / h))**0.21)
+                            m_gas_r = m_500_r * f_gas_r
+                            M_baryonic_r = M_lum_r + m_gas_r
                             # positive floor to avoid zeros
                             def positive_floor(arr):
                                 pos = arr[np.isfinite(arr) & (arr > 0)]
@@ -5404,14 +5436,14 @@ def create_page():
                                 return np.where(arr <= 0, floor, arr)
 
                             M_tot_r = positive_floor(M_tot_r)
-                            M_lum_r = positive_floor(M_lum_r)
+                            M_baryonic_r = positive_floor(M_baryonic_r)
 
-                            rho_lum_cum = M_lum_r / ((4.0/3.0) * np.pi * R_cum**3)
+                            rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
                             rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
 
                             with cluster_popup_container:
                                 with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_cum, M_lum_r/1e9, label="Luminous Mass", color="red", lw=2)
+                                    plt.plot(R_cum, M_baryonic_r/1e9, label="Luminous Mass", color="red", lw=2)
                                     plt.plot(R_cum, M_tot_r/1e9, label="Total Mass", color="blue", lw=2)
                                     plt.xscale("log"); plt.yscale("log")
                                     plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
