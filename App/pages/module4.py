@@ -3399,6 +3399,8 @@ def create_page():
                     cluster_state = {
                         "select": "coma_data.csv", 
                         
+"chi2_points": [],
+"chi2_slider_result": "---",
                         "observed_vel": np.array([]),
                         "r_proj_kpc": np.array([]),
                         "m_bary_at_gal": np.array([]),
@@ -4315,7 +4317,120 @@ def create_page():
                         cluster_state['v_min_global'] = 0.0
                         cluster_state['ylim_min'] = 0.0
                         cluster_state['ylim_max'] = cluster_state['observed_vel'].max() + 0.2 * abs(cluster_state['observed_vel'].max())
+                    def plot_cluster_chi2_curve():
+                        cluster_chi2_plot_container.clear()
+                        plt.close()
+                        with cluster_chi2_plot_container:
+                            with ui.pyplot(figsize=(6, 4), close=False, clear=True):
+                                ax = plt.gca()
+                                chi2_points = cluster_state['chi2_points']
+                                
+                                if chi2_points:
+                                    xs, ys = zip(*chi2_points)
+                                    ax.scatter(xs, ys, s=40, c="blue", alpha=0.6, label="Points")
 
+                                  
+                                    if len(chi2_points) == 3:
+                                        coeffs = np.polyfit(xs, ys, 2)
+                                        x_lo, x_hi = min(xs), max(xs)
+                                        x_fit = np.linspace(x_lo - 0.2*(x_hi-x_lo), x_hi + 0.2*(x_hi-x_lo), 400)
+                                        y_fit = np.polyval(coeffs, x_fit)
+                                        
+                                        ymin_index = np.argmin(y_fit)
+                                        xmin = x_fit[ymin_index]
+                                        ymin = y_fit[ymin_index]
+
+                                        ax.plot(x_fit, y_fit, "g-", lw=2, label="Parabolic Fit")
+                                        ax.scatter([xmin], [ymin], c='red', s=140, marker='*', label="Min")
+                                
+                                ax.set_xlabel("DM mass ($M_{\\odot}$)", fontsize=10)
+                                ax.set_ylabel(r"χ²/dof", fontsize=10)
+                                ax.grid(True)
+                                
+                                handles, labels = ax.get_legend_handles_labels()
+                                if handles: 
+                                    ax.legend(handles, labels, fontsize=8)
+                                    
+                                text_to_show = cluster_state.get('chi2_slider_result', "---")
+                                plt.text(0.5, 0.92, text_to_show, 
+                                        transform=ax.transAxes, 
+                                        fontsize=9, 
+                                        color='green',
+                                        fontweight='bold',
+                                        horizontalalignment='center',
+                                        verticalalignment='top',     
+                                        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.9, edgecolor='lightgray'))
+                                
+                                plt.title("χ² Minimization", fontsize=12, fontweight='bold')
+                                plt.tight_layout()
+
+                    def add_cluster_chi2_point():
+                        f = float(dm_slider.value)
+                        observed_vel = cluster_state['observed_vel']
+                        M200 = cluster_state['M200']
+                        c = cluster_state['c']
+                        rho_crit = cluster_state['rho_crit']
+                        r_proj_kpc = cluster_state['r_proj_kpc']
+                        m_bary_at_gal = cluster_state['m_bary_at_gal']
+                        bins = cluster_state['bins']
+                        counts_obs = cluster_state['counts_obs']
+                        N_obs = cluster_state['N_obs']
+
+                        M_dm_tot = f * M200
+                        r_safe = np.maximum(r_proj_kpc, 1)
+                        
+                       
+                        M_dm_at_gal = Mc_nfw_enclosed(r_safe, M200, c, rho_crit)
+                        h = 0.7
+                        m_vir_global = np.sum(m_bary_at_gal) + f * M200
+                        m_500_global = 0.7 * m_vir_global
+                        f_gas_global = 0.093 * ((m_500_global / (2e14 / h))**0.21)
+                        m_gas_global = m_500_global * f_gas_global
+
+                        ratio_stars_gas = (np.sum(m_bary_at_gal) + m_gas_global) / np.sum(m_bary_at_gal)
+                        m_bary_tot_at_gal = m_bary_at_gal * ratio_stars_gas
+                        
+                        M_bar_tot = np.sum(m_bary_tot_at_gal) 
+                        M_tot = M_bar_tot + f * M200
+                        R_cluster = r200_from_M200(M_tot, rho_crit)
+                        v_center_tot = np.sqrt(np.maximum(0.0, G_grav * M_tot / R_cluster))
+
+                        sigma_fit = np.std(observed_vel)
+                        rng = np.random.default_rng(seed=42)
+                        v_dm = rng.normal(loc=v_center_tot, scale=sigma_fit, size=len(r_proj_kpc))
+
+                        
+                        counts_model, _ = np.histogram(v_dm, bins=bins)
+                        if counts_model.sum() > 0:
+                            counts_model = counts_model / counts_model.sum() * N_obs
+
+                        chi2_hist = np.sum(((np.log1p(counts_obs) - np.log1p(counts_model))**2))
+                        chi2_val = chi2_hist / max(1, len(counts_obs))
+
+                        cluster_state['chi2_points'].append((M_dm_tot, chi2_val))
+                        
+                       
+                        if len(cluster_state['chi2_points']) > 3:
+                            cluster_state['chi2_points'].pop(0)
+
+                        if len(cluster_state['chi2_points']) == 3:
+                            xs, ys = zip(*cluster_state['chi2_points'])
+                            coeffs = np.polyfit(xs, ys, 2)
+                            xmin = -coeffs[1] / (2*coeffs[0])
+                            ymin = np.polyval(coeffs, xmin)
+                            cluster_state['chi2_slider_result'] = f"Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}}, \\chi^2_{{min}} \\approx {ymin:.2f}$"
+                        else:
+                            cluster_state['chi2_slider_result'] = "Add more points to find the minimum."
+
+                        plot_cluster_chi2_curve()
+
+                    def refresh_cluster_chi2_plot():
+                        cluster_state['chi2_points'].clear()
+                        cluster_state['chi2_slider_result'] = "---"
+                        plot_cluster_chi2_curve()
+
+                   
+                  
 
                     with ui.column().classes('w-full items-center '):
                         dm_slider_min, dm_slider_max = 0.0, 50.0
@@ -4325,19 +4440,34 @@ def create_page():
 
                 
                         
-                        with ui.row().classes('w-full justify-center gap-4'):
-                            with ui.column().classes('flex-1 items-center'):
-                                
-                                plot_container_scatter = ui.column()
-                                with ui.row().classes('w-full justify-center gap-4'):
-                                    aria_button("Activity 5.1: virial theorem", "Read the instructions for activity 1", on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")   
-                                    aria_button("Activity 5.2: cluster mass", "Read the instructions for activity 2", on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                        with ui.row().classes('w-full justify-center gap-2 px-2'):
     
-                            with ui.column().classes('flex-1 items-center'):
-                                plot_container_histo = ui.column()
-                                aria_button("Activity 5.3: verify model", "Read the instructions for activity 3", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(      "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                                
-                            
+                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
+                                plot_container_histo = ui.column().classes('w-full')
+                                aria_button("Activity 5.3: verify model", "Read the instructions for activity 3", 
+                                            on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
+                                    .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2")
+                                    
+                          
+                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
+                                cluster_chi2_plot_container = ui.column().classes('w-full p-0 m-0')
+                                plot_cluster_chi2_curve()
+                                with ui.row().classes("w-full justify-center items-center gap-4 px-1 mt-2"):
+                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()) \
+                                        .classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
+                                    aria_button("Reset", "Refresh plot", on_click=lambda: refresh_cluster_chi2_plot()) \
+                                        .classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
+
+                          
+                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
+                                plot_container_scatter = ui.column().classes('w-full')
+                                with ui.row().classes('w-full justify-center gap-4 mt-2'):
+                                    aria_button("Activity 5.1: virial theorem", "Read the instructions for activity 1", 
+                                                on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                    aria_button("Activity 5.2: cluster mass", "Read the instructions for activity 2", 
+                                                on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
+                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     
                     
 
@@ -4378,7 +4508,7 @@ def create_page():
                         
                         cluster_state["select"] = new_value
                         
-                    
+                        refresh_cluster_chi2_plot()
                         if new_value.lower() == "coma_data.csv":
                             df = load_coma_dataset(new_value)
                         else:
@@ -4504,23 +4634,26 @@ def create_page():
                             R_cluster = r200_from_M200(M_tot, rho_crit)
                             v_center_tot = np.sqrt(np.maximum(0.0, G_grav * M_tot / R_cluster))
                         
-                            sigma_bar = np.sqrt(np.maximum(0.0, G_grav * m_bary_tot_at_gal / (3.0 * r_safe))) 
-                        
-                        
-                       
-                        
-                          
-                    
-                            R_cluster_bar = r200_from_M200(M_bar_tot, rho_crit)
-                            v_center_bar = np.sqrt(np.maximum(0.0, G_grav * M_bar_tot / (R_cluster_bar + 1e-12)))
+                            
+                            
+                            m_vir_global_fixed = np.sum(m_bary_at_gal)
+                            m_500_global_fixed = 0.7 * m_vir_global_fixed
+                            f_gas_global_fixed = 0.093 * ((m_500_global_fixed / (2e14 / h))**0.21)
+                            m_gas_global_fixed = m_500_global_fixed * f_gas_global_fixed
+                            
+                            ratio_stars_gas_fixed = (np.sum(m_bary_at_gal) + m_gas_global_fixed) / np.sum(m_bary_at_gal)
+                            m_bary_tot_at_gal_fixed = m_bary_at_gal * ratio_stars_gas_fixed
+                            
+                            M_bar_tot_fixed = np.sum(m_bary_tot_at_gal_fixed)
+                            R_cluster_bar_fixed = r200_from_M200(M_bar_tot_fixed, rho_crit)
+                            sigma_bar = np.sqrt(np.maximum(0.0, G_grav * m_bary_tot_at_gal_fixed / (3.0 * r_safe))) 
+                            v_center_bar = np.sqrt(np.maximum(0.0, G_grav * M_bar_tot_fixed / (R_cluster_bar_fixed + 1e-12)))
 
                             rng = np.random.default_rng(seed=42)
                         
                             v_bar = rng.normal(loc=v_center_bar, scale=sigma_fit, size=len(r_proj_kpc))
                             v_dm  = rng.normal(loc=v_center_tot, scale=sigma_fit, size=len(r_proj_kpc))
-                           
-                        
-                        
+
                             obs_sub = observed_vel[::max(1, len(observed_vel)//20)]
                             bar_sub = sigma_bar[::max(1, len(sigma_bar)//20)]
                             sim_sub = sigma_los_loc[::max(1, len(sigma_los_loc)//20)]
@@ -4630,7 +4763,7 @@ def create_page():
                                     with plot_container_histo:
                                         plot_container_histo.clear()
                                         plt.close('all')
-                                        with ui.pyplot(figsize=(8, 4)):
+                                        with ui.pyplot(figsize=(6, 4)):
                                         
                                             plt.hist(current_obs, bins=bins, alpha=1.0,color='blue', orientation='horizontal',
                         label='Observed Velocities', 
@@ -4675,17 +4808,10 @@ def create_page():
 
                                 
 
-                                        
-                                        
-
-
-                            
-                                
-
                                     with plot_container_scatter:
                                         plot_container_scatter.clear()
                                         #plt.close()
-                                        with ui.pyplot(figsize=(8, 4)):
+                                        with ui.pyplot(figsize=(6, 4)):
                                     
                                         
 
