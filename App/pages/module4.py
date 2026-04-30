@@ -2431,7 +2431,7 @@ def create_page():
                             f = float(alpha_slider.value)
                             
                             
-                                
+                           
                                 #rho_s_dynamic, rs_dynamic, alpha_dm, beta_dm, gamma_dm = dm_params_from_slider(f)
                             G_grav = 4.30091e-6
                             v_baryonic = np.sqrt(np.maximum(0, v_gas_ngc)**2 + np.maximum(0, v_disk_ngc)**2 + np.maximum(0, v_bul_ngc)**2)
@@ -2479,7 +2479,7 @@ def create_page():
                             M_dm_tot = np.max(M_dm_grid) * f
                             dm_fraction = 100 * M_dm_tot / (M_vis_tot + 1e-12)
 
-                            
+                            alpha_slider.props(f'label-value="{M_dm_tot:.2e} M☉"')
 
                             
                             mask = np.isfinite(v_obs_ngc) & np.isfinite(v_err_ngc) & (v_err_ngc > 0)
@@ -4444,7 +4444,7 @@ def create_page():
                         dm_slider = aria_slider(min=dm_slider_min, max=dm_slider_max,
                         value=0.0, step=0.01,  aria_label="Dark matter fraction control slider").props('aria-describedby=dm_slider_label label-always debounce=300')
 
-                
+                        
                         
                         with ui.row().classes('w-full justify-center gap-2 px-2'):
     
@@ -4611,7 +4611,7 @@ def create_page():
         
                             f = float(dm_slider.value) 
                 
-                        
+                            dm_slider.props(f'label-value="{f * M200:.2e} M☉"')
                         
                             r_safe = np.maximum(r_proj_kpc, 1) 
                         
@@ -4730,7 +4730,7 @@ def create_page():
 
 
 
-                            mass_ratio = np.mean(m_bary_at_gal / M_total_at_gal)
+                            mass_ratio = M_tot / M_bar_tot_fixed
                             counts_dm, _ = np.histogram(v_dm, bins=bins)
                             counts_dm = counts_dm / counts_dm.sum() * N_obs
                             chi2_scatter = np.sum(((np.log1p(counts_obs) - np.log1p(counts_dm))**2))
@@ -4749,7 +4749,7 @@ def create_page():
     f"$\\chi^2={chi2_scatter:.1f}\\ ,\\chi^2/N_{{gal}}={chi2_scatter_norm:.2f}$\n"
     f"$\\sigma_{{bar}} ={sigma_bar_val:.1f} \\, km/s\\ ,N_{{gal\\_bar}}={N_bar}$\n"
     f"$\\sigma_{{tot}}= {sigma_dm_val:.1f} \\, km/s\\,N_{{gal\\_sim}}={N_sim}$\n" 
-    f"$DM_{{mean}}= {M_dm_mean:.2e} \\, M_\\odot\\ ,M_{{bar}}/M_{{tot}}={mass_ratio:.4e}$"
+    f"$DM_{{tot}}= {f*M200:.2e} \\, M_\\odot\\ ,M_{{tot}}/M_{{bar}}={mass_ratio:.2f}$"
 )
                             sort_idx = np.argsort(r_proj_kpc)
         
