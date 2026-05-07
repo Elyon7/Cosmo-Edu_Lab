@@ -308,7 +308,7 @@ def create_page():
 
        
         #s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js';
-        main_layout("Module 1: Introduction to Cosmology")
+        main_layout("Introduction to Cosmology")
         tab_key = 'module1_selected'
         if tab_key not in app.storage.user:
             app.storage.user[tab_key] = 'intro'

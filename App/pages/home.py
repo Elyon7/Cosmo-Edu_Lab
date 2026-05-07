@@ -70,7 +70,7 @@ def create_routes():
 
             with ui.grid(columns=4).classes('w-full justify-center gap-10 mt-8 mb-8 flex-wrap'):
                 module_titles = [
-                    "Introduction to Cosmology","Redshift & Universe Expansion","Universe History & CMB" ,"Dark Matter"
+                    "Introduction to Cosmology","Dark Matter","Universe History & CMB" ,"Redshift & Universe Expansion"
                 ]
                 star_style = (
                         'w-72 h-72 rounded-full flex flex-col items-center justify-center text-center p-4 '
@@ -138,21 +138,21 @@ def create_routes():
            "Observable universe,Cosmic distance ladder,Unit of measurement,Astronomy,Microcosm–macrocosm analogy",
            "Universe,Galaxy,Star,Hertzsprung–Russell diagram,Elementary particle,Standard Model", 
            "/module1"),
-           
-          ("Redshift & Universe Expansion", 
-           "Doppler effect,Optics,Velocity,Wave,Frequency,Radiant flux,Wavelength,Relativistic speed",
-           "Redshift,Cosmic distance ladder,Type Ia supernova,Luminosity,Hubble's law,Accelerating expansion of the universe,Expansion of the universe,Dark energy,Lambda-CDM model", 
+           ("Dark Matter", 
+           "Circular motion,Gravity,Conservation of energy,Centripetal force,Newton's law of universal gravitation,Kepler's laws of planetary motion,Kinetic energy,Gravitational potential energy", 
+           "Galaxy rotation curve,Missing mass problem,Virial theorem,Dark matter,Abundance of the chemical elements", 
            "/module2"),
+        
            
           ("Universe History & CMB", 
            "Thermodynamics,Thermal radiation,Black-body radiation,Adiabatic process,Heat capacity ratio,Stefan–Boltzmann law", 
            "Chronology of the universe,Cosmic microwave background,Planck's law,Galaxy formation and evolution,Matter,Energy density,Mass–energy equivalence,Photon", 
            "/module3"),
-           
-          ("Dark Matter", 
-           "Circular motion,Gravity,Conservation of energy,Centripetal force,Newton's law of universal gravitation,Kepler's laws of planetary motion,Kinetic energy,Gravitational potential energy", 
-           "Galaxy rotation curve,Missing mass problem,Virial theorem,Dark matter,Abundance of the chemical elements", 
+             ("Redshift & Universe Expansion", 
+           "Doppler effect,Optics,Velocity,Wave,Frequency,Radiant flux,Wavelength,Relativistic speed",
+           "Redshift,Cosmic distance ladder,Type Ia supernova,Luminosity,Hubble's law,Accelerating expansion of the universe,Expansion of the universe,Dark energy,Lambda-CDM model", 
            "/module4")
+          
         ]
         
        
@@ -234,22 +234,22 @@ def create_routes():
             physics_curriculum = [
             ("1st–2nd Year", [
                 ("Scalar and vectorial measures and units", "/module1"),
-                ("Geometry optics: reflection and refraction", "/module2"),
+                ("Geometry optics: reflection and refraction", "/module4"),
                 ("Thermal phenomena: temperature, heat, thermal balance", "/module3"),
-                ("Mechanics: motion, forces, Newton’s laws", "/module4"),
+                ("Mechanics: motion, forces, Newton’s laws", "/module2"),
             ]),
             ("3rd–4th Year", [
-                ("Relativity: reference systems, principles", "/module2"),
-                ("Conservation laws: energy, fluids", "/module4"),
-                ("Gravitation: Kepler, Newton, cosmological systems", "/module4"),
+                ("Relativity: reference systems, principles", "/module4"),
+                ("Conservation laws: energy, fluids", "/module2"),
+                ("Gravitation: Kepler, Newton, cosmological systems", "/module2"),
                 ("Thermodynamics: gas laws, kinetic theory", "/module3"),
-                ("Waves: mechanical, interference, diffraction", "/module2"),
-                ("Electromagnetism: fields, energy, potential", "/module2"),
+                ("Waves: mechanical, interference, diffraction", "/module4"),
+                ("Electromagnetism: fields, energy, potential", "/module4"),
             ]),
             ("5th Year", [
-                ("Electromagnetism: induction, Maxwell, EM waves", "/module2"),
+                ("Electromagnetism: induction, Maxwell, EM waves", "/module4"),
                 ("Micro & macro cosmos: space-time, energy", "/module1"),
-                ("Relativity: Einstein’s principles, dilation, contraction", "/module2"),
+                ("Relativity: Einstein’s principles, dilation, contraction", "/module4"),
                 ("Quantum light: Planck, photoelectric, De Broglie", "/module3"),
             ]),
         ]

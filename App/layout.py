@@ -524,14 +524,14 @@ Your tone should be:
 2. **App Context:** You are integrated into an app structured in 4 specific modules. Use this context to guide the student:
 
    - **Module 1 (Observation & History):** Covers the timeline of astronomy, cosmic timeline, Galaxy Morphology (Hubble sequence), HR Diagram (Star evolution), and Elementary Particles.
+ -**Module 2 (Dark Sector):** Covers Dark Matter, Galaxy Rotation Curves, Virial Theorem, Cluster Mass, and CMB Anisotropies.
 
-   - **Module 2 (Expansion):** Covers Redshift (Doppler effect), Hubble's Law, and Supernovae Type Ia (Standard Candles) used to measure the expansion of the universe (Distance Modulus vs Redshift).
-
-   - **Module 3 (Thermodynamics & Dynamics):** Covers the Planck Spectrum (Blackbody radiation), CMB Adiabatic Index, Radiation/Matter density evolution, and the Friedmann Equations.
-
-   - **Module 4 (Composition & Precision):** Covers the CMB Power Spectrum, the composition of the Universe (Dark Matter, Dark Energy, Baryonic Matter), and the Planck Mission results.
+- **Module 3 (Thermodynamics & Dynamics):** Covers the Planck Spectrum (Blackbody radiation), CMB Adiabatic Index, Radiation/Matter density evolution, and the Friedmann Equations.
 
 
+   - **Module 4 (Expansion):** Covers Redshift (Doppler effect), Hubble's Law, and Supernovae Type Ia (Standard Candles) used to measure the expansion of the universe (Distance Modulus vs Redshift).Covers the CMB Power Spectrum, the composition of the Universe (Dark Matter, Dark Energy, Baryonic Matter), and the Planck Mission results.
+
+   
 
 # Guidelines for Interaction
 
@@ -585,7 +585,7 @@ You are integrated into an app with 4 specific modules. When a student asks a qu
 
 
 
-## Module 2: The Expanding Universe
+## Module 4: The Expanding Universe
 
 * **App Tools:** Redshift Slider, Supernovae Type Ia Plot (Distance Modulus vs Redshift).* **Key Concepts (Ref: Cosmology.pdf, Activity 3):**
 
@@ -595,7 +595,7 @@ You are integrated into an app with 4 specific modules. When a student asks a qu
 
     * Standard Candles (Supernovae).
 
-* **Prompt to Student:** "Use the slider in Module 2 to change the redshift. Notice how the spectral lines shift toward the red as the galaxy moves faster away from us?"
+* **Prompt to Student:** "Use the slider in Module 4 to change the redshift. Notice how the spectral lines shift toward the red as the galaxy moves faster away from us?"
 
 
 
@@ -611,7 +611,7 @@ You are integrated into an app with 4 specific modules. When a student asks a qu
 
 
 
-## Module 4: Composition & Precision (Dark Sector)
+## Module 2: Composition & Precision (Dark Sector)
 
 * **App Tools:** CMB Power Spectrum, Universe Composition Pie Chart.* **Key Concepts (Ref: Dark_matter.pdf, Activity 1):**
 
@@ -966,11 +966,11 @@ GLOSSARY_DATA = {
     },
     "Redshift (z)": {
         "definition": "The displacement of spectral lines toward longer wavelengths (the red end of the spectrum) in radiation from distant celestial objects. In cosmology, it is primarily caused by the expansion of the universe stretching the light waves.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Hubble-Lemaître Law": {
         "definition": "The observation that galaxies are moving away from Earth at speeds proportional to their distance: v = H₀d, where H₀ is the Hubble constant. It is the observational basis for the expanding universe.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Cosmic Microwave Background (CMB)": {
         "definition": "The thermal radiation left over from the 'Recombination' epoch (approx. 380,000 years after the Big Bang). It is a faint glow of light that fills the universe, observed as a blackbody spectrum at a temperature of 2.725 K.",
@@ -990,23 +990,23 @@ GLOSSARY_DATA = {
     },
     "Dark Matter": {
         "definition": "A hypothetical form of matter that is thought to account for approximately 85% of the matter in the universe. It does not emit or interact with electromagnetic radiation (light) but is detected via its gravitational effects on visible matter, such as galaxy rotation curves.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Baryonic Matter": {
         "definition": "'Ordinary' matter composed of protons and neutrons (baryons), which form atoms, stars, planets, and living organisms. It makes up only about 5% of the energy density of the universe.",
-        "modules": ["Module 3", "Module 4"]
+        "modules": ["Module 2", "Module 3"]
     },
     "Kepler's Laws": {
         "definition": "Three laws describing planetary motion: 1) Planets move in elliptical orbits with the Sun at one focus. 2) A line connecting a planet to the Sun sweeps out equal areas in equal times. 3) The square of the orbital period is proportional to the cube of the semi-major axis (T² ∝ a³).",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Virial Theorem": {
         "definition": "A theorem in mechanics connecting the average kinetic energy (K) and potential energy (U) of a stable system bound by gravity: 2K + U = 0. It is used to estimate the total mass of galaxy clusters.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Standard Candle": {
         "definition": "An astronomical object with a known intrinsic luminosity (e.g., Type Ia Supernovae). By comparing the known luminosity with the observed brightness, astronomers can measure large cosmic distances.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Blackbody Radiation": {
         "definition": "The thermal electromagnetic radiation emitted by a perfect absorber (black body) in thermodynamic equilibrium. Its spectrum depends only on temperature, as described by Planck's Law.",
@@ -1018,11 +1018,11 @@ GLOSSARY_DATA = {
     },
     "Galaxy Rotation Curve": {
         "definition": "A plot of the orbital speeds of visible stars or gas in a galaxy versus their distance from the galactic center. The fact that curves remain flat at large radii (instead of dropping) implies the presence of a Dark Matter halo.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "NFW Profile": {
         "definition": "The Navarro–Frenk–White (NFW) profile is a spatial density distribution of dark matter halos fitted to N-body simulations. It predicts how dark matter density changes from the center to the edge of a halo.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Critical Density": {
         "definition": "The average density of matter/energy required for the Universe to be spatially flat. If the actual density equals the critical density (Ω = 1), the universe will expand forever but approaching zero expansion rate.",
@@ -1030,7 +1030,7 @@ GLOSSARY_DATA = {
     },
     "Luminosity Distance": {
         "definition": "A distance measure defined by the relationship between the intrinsic luminosity (L) of an object and its observed flux (F): F = L / (4π d_L²). In an expanding universe, it depends on the cosmology.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Light Year (ly)": {
         "definition": "The distance that light travels in a vacuum in one Julian year (365.25 days). It is approximately 9.46 trillion kilometers (9.46 × 10¹² km).",
@@ -1042,7 +1042,7 @@ GLOSSARY_DATA = {
     },
     "Cosmic Web": {
         "definition": "The large-scale structure of the universe, consisting of filaments of galaxies and dark matter separated by vast voids. Galaxy clusters form at the intersections of these filaments.",
-        "modules": ["Module 1", "Module 4"]
+        "modules": ["Module 1", "Module 2"]
     },
     "Lookback Time": {
         "definition": "The time elapsed between when a photon was emitted by a distant object and when it is detected. Because light travels at a finite speed, looking further into space means looking back in time.",
@@ -1050,19 +1050,19 @@ GLOSSARY_DATA = {
     },
     "Scale Factor a(t)": {
         "definition": "A dimensionless function of time that represents the relative expansion of the universe. It relates the proper distance between two objects at time t to their comoving distance.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Comoving Distance": {
         "definition": "A distance measure between two points in the universe that remains constant over time if the objects are moving solely due to the Hubble flow (expansion of the universe).",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Friedmann Equations": {
         "definition": "A set of equations derived from General Relativity that describe the expansion of the universe in terms of its matter and energy density.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Dark Energy": {
         "definition": "An unknown form of energy that permeates all of space and tends to accelerate the expansion of the universe. It makes up about 68% of the total energy density of the universe today.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Wien's Displacement Law": {
         "definition": "A physical law stating that the wavelength of peak emission for a blackbody is inversely proportional to its absolute temperature (λ_max ∝ 1/T).",
@@ -1078,19 +1078,19 @@ GLOSSARY_DATA = {
     },
     "Gravitational Lensing": {
         "definition": "The bending of light from a distant source as it passes near a massive object (like a galaxy cluster) due to the curvature of spacetime. It is a key tool for detecting Dark Matter.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Bullet Cluster": {
         "definition": "A system of two colliding galaxy clusters that provides one of the strongest pieces of observational evidence for the existence of Dark Matter, as the separation between X-ray gas and gravitational mass is observed.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "WIMPs": {
         "definition": "Weakly Interacting Massive Particles. A leading theoretical candidate for Cold Dark Matter particles that interact only via gravity and the weak nuclear force.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Jeans Instability": {
         "definition": "A condition under which an interstellar gas cloud becomes unstable and collapses under its own gravity to form stars or structure, occurring when the internal gas pressure is not strong enough to counteract gravity.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
    
 
@@ -1104,19 +1104,19 @@ GLOSSARY_DATA = {
     },
     "Distance Modulus (μ)": {
         "definition": "The difference between the apparent magnitude (m) and absolute magnitude (M) of an astronomical object (μ = m - M). It is a direct measure of distance used in the Supernova plots.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Density Parameter (Ω)": {
         "definition": "The ratio of the actual density of a substance (like Matter or Dark Energy) to the critical density of the universe. The sum of all Omega parameters determines the geometry of the universe.",
-        "modules": ["Module 2", "Module 3"]
+        "modules": ["Module 4", "Module 3"]
     },
     "Hubble Constant (H₀)": {
         "definition": "The unit describing how fast the universe is expanding at the current time. Its value (approx 70 km/s/Mpc) sets the scale and age of the universe.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Accelerating Universe": {
         "definition": "The observation that the expansion rate of the universe is increasing over time, rather than slowing down due to gravity. This discovery implies the existence of Dark Energy.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Isotropy": {
         "definition": "The quality of looking the same in all directions. The CMB is isotropic to one part in 100,000, indicating the universe was extremely uniform in its early stages.",
@@ -1132,15 +1132,15 @@ GLOSSARY_DATA = {
     },
     "Velocity Dispersion (σ)": {
         "definition": "The statistical spread of velocities of galaxies within a cluster. Higher dispersion indicates a deeper gravitational potential well and thus more mass (including Dark Matter).",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Galactic Halo": {
         "definition": "A large, spherical region extending far beyond the visible disk of a galaxy. It contains sparsely distributed stars, globular clusters, and the majority of the galaxy's Dark Matter.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Mass-to-Light Ratio": {
         "definition": "The ratio of the total mass of an object to its total luminosity. A high ratio (like in galaxy clusters) indicates the presence of significant amounts of non-luminous Dark Matter.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
 
 
@@ -1154,11 +1154,11 @@ GLOSSARY_DATA = {
     },
     "Type Ia Supernova": {
         "definition": "A specific type of supernova that occurs in binary systems (white dwarf explosion). They serve as the primary 'Standard Candles' for measuring large cosmic distances because they explode with a consistent peak luminosity.",
-        "modules": ["Module 2"]
+        "modules": ["Module 4"]
     },
     "Flat Universe": {
         "definition": "A universe geometry where the density parameter Ω equals exactly 1. In such a universe, parallel lines never meet and the angles of a triangle sum to 180 degrees. It is the geometry supported by current CMB observations.",
-        "modules": ["Module 2", "Module 3"]
+        "modules": ["Module 4", "Module 3"]
     },
     "Spectral Radiance": {
         "definition": "The amount of energy emitted by a surface at a specific wavelength per unit area, per unit solid angle, per unit time. This is the quantity calculated by Planck's Law for the Blackbody spectrum.",
@@ -1170,11 +1170,11 @@ GLOSSARY_DATA = {
     },
     "Intracluster Medium (ICM)": {
         "definition": "The superheated plasma (gas) that permeates a galaxy cluster. It emits X-rays and constitutes the majority of the baryonic mass in a cluster, but is still outweighed by Dark Matter.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Gravitational Potential": {
         "definition": "The work done per unit mass to bring a small object from infinity to a point in a gravitational field. In the NFW profile, the potential well created by Dark Matter dictates how stars and gas move.",
-        "modules": ["Module 4"]
+        "modules": ["Module 2"]
     },
     "Homogeneity": {
         "definition": "The property of being uniform in composition or character throughout. In cosmology, it means the universe looks roughly the same at every location on large scales (part of the Cosmological Principle).",

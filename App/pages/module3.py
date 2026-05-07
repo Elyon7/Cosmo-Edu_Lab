@@ -345,7 +345,7 @@ def create_page():
                 return None
             
             
-        main_layout("Module 3: Universe History & CMB")
+        main_layout("Universe History & CMB")
     
         
         tab_key = 'module3_selected_tab'
