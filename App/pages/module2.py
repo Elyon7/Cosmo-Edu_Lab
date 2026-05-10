@@ -1527,7 +1527,9 @@ def create_page():
                         }
                     
                 
-                
+                    chi2_state = {
+    'slider_result': " ---" 
+}
                     
                     with ui.dialog() as info_galaxy, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
                         html_info_box(r"""
@@ -2118,8 +2120,22 @@ def create_page():
                             gal_state['selected_file'] = new_value
                             galaxy_state['select'] = new_value 
                             gal_state['current_galaxy_name'] = new_value
-                         
+                            max_vel = np.nanmax(gal_state['v_obs_ngc'])
+                            
+                           
+                            new_max_gal = max(2.0, (max_vel / 40.0)**2)
+                            
+                          
+                            alpha_slider.max = round(new_max_gal, 1)
+                            alpha_slider.step = round(new_max_gal / 100.0, 2)
                             alpha_slider.value = 0.0 
+                            alpha_slider.update()
+                            
+                         
+                            gal_state['chi2_points'].clear()
+                            gal_state['manual_points'].clear()
+                            chi2_state['slider_result'] = "Add points to find the minimum."
+                            #alpha_slider.value = 0.0 
                             update_all_plots.refresh()
                             update_image.refresh()
                             update_table.refresh()
@@ -2211,96 +2227,115 @@ def create_page():
                         
                     unscaled_M_dm_grid_cache = {}
                     #chi2_plot_container = ui.column().classes('w-full')
-                    chi2_state = {
-    'slider_result': " ---" 
-}
+                    
                     def plot_chi2_user_curve():
                       
-                       
                         chi2_points = gal_state['chi2_points']
                         manual_points = gal_state['manual_points']
 
-                        
                         chi2_plot_container.clear()
                         plt.close()
                         with chi2_plot_container:
                             with ui.pyplot(figsize=(6,3.5), close=False,clear=True):
                                 ax = plt.gca()
-
+                                all_xs = []
+                                all_ys = []
                                 
+                               
                                 if chi2_points:
                                     xs_slider, ys_slider = zip(*chi2_points)
+                                    all_xs.extend(xs_slider)
+                                    all_ys.extend(ys_slider)
                                     ax.scatter(xs_slider, ys_slider, s=40, c="blue", alpha=0.6, label="Points")
 
                                     if len(chi2_points) == 3 :
                                         coeffs_slider = np.polyfit(xs_slider, ys_slider, 2)
-                                        x_fit_slider = np.linspace(min(xs_slider), max(xs_slider), 200)
-                                        y_fit_slider = np.polyval(coeffs_slider, x_fit_slider)
-                                        
                                         x_lo, x_hi = min(xs_slider), max(xs_slider)
-                                        x_fit_slider = np.linspace(x_lo - 0.1*(x_hi-x_lo), x_hi + 0.1*(x_hi-x_lo), 400)
+                                        
+                                       
+                                        x_fit_slider = np.linspace(x_lo - 0.2*(x_hi-x_lo), x_hi + 0.2*(x_hi-x_lo), 400)
                                         y_fit_slider = np.polyval(coeffs_slider, x_fit_slider)
-                                        ymin_index = np.argmin(y_fit_slider)
-                                        xmin_slider = x_fit_slider[ymin_index]
-                                        ymin_slider = y_fit_slider[ymin_index]
-
-                                        ax.plot(x_fit_slider, y_fit_slider, "g-", lw=2, label="Parabolic Fit ")
-                                        ax.scatter([xmin_slider], [ymin_slider], c='red', s=140, marker='*', label="Min ")
                                         
+                                        all_xs.extend(x_fit_slider)
+                                        all_ys.extend(y_fit_slider)
                                         
-
+                                        if coeffs_slider[0] > 0:
+                                           
+                                            ymin_index = np.argmin(y_fit_slider)
+                                            xmin_slider = x_fit_slider[ymin_index]
+                                            ymin_slider = np.polyval(coeffs_slider, xmin_slider)
+                                            
+                                            ax.plot(x_fit_slider, y_fit_slider, "g-", lw=2, zorder=2, label="Parabolic Fit")
+                                            ax.scatter([xmin_slider], [ymin_slider], c='red', s=140, marker='*', zorder=4, label="Min")
+                                            all_xs.append(xmin_slider)
+                                            all_ys.append(ymin_slider)
+                                        else:
+                                            ax.plot(x_fit_slider, y_fit_slider, "r--", lw=2, label="Invalid Fit")
                                 
-
-                                                                
+                               
                                 if manual_points and len(manual_points) >= 3:
                                     xm, ym = zip(*manual_points)
+                                    all_xs.extend(xm)
+                                    all_ys.extend(ym)
                                     ax.scatter(xm, ym, s=60, c="blue", marker="o", label="Points")
 
                                     coeffs_manual = np.polyfit(xm, ym, 2)
-                                    x_fit_manual = np.linspace(min(xm), max(xm), 400)
+                                    x_lo_m, x_hi_m = min(xm), max(xm)
+                                    x_fit_manual = np.linspace(x_lo_m - 0.2*(x_hi_m-x_lo_m), x_hi_m + 0.2*(x_hi_m-x_lo_m), 400)
                                     y_fit_manual = np.polyval(coeffs_manual, x_fit_manual)
 
-                                    ax.plot(x_fit_manual, y_fit_manual, "green", lw=2, label="Parabolic Fit")
+                                    all_xs.extend(x_fit_manual)
+                                    all_ys.extend(y_fit_manual)
 
+                                    if coeffs_manual[0] > 0:
+                                        ax.plot(x_fit_manual, y_fit_manual, "green", lw=2, zorder=2, label="Parabolic Fit")
+                                        xmin_manual = -coeffs_manual[1] / (2 * coeffs_manual[0])
+                                        ymin_manual = np.polyval(coeffs_manual, xmin_manual)
+                                        
+                                        ax.scatter([xmin_manual], [ymin_manual], c='red', s=120, marker='*', zorder=4, label=" Min")
+                                        all_xs.append(xmin_manual)
+                                        all_ys.append(ymin_manual)
+                                        # result_label.set_text(f"DM min ≈ {xmin_manual:.3e}, χ² min ≈ {ymin_manual:.4f}") # Decommentare se usato
+                                    else:
+                                        ax.plot(x_fit_manual, y_fit_manual, "r--", lw=2, label="Invalid Fit")
+
+                                if all_xs:
+                                
+                                    plot_x_max = max(all_xs) * 1.1
+                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else 1e11)
                                     
-                                    xmin_manual = -coeffs_manual[1] / (2 * coeffs_manual[0])
-                                    ymin_manual = np.polyval(coeffs_manual, xmin_manual)
-                                    ax.scatter([xmin_manual], [ymin_manual], c='red', s=120, marker='*', label=" Min")
-
-                                    result_label.set_text(f"DM min ≈ {xmin_manual:.3e}, χ² min ≈ {ymin_manual:.4f}")
+                                   
+                                    valid_ys = [y for y in all_ys if np.isfinite(y)]
+                                    if valid_ys:
+                                        plot_y_max = max(max(valid_ys) * 1.1, 1.0)
+                                        plot_y_min = min(0.0, min(valid_ys) * 1.1) 
+                                        ax.set_ylim(plot_y_min, plot_y_max)
+                                else:
                                     
-                            
+                                    ax.set_xlim(x_min_chi, x_max_chi)
+                                    ax.set_ylim(y_min_chi, y_max_chi)
 
-
-                                all_ys = []
-                                if chi2_points: all_ys += [p[1] for p in chi2_points]
-                                if parabolic_state["points"]: all_ys += [p[1] for p in parabolic_state["points"]]
-                                if parabolic_state["plot_points"]: all_ys += [p[1] for p in parabolic_state["plot_points"]]
-                                y_max_plot = y_max_chi if not all_ys else max(y_max_chi, max(all_ys)*1.1)
-
-                                ax.set_xlim(x_min_chi, x_max_chi)
-                                ax.set_ylim(y_min_chi, y_max_plot)
                                 ax.set_xlabel("DM mass ($M_{\\odot}$)")
                                 ax.set_ylabel(r"χ²/dof")
                                 ax.grid(True)
+                                
                                 handles, labels = ax.get_legend_handles_labels()
                                 by_label = dict(zip(labels, handles))
                                 if by_label: ax.legend(by_label.values(), by_label.keys())
-                                text_to_show = chi2_state['slider_result']
-                               #slider_result_label = ui.label("Results: ---").classes("text-green-600 font-bold text-sm my-1")
+                                
+                                text_to_show = chi2_state.get('slider_result', "---")
                                 plt.text(0.5, 0.92, text_to_show, 
-                 transform=plt.gca().transAxes, 
-                 fontsize=10, 
-                 color='green',
-                 fontweight='bold',
-                 horizontalalignment='center',
-                 verticalalignment='top',     
-                 bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.9, edgecolor='lightgray'))
+                                         transform=ax.transAxes, 
+                                         fontsize=10, 
+                                         color='green',
+                                         fontweight='bold',
+                                         horizontalalignment='center',
+                                         verticalalignment='top',     
+                                         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.9, edgecolor='lightgray'))
+                                
                                 plt.title("χ² Minimization",fontsize=14,fontweight='bold')
                                 plt.tight_layout()
-                                ui.element('div').props(
-        'role=status aria-live=polite tabindex=0 aria-label=Plot showing chi-square minimization curve; X axis is dark matter mass in solar masses, Y axis is chi-square per degree of freedom'
-        )
+                                ui.element('div').props('role=status aria-live=polite tabindex=0 aria-label=Plot showing chi-square minimization curve; X axis is dark matter mass in solar masses, Y axis is chi-square per degree of freedom')
 
 
             
@@ -2356,7 +2391,7 @@ def create_page():
                         def compute_and_update():
                             initialize_parabolic_points() 
                       
-                            accessible_notify('Plot updated!', type_='positive')
+                            accessible_notify('Plot updated!', type_='success')
 
                      
                         with ui.row().classes('w-full justify-end gap-2 mt-4'):
@@ -2542,10 +2577,16 @@ def create_page():
                                     plt.ylabel('Rotation Speed (km/s)', fontsize=16)
                                     galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
                                     plt.title(f'Galaxy Rotation Curve: {galaxy_name_for_title}', fontsize=18,fontweight='bold')
-                                  
-
-                                    plt.ylim(0, max(300, 1.1 * np.max(v_obs_ngc + v_err_ngc)))
+                                
+                                    max_vel_plot = np.nanmax([
+                                        np.nanmax(v_obs_ngc + v_err_ngc),
+                                        np.nanmax(v_total_curve),         
+                                        np.nanmax(v_baryonic)             
+                                    ])
+                                    plt.ylim(0, max(300, 1.1 * max_vel_plot))
                                     plt.xlim(0, r_ngc.max() * 1.1)
+                                    #plt.ylim(0, max(300, 1.1 * np.max(v_obs_ngc + v_err_ngc)))
+                                    #plt.xlim(0, r_ngc.max() * 1.1)
                                     plt.grid(True)
                                     plt.legend(loc='upper left', fontsize=16)
                                     plt.tight_layout()
@@ -2807,21 +2848,34 @@ def create_page():
                             vmodel_use = v_total_curve[mask]
 
                             chi2_val = np.sum(((vobs_use - vmodel_use)/verr_use)**2) / max(1, len(vobs_use)-1)
+                            
+                           
+                            is_duplicate = any(x == M_dm_tot for x, y in chi2_points)
+                            if is_duplicate:
+                                chi2_state['slider_result'] = "Point already added! Move the slider."
+                                plot_chi2_user_curve()
+                                return
+                                
                             chi2_points.append((M_dm_tot, chi2_val))
                             
                             if len(chi2_points) > 3:
                                 chi2_points.pop(0)
 
-                        
                             if len(chi2_points) == 3:
                                 xs, ys = zip(*chi2_points)
-                                #if abs(np.polyfit(xs, ys, 2)[0]) > 1e-9:
                                 coeffs = np.polyfit(xs, ys, 2)
-                                xmin = -coeffs[1] / (2*coeffs[0])  
-                                ymin = np.polyval(coeffs, xmin)
-                                chi2_state['slider_result'] = f"Result: Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}},\\chi^2_{{min}} \\approx {ymin:.2f}$"
-                                #else:
-                                #    slider_result_label.set_text("Points are collinear.")
+                                
+                             
+                                if coeffs[0] > 0:
+                                    xmin = -coeffs[1] / (2*coeffs[0])  
+                                    ymin = np.polyval(coeffs, xmin)
+                                    
+                                    if xmin < 0 or ymin < 0:
+                                        chi2_state['slider_result'] = "Invalid Result: DM mass and χ² cannot be negative!"
+                                    else:
+                                        chi2_state['slider_result'] = f"Result: Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}},\\chi^2_{{min}} \\approx {ymin:.2f}$"
+                                else:
+                                    chi2_state['slider_result'] = "Invalid shape. Try different DM values!"
                             else:
                                 chi2_state['slider_result']= "Add more points to find the minimum."
 
@@ -2873,21 +2927,23 @@ def create_page():
                             manual_points.extend(points)
                         
                             xs, ys = zip(*points)
-                            #if abs(np.polyfit(xs, ys, 2)[0]) > 1e-9:
                             coeffs = np.polyfit(xs, ys, 2)
-                            xmin = -coeffs[1] / (2 * coeffs[0])
-                            ymin = np.polyval(coeffs, xmin)
-                            result_label.set_text(f"DM min = {xmin:.3e} M☉,  χ² min = {ymin:.4f}")
-                            #else:
-                                #result_label.set_text("Points are collinear.")
+                            
+                           
+                            if coeffs[0] > 0:
+                                xmin = -coeffs[1] / (2 * coeffs[0])
+                                ymin = np.polyval(coeffs, xmin)
+                                
+                                if xmin < 0 or ymin < 0:
+                                    result_label.set_text("Invalid Result: DM mass and χ² cannot be negative!")
+                                else:
+                                    result_label.set_text(f"DM min = {xmin:.3e} M☉,  χ² min = {ymin:.4f}")
+                            else:
+                                result_label.set_text("Invalid shape. Try different values!")
                         
                             accessible_notify("Points computed. Check the minimum on the plot.", type_='success')
 
-                            #accessible_notify(" Points initialized. Ready for χ² computation.", type='positive')
-                        
-
                             update_displays.refresh()
-                            #update_all_plots.refresh()
                             plot_chi2_user_curve()
 
                     
@@ -4367,34 +4423,74 @@ def create_page():
                             with ui.pyplot(figsize=(6, 4), close=False, clear=True):
                                 ax = plt.gca()
                                 chi2_points = cluster_state['chi2_points']
+                                all_xs = []
+                                all_ys = []
+                                
+                               
+                                M200 = cluster_state.get('M200', 1e14)
+                                slider_max_val = getattr(dm_slider, 'max', 50.0) 
+                                dm_max_possible = M200 * slider_max_val
+                                x_max_chi_fallback = dm_max_possible * 1.05 if dm_max_possible > 0 else 1e15
                                 
                                 if chi2_points:
                                     xs, ys = zip(*chi2_points)
-                                    ax.scatter(xs, ys, s=40, c="blue", alpha=0.6, label="Points")
+                                    all_xs.extend(xs)
+                                    all_ys.extend(ys)
+                                   
+                                    ax.scatter(xs, ys, s=40, c="blue", alpha=0.6, zorder=3, label="Points")
 
-                                  
                                     if len(chi2_points) == 3:
-                                    
-                                        x_scale = 1e14
+                                     
+                                        x_scale = max(xs) if max(xs) > 0 else 1e14
                                         xs_scaled = np.array(xs) / x_scale
                                         coeffs = np.polyfit(xs_scaled, ys, 2)
                                         
                                         x_lo, x_hi = min(xs), max(xs)
-                                        x_fit = np.linspace(x_lo - 0.2*(x_hi-x_lo), x_hi + 0.2*(x_hi-x_lo), 400)
+                                        span = x_hi - x_lo
+                                        if span == 0: span = x_hi * 0.1
                                         
-                                       
+                                     
+                                        x_fit = np.linspace(max(0, x_lo - 0.3*span), x_hi + 0.3*span, 400)
                                         y_fit = np.polyval(coeffs, x_fit / x_scale)
                                         
-                                      
-                                        ymin_idx = np.argmin(y_fit)
-                                        xmin = x_fit[ymin_idx]
-                                        ymin = y_fit[ymin_idx]
+                                        all_xs.extend(x_fit)
+                                        all_ys.extend(y_fit)
+                                        
+                                        if coeffs[0] > 0: 
+                                            
+                                            xmin_scaled = -coeffs[1] / (2 * coeffs[0])
+                                            xmin = xmin_scaled * x_scale
+                                            ymin = np.polyval(coeffs, xmin_scaled)
 
-                                        ax.plot(x_fit, y_fit, "g-", lw=2, label="Parabolic Fit")
-                                        ax.scatter([xmin], [ymin], c='red', s=140, marker='*', label="Min")
+                                            ax.plot(x_fit, y_fit, "g-", lw=2, zorder=2, label="Parabolic Fit")
+                                            ax.scatter([xmin], [ymin], c='red', s=140, marker='*', zorder=4, label="Min")
+                                            
+                                            all_xs.append(xmin)
+                                            all_ys.append(ymin)
+                                        else:
+                                            ax.plot(x_fit, y_fit, "r--", lw=2, label="Invalid Fit")
+                                
+                               
+                                if all_xs:
+                                   
+                                    plot_x_max = max(all_xs) * 1.1
+                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else 1e14)
+                                    
+                               
+                                    valid_ys = [y for y in all_ys if np.isfinite(y)]
+                                    if valid_ys:
+                                        plot_y_max = max(max(valid_ys) * 1.1, 1.0)
+                                        
+                                        plot_y_min = min(0.0, min(valid_ys) * 1.1) 
+                                        ax.set_ylim(plot_y_min, plot_y_max)
+                                else:
+                                  
+                                    ax.set_xlim(0, x_max_chi_fallback)
+                                    ax.set_ylim(0, 10.0)
+                                    
                                 ax.set_xlabel("DM mass ($M_{\\odot}$)", fontsize=10)
                                 ax.set_ylabel(r"χ²/dof", fontsize=10)
-                                ax.grid(True)
+                                ax.grid(True, alpha=0.3)
                                 
                                 handles, labels = ax.get_legend_handles_labels()
                                 if handles: 
@@ -4465,6 +4561,15 @@ def create_page():
                         
                         chi2_val = chi2_hist / max(1, len(counts_obs))
 
+                        is_duplicate = any(x == M_dm_tot for x, y in cluster_state['chi2_points'])
+                        
+                        if is_duplicate:
+                          
+                            cluster_state['chi2_slider_result'] = "Point already added! Move the slider."
+                            plot_cluster_chi2_curve()
+                            return  
+                            
+                   
                         cluster_state['chi2_points'].append((M_dm_tot, chi2_val))
                         
                         if len(cluster_state['chi2_points']) > 3:
@@ -4473,23 +4578,23 @@ def create_page():
                         if len(cluster_state['chi2_points']) == 3:
                             xs, ys = zip(*cluster_state['chi2_points'])
                             
-                            
-                            x_scale = 1e14
-                            xs_scaled = np.array(xs) / x_scale
-                            
                            
+                            x_scale = max(xs) if max(xs) > 0 else 1e14
+                            
+                            xs_scaled = np.array(xs) / x_scale
                             coeffs = np.polyfit(xs_scaled, ys, 2)
                             
-                           
-                            # x_min = -b / 2a
-                            xmin_scaled = -coeffs[1] / (2 * coeffs[0])
-                            ymin = np.polyval(coeffs, xmin_scaled) 
-                           
-                            xmin = xmin_scaled * x_scale
-                            
-                            cluster_state['chi2_slider_result'] = f"Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}}, \\chi^2_{{min}} \\approx {ymin:.2f}$"
-                        else:
-                            cluster_state['chi2_slider_result'] = "Add more points to find the minimum."
+                            if coeffs[0] > 0:
+                                xmin_scaled = -coeffs[1] / (2 * coeffs[0])
+                                xmin = xmin_scaled * x_scale
+                                ymin = np.polyval(coeffs, xmin_scaled) 
+                                
+                                if xmin < 0 or ymin < 0:
+                                    cluster_state['chi2_slider_result'] = "Invalid Result: DM mass and χ² cannot be negative!"
+                                else:
+                                    cluster_state['chi2_slider_result'] = f"Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}}, \\chi^2_{{min}} \\approx {ymin:.2f}$"
+                            else:
+                                cluster_state['chi2_slider_result'] = "Invalid shape. Try smaller DM values!"
 
                         plot_cluster_chi2_curve()
 
@@ -4589,7 +4694,21 @@ def create_page():
                         recompute_axis_limits()
                         # cluster_name = new_value
                     
+                        #dm_slider.value = 0.0
+                        sigma_obs = cluster_state['sigma_obs']
+                        
+                        # Calcolo proporzionale: la massa scala con la dispersione
+                        new_max_clu = max(5.0, (sigma_obs / 100.0) * 3.0)
+                        
+                        # Aggiorniamo le proprietà di dm_slider
+                        dm_slider.max = round(new_max_clu, 1)
+                        dm_slider.step = round(new_max_clu / 100.0, 2)
                         dm_slider.value = 0.0
+                        dm_slider.update()
+                        
+                        # Puliamo la parabola precedente
+                        cluster_state['chi2_points'].clear()
+                        cluster_state['chi2_slider_result'] = "Add points to find the minimum."
                         refresh_cluster_plots(full_anim=True)
                         update_cluster_image.refresh()
                         update_cluster_table.refresh()
