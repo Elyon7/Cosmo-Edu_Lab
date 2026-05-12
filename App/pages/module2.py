@@ -782,6 +782,13 @@ def create_page():
    
         #<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js"></script>
 #functions to load and cache data
+        def format_sci(val):
+            if val == 0: return "0"
+            s = f"{val:.2e}"
+            mantissa, exp = s.split('e')
+            exp = int(exp)
+           
+            return f"{mantissa} &times; 10<sup>{exp}</sup>"
         @lru_cache(maxsize=32) 
         def get_galaxy_data_cached(filename):
            
@@ -2025,16 +2032,14 @@ def create_page():
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Dataset ", "Info galaxy dataset",on_click=safe_click(lambda: [data_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [velocity_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
+                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [velocity_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
             )
-                        aria_button("Image", "Show galaxy image",on_click=lambda: image_dialog2.open()).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Table", "Show galaxy data table",on_click=lambda: table_dialog2.open()).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                        #aria_button("Image", "Show galaxy image",on_click=lambda: image_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                        #aria_button("Table", "Show galaxy data table",on_click=lambda: table_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Info chi2", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Plot galaxy ", "Plot galaxy ", 
+                        aria_button("Galaxy morphology ", "Plot galaxy ", 
                                             on_click=lambda: morpho.open()).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_rot.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                         
@@ -2123,8 +2128,8 @@ def create_page():
                             max_vel = np.nanmax(gal_state['v_obs_ngc'])
                             
                            
-                            new_max_gal = max(2.0, (max_vel / 40.0)**2)
-                            
+                            #new_max_gal = max(2.0, (max_vel / 40.0)**2)
+                            new_max_gal=2
                           
                             alpha_slider.max = round(new_max_gal, 1)
                             alpha_slider.step = round(new_max_gal / 100.0, 2)
@@ -2217,13 +2222,14 @@ def create_page():
                     rho_s_init, r_s_init, M_dm_grid_init = get_dm_params(f)
 
                     dm_max_possible = np.max(M_dm_grid_init) * 2  
+                    
                     chi2_max_possible = 10  
-
-                    x_min_chi = 0
-                    x_max_chi = dm_max_possible * 1.05
-                    y_min_chi = 0
+                    slider_max_gal = getattr(alpha_slider, 'max', 10.0)
+                    
+                    x_min_chi = 0.0
+                    x_max_chi = slider_max_gal * 1.05 if slider_max_gal > 0 else 10.0
+                    y_min_chi = 0.0
                     y_max_chi = chi2_max_possible
-
                         
                     unscaled_M_dm_grid_cache = {}
                     #chi2_plot_container = ui.column().classes('w-full')
@@ -2236,7 +2242,7 @@ def create_page():
                         chi2_plot_container.clear()
                         plt.close()
                         with chi2_plot_container:
-                            with ui.pyplot(figsize=(6,3.5), close=False,clear=True):
+                            with ui.pyplot(figsize=(6,4), close=False,clear=True):
                                 ax = plt.gca()
                                 all_xs = []
                                 all_ys = []
@@ -2299,11 +2305,10 @@ def create_page():
                                     else:
                                         ax.plot(x_fit_manual, y_fit_manual, "r--", lw=2, label="Invalid Fit")
 
+                            
                                 if all_xs:
-                                
                                     plot_x_max = max(all_xs) * 1.1
-                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else 1e11)
-                                    
+                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else x_max_chi)
                                    
                                     valid_ys = [y for y in all_ys if np.isfinite(y)]
                                     if valid_ys:
@@ -2314,9 +2319,10 @@ def create_page():
                                     
                                     ax.set_xlim(x_min_chi, x_max_chi)
                                     ax.set_ylim(y_min_chi, y_max_chi)
-
-                                ax.set_xlabel("DM mass ($M_{\\odot}$)")
-                                ax.set_ylabel(r"χ²/dof")
+                                #ax.xaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                #ax.yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                ax.set_xlabel(r" $M_{DM}/M_{tot}$", fontsize=10)
+                                ax.set_ylabel(r"χ²/dof", fontsize=10)
                                 ax.grid(True)
                                 
                                 handles, labels = ax.get_legend_handles_labels()
@@ -2333,7 +2339,7 @@ def create_page():
                                          verticalalignment='top',     
                                          bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.9, edgecolor='lightgray'))
                                 
-                                plt.title("χ² Minimization",fontsize=14,fontweight='bold')
+                                plt.title("χ² Minimization",fontsize=12,fontweight='bold')
                                 plt.tight_layout()
                                 ui.element('div').props('role=status aria-live=polite tabindex=0 aria-label=Plot showing chi-square minimization curve; X axis is dark matter mass in solar masses, Y axis is chi-square per degree of freedom')
 
@@ -2400,38 +2406,34 @@ def create_page():
                     points_display = ui.column()
                     history_display = ui.column()
 
-                    with ui.row().classes('w-full no-wrap items-start justify-center gap-x-8'):
-     
-                        with ui.column().classes('w-full md:w-[30%] min-w-[300px] items-center'):
-                            plot_container = ui.column().classes('w-full')
-                            with ui.row().classes('w-full justify-center items-center gap-4 px-1 '):
-                                aria_button("Activity 2-3:build model ", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                                aria_button("Activity 4:quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                           
-                        with ui.column().classes('w-full items-center justify-center md:w-[30%] min-w-[300px] gap-1'):
-            
+                    with ui.row().classes('w-full items-start justify-between no-wrap gap-2 px-2'):
+                    
                       
+                        with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col gap-1'):
+                            galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight ")
+                            galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').on('click', image_dialog2.open)
+                            #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
+                            galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
+                            aria_button(" Table", "table", on_click=table_dialog2.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
 
+               
+                        with ui.column().classes('w-full items-center'):
+                            plot_container = ui.column().classes('w-full')
+                            aria_button("Activity 2-3: build model", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
+
+                    
+                        with ui.column().classes('w-full items-center'):
+                            mass_plot_container = ui.column().classes("w-full")
+                            aria_button("Activity 4: quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
+
+                    
+                        with ui.column().classes('w-full items-center'):
+                            chi2_plot_container = ui.column().classes('w-full')
+                            with ui.row().classes("w-full justify-center gap-2 mt-2"):
+                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-sm")
+                                aria_button("Tool", "Tool", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-sm")
+                                aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded text-sm")
                         
-                            chi2_plot_container = ui.column().classes('w-full p-0 m-0')
-                            plot_chi2_user_curve() 
-                            
-                        
-                            
-
-                            with ui.row().classes("w-full justify-center items-center gap-4 px-1 "):
-                
-                               
-                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 roundedm")
-                                
-                                aria_button("Tool", "Open dialog", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold font-bold py-2 px-4 rounded")
-                                
-                                aria_button("Reset", "Refresh plot", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold font-bold py-2 px-4 rounded")
-
-                
-                                        
-                                
-                        mass_plot_container = ui.column().classes("w-full md:w-[30%] min-w-[300px]")
                                         
                     
                    
@@ -2446,154 +2448,97 @@ def create_page():
 
 
                         def update_galaxy_rotation_plot():
-                          
-                            if not gal_state['DATA_LOADED']:
-                                return
-                            #print("update_galaxy_rotation_plot: current_galaxy_name =", repr(current_galaxy_name),        " galaxy_select.value =", getattr(galaxy_select, "value", None))
+                            if not gal_state['DATA_LOADED']: return
                             r_ngc = gal_state['r_ngc']
                             v_obs_ngc = gal_state['v_obs_ngc']
                             v_gas_ngc = gal_state['v_gas_ngc']
                             v_bul_ngc = gal_state['v_bul_ngc']
                             v_disk_ngc = gal_state['v_disk_ngc']
                             v_err_ngc = gal_state['v_err_ngc']
-                            r_match = gal_state['r_match']
                             current_galaxy_name = gal_state['current_galaxy_name']
                             selected_file = gal_state['selected_file']
-                          
-                            
-                            
                             
                             f = float(alpha_slider.value)
-                            
-                            
-                           
-                                #rho_s_dynamic, rs_dynamic, alpha_dm, beta_dm, gamma_dm = dm_params_from_slider(f)
                             G_grav = 4.30091e-6
+                            
                             v_baryonic = np.sqrt(np.maximum(0, v_gas_ngc)**2 + np.maximum(0, v_disk_ngc)**2 + np.maximum(0, v_bul_ngc)**2)
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
-                            m_total    = (v_obs_ngc**2 * r_ngc) / G_grav
-                        
+                            m_total_obs = (v_obs_ngc**2 * r_ngc) / G_grav
                             
-                            #rho_s, r_s, M200 = get_rhos_rs_from_observed_matching(r_ngc, v_obs_ngc, v_gas_ngc, v_disk_ngc, v_bul_ngc, r_match=r_match)
+                         
+                            M_tot_obs_max = np.nanmax(m_total_obs)
+                            M_dm_tot = f * M_tot_obs_max
+                            M_vis_tot = np.max(m_baryonic)
+                            
+                         
+                            rho_s, r_s, M_dm_grid = get_dm_params(1.0, r_array=r_ngc)
+                            max_grid = np.max(M_dm_grid)
+                            f_NFW = M_dm_tot / max_grid if max_grid > 0 else 0
+                            
+                            v_total_curve = np.sqrt(G_grav * (m_baryonic + f_NFW * M_dm_grid) / r_ngc)
+                            
+                            clean_name = current_galaxy_name.removesuffix('.txt').removesuffix('.csv')
+                            galaxy_title_label.set_text(f"Galaxy Info: {clean_name}")
+                           
+                            galaxy_info_content.clear()
+                            with galaxy_info_content:
+                                html_info_box(f"""
+                                    <ul class="list-none pl-2 space-y-1 text-sm text-gray-800">
+                                        <li><b>M<sub>tot</sub>:</b> {format_sci(M_tot_obs_max)} M<sub>☉</sub></li>
+                                        <li><b>M<sub>DM</sub>:</b> {format_sci(M_dm_tot)} M<sub>☉</sub></li>
+                                       
+                                        <li><b>M<sub>bar</sub>:</b> {format_sci(M_vis_tot)} M<sub>☉</sub></li>
+                                       <li><b>v<sub>obs,mean</sub>:</b> {np.nanmean(v_obs_ngc):.1f} km/s</li>
+                                        <li><b>v<sub>sim,mean</sub>:</b> {np.nanmean(v_total_curve):.1f} km/s</li>
+                                    </ul>
+                                """)
+                            img_name = os.path.splitext(selected_file)[0] + ".jpg"
+                            if os.path.exists(os.path.join(GALAXY_IMG_PATH, img_name)):
+                                galaxy_img_disp.source = f"/galaxy_img/{img_name}"
+                            else:
+                                galaxy_img_disp.source = ""
 
-                            #M_dm_grid = M_nfw_enclosed(r_ngc, rho_s=rho_s, r_s=r_s)
-                            rho_s, r_s, M_dm_grid = get_dm_params(f, r_array=r_ngc)
-
-                            
-                            v_total_curve = np.sqrt(G_grav * (m_baryonic + f * M_dm_grid) / r_ngc)
-                            
-                        
                             v_obs_list   = [float(v) for v in v_obs_ngc if np.isfinite(v)]
                             v_bary_list  = [float(v) for v in v_baryonic if np.isfinite(v)]
                             v_total_list = [float(v) for v in v_total_curve if np.isfinite(v)]
-
                             v_obs_mean  = float(np.nanmean(v_obs_list)) if len(v_obs_list) > 0 else 0
                             v_bary_mean = float(np.nanmean(v_bary_list)) if len(v_bary_list) > 0 else 0
                             v_total_mean= float(np.nanmean(v_total_list)) if len(v_total_list) > 0 else 0
                             v_diff_raw = np.abs(v_obs_ngc - v_total_curve)
-
                             v_diff_list = [float(d) for d in v_diff_raw if np.isfinite(d)]
                             v_diff_mean = float(np.nanmean(v_diff_raw)) if v_diff_list else 0.0
 
-                            ui.run_javascript(f"window.vObsSeries = {v_obs_list};")
-                            ui.run_javascript(f"window.vBarySeries = {v_bary_list};")
-                            ui.run_javascript(f"window.vSimSeries = {v_total_list};")
-                            ui.run_javascript(f"window.vObsMean = {v_obs_mean};")
-                            ui.run_javascript(f"window.vBarMean = {v_bary_mean};")
-                            ui.run_javascript(f"window.vSimMean = {v_total_mean};")
-                            ui.run_javascript(f"window.vDiffSeries = {v_diff_list};")
-                            ui.run_javascript(f"window.vDiffMean = {v_diff_mean};")
+                            ui.run_javascript(f"window.vObsSeries = {v_obs_list}; window.vBarySeries = {v_bary_list}; window.vSimSeries = {v_total_list}; window.vObsMean = {v_obs_mean}; window.vBarMean = {v_bary_mean}; window.vSimMean = {v_total_mean}; window.vDiffSeries = {v_diff_list}; window.vDiffMean = {v_diff_mean};")
 
-
-                        
-
-                        
-
-
-                            M_vis_tot = np.max(m_baryonic)
-                            M_dm_tot = np.max(M_dm_grid) * f
-                            dm_fraction = 100 * M_dm_tot / (M_vis_tot + 1e-12)
-
-                            alpha_slider.props(f'label-value="{M_dm_tot:.2e} M☉"')
-
-                            
-                            mask = np.isfinite(v_obs_ngc) & np.isfinite(v_err_ngc) & (v_err_ngc > 0)
-                            r_use = r_ngc[mask]
-                            vobs_use = v_obs_ngc[mask]
-                            verr_use = v_err_ngc[mask]
-                            vmodel_use = v_total_curve[mask]  
-
-                            chi2 = np.sum(((vobs_use - vmodel_use)/np.maximum(verr_use, 5.0))**2)
-
-
-                            N_used = len(vobs_use)
-                            N_params = 1  
-                            dof = max(1, N_used - N_params)
-                            chi2_dof = chi2 / dof
-                        
-                            r_ref = 20  # kpc
-                            if len(r_ngc) == 0:
-                                dm_frac_r = 0
-                            else:
-                                idx_r = np.searchsorted(r_ngc, r_ref)
-                                idx_r = min(idx_r, len(r_ngc)-1)
-                                dm_frac_r = 100 * f * M_dm_grid[idx_r] / (m_baryonic[idx_r] + f * M_dm_grid[idx_r])
-
-                            residui = (vobs_use - vmodel_use) / verr_use
-                            v_gas_frac = 100 * np.mean(v_gas_ngc**2 / v_total_curve**2)
-                            v_disk_frac = 100 * np.mean(v_disk_ngc**2 / v_total_curve**2)
-                            v_bul_frac = 100 * np.mean(v_bul_ngc**2 / v_total_curve**2)
-
-
-
-
+                            alpha_slider.props(f'label-value="DM / Mₜₒₜ: {f:.2f}"')
 
                             with plot_container:
                                 plot_container.clear()
                                 plt.close() 
-                                with ui.pyplot(figsize=(10, 6), close=False, clear=True):
-                                    info_text = (
-            f"$M_{{DM}} = {M_dm_tot:.2e} \\, M_{{\\odot}}$\n"
-            f"$M_{{bar}} = {M_vis_tot:.2e} \\, M_{{\\odot}}$\n"
-            f"DM Fraction: ${dm_fraction:.1f} \\,\\%$\n"
-            f"$v_{{obs}} = {v_obs_ngc.max():.1f} \\, km/s$\n"
-            f"$v_{{sim}} = {v_total_curve.max():.1f} \\, km/s$"
-        )
-                                    
+                                with ui.pyplot(figsize=(6, 4), close=False, clear=True):
+                                    ax = plt.gca()
                                     plt.plot(r_ngc, v_baryonic, color='red', linewidth=3, label=f'Keplerian velocity ')
                                     plt.plot(r_ngc, v_total_curve, linewidth=3, color='green', label="Simulated velocity" )
-                                   
                                     plt.errorbar(r_ngc, v_obs_ngc, yerr=v_err_ngc, fmt='o', markersize=4, color='blue', ecolor='gray', capsize=2, label='Observed velocity', zorder=5)
-                                    #plt.text(0.05, 0.95,  f"DM mass: {M_dm_tot:.2e} M☉, {dm_fraction:.1f}% of visible " f'V_obs{v_obs_ngc.max():.1f} km/s 'f"Simulated velocity: {v_total_curve.max():.1f} km/s " '(Baryonic mass: {M_vis_tot:.2e} M☉)', transform=plt.gca().transAxes, fontsize=8, verticalalignment='top')
                                     
-                                    plt.text(0.96, 0.96, info_text, 
-                 transform=plt.gca().transAxes, 
-                 fontsize=12, 
-                 verticalalignment='top', 
-                 horizontalalignment='right',
-                 linespacing=1.8, 
-                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.9, edgecolor='gray'))
-                                    plt.xlabel('Radius (kpc)', fontsize=16)
-                                    plt.ylabel('Rotation Speed (km/s)', fontsize=16)
+                                   
+                                    ax.yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+                                    ax.xaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                    ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+                                    
+                                    plt.xlabel('Radius (kpc)', fontsize=10)
+                                    plt.ylabel('Rotation Speed (km/s)', fontsize=10)
                                     galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
-                                    plt.title(f'Galaxy Rotation Curve: {galaxy_name_for_title}', fontsize=18,fontweight='bold')
+                                    plt.title('Galaxy rotation curve', fontsize=12,fontweight='bold')
                                 
-                                    max_vel_plot = np.nanmax([
-                                        np.nanmax(v_obs_ngc + v_err_ngc),
-                                        np.nanmax(v_total_curve),         
-                                        np.nanmax(v_baryonic)             
-                                    ])
+                                    max_vel_plot = np.nanmax([np.nanmax(v_obs_ngc + v_err_ngc), np.nanmax(v_total_curve), np.nanmax(v_baryonic)])
                                     plt.ylim(0, max(300, 1.1 * max_vel_plot))
                                     plt.xlim(0, r_ngc.max() * 1.1)
-                                    #plt.ylim(0, max(300, 1.1 * np.max(v_obs_ngc + v_err_ngc)))
-                                    #plt.xlim(0, r_ngc.max() * 1.1)
                                     plt.grid(True)
-                                    plt.legend(loc='upper left', fontsize=16)
+                                    plt.legend(loc='upper left', fontsize=10)
                                     plt.tight_layout()
-
-                                    ui.element('div').props(
-        'role=status aria-live=polite tabindex=0 aria-label=Rotational velocity curve of the galaxy (from data),baryonic velocity curve (computed from data) and simulated velocity curve updated with new dark matter value (slider moved)'
-    )
+                                    ui.element('div').props('role=status aria-live=polite tabindex=0')
 
 
                         
@@ -2630,35 +2575,27 @@ def create_page():
                             with mass_plot_container:
                                 mass_plot_container.clear()
                                 plt.close()
-                                with ui.pyplot(figsize=(10, 6), close=False,clear=True):
-                            
-                                
+                                with ui.pyplot(figsize=(6, 4), close=False,clear=True):
+                                    ax = plt.gca()
+                                    ax.yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+                                    ax.xaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                    ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
                                     plt.plot(r_ngc, m_baryonic, "r-", lw=3, label=f"Baryonic mass")
                                     plt.plot(r_ngc, m_total_obs, "b-", lw=3, label=f"Total mass")
                                     plt.plot(r_ngc, m_total_model, "g-", lw=3, label=f"Simulated mass DM")
                                     
-                                    info_text = (
-            f"$M_{{tot}} = {np.max(m_total_obs):.2e} \\, M_{{\\odot}}$\n"
-            f"$M_{{bar}} = {np.max(m_baryonic):.2e} \\, M_{{\\odot}}$\n"
-             f"$M_{{DM}} ={np.max(m_total_model):.2e} \\,M_{{\\odot}}$\n"
-           
-        )
-                                    plt.text(0.96, 0.96, info_text, 
-                 transform=plt.gca().transAxes, 
-                 fontsize=12, 
-                 verticalalignment='top', 
-                 horizontalalignment='right',
-                 linespacing=1.8, 
-                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.9, edgecolor='gray'))
+                                    
+                                   
                                     plt.xlim(x_min_mass, x_max_mass)
                                     plt.ylim(y_min_mass, y_max_mass)
 
-                                    plt.xlabel("Radius (kpc)", fontsize=16)
-                                    plt.ylabel("Mass ($M_\\odot$)", fontsize=16)
+                                    plt.xlabel("Radius (kpc)", fontsize=10)
+                                    plt.ylabel("Mass ($M_\\odot$)", fontsize=10)
                                     galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
-                                    plt.title(f"Mass vs radius: {galaxy_name_for_title}", fontsize=18,fontweight='bold')
+                                    plt.title("Galaxy mass ", fontsize=12,fontweight='bold')
 
-                                    plt.legend(loc='upper left', fontsize=16)
+                                    plt.legend(loc='upper left', fontsize=10)
                                     plt.grid(True)
                                     plt.tight_layout()
 
@@ -2829,53 +2766,54 @@ def create_page():
                             selected_file = gal_state['selected_file']
                             chi2_points = gal_state['chi2_points']
                             manual_points = gal_state['manual_points']
+                          
                             f = float(alpha_slider.value)
-                            #rho_s, r_s, _ = get_rhos_rs_from_observed_matching(                           r_ngc, v_obs_ngc, v_gas_ngc, v_disk_ngc, v_bul_ngc, r_match=r_match)
-                            #M_dm_grid = M_nfw_enclosed(r_ngc, rho_s=rho_s, r_s=r_s)
-                            rho_s, r_s, M_dm_grid = get_dm_params(f, r_array=r_ngc)
-
-                            M_dm_tot = np.max(M_dm_grid) * f
-
-                            v_baryonic = np.sqrt(np.maximum(0, v_gas_ngc)**2 +
-                                                np.maximum(0, v_disk_ngc)**2 +
-                                                np.maximum(0, v_bul_ngc)**2)
+                            m_total_obs = (v_obs_ngc**2 * r_ngc) / G_grav
+                            M_tot_obs_max = np.nanmax(m_total_obs)
+                            M_dm_tot = f * M_tot_obs_max
+                            
+                            rho_s, r_s, M_dm_grid = get_dm_params(1.0, r_array=r_ngc)
+                            max_grid = np.max(M_dm_grid)
+                            f_NFW = M_dm_tot / max_grid if max_grid > 0 else 0
+                            
+                            v_baryonic = np.sqrt(np.maximum(0, v_gas_ngc)**2 + np.maximum(0, v_disk_ngc)**2 + np.maximum(0, v_bul_ngc)**2)
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
-                            v_total_curve = np.sqrt(G_grav * (m_baryonic + f * M_dm_grid) / r_ngc)
+                            v_total_curve = np.sqrt(G_grav * (m_baryonic + f_NFW * M_dm_grid) / r_ngc)
 
                             mask = np.isfinite(v_obs_ngc) & np.isfinite(v_err_ngc) & (v_err_ngc > 0)
                             vobs_use = v_obs_ngc[mask]
                             verr_use = np.maximum(v_err_ngc[mask], 5.0)
                             vmodel_use = v_total_curve[mask]
 
+                            
+                          
+                        
+
                             chi2_val = np.sum(((vobs_use - vmodel_use)/verr_use)**2) / max(1, len(vobs_use)-1)
                             
                            
-                            is_duplicate = any(x == M_dm_tot for x, y in chi2_points)
+                            is_duplicate = any(x == f for x, y in chi2_points)
                             if is_duplicate:
                                 chi2_state['slider_result'] = "Point already added! Move the slider."
                                 plot_chi2_user_curve()
                                 return
                                 
-                            chi2_points.append((M_dm_tot, chi2_val))
+                            chi2_points.append((f, chi2_val))
                             
-                            if len(chi2_points) > 3:
-                                chi2_points.pop(0)
+                            if len(chi2_points) > 3: chi2_points.pop(0)
 
                             if len(chi2_points) == 3:
                                 xs, ys = zip(*chi2_points)
                                 coeffs = np.polyfit(xs, ys, 2)
-                                
-                             
                                 if coeffs[0] > 0:
                                     xmin = -coeffs[1] / (2*coeffs[0])  
                                     ymin = np.polyval(coeffs, xmin)
-                                    
                                     if xmin < 0 or ymin < 0:
-                                        chi2_state['slider_result'] = "Invalid Result: DM mass and χ² cannot be negative!"
+                                        chi2_state['slider_result'] = "Invalid Result: Ratio and χ² cannot be negative!"
                                     else:
-                                        chi2_state['slider_result'] = f"Result: Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}},\\chi^2_{{min}} \\approx {ymin:.2f}$"
+                                        chi2_state['slider_result'] = f"Min Ratio ≈ {xmin:.2f}, χ²_min ≈ {ymin:.2f}"
                                 else:
-                                    chi2_state['slider_result'] = "Invalid shape. Try different DM values!"
+                                    chi2_state['slider_result'] = "Invalid shape. Try different values!"
                             else:
                                 chi2_state['slider_result']= "Add more points to find the minimum."
 
@@ -4086,11 +4024,11 @@ def create_page():
                                 dt = 0.05
                                 VELOCITY_SCALE = 0.0005
                                 L = 2 * cluster_radius
-                                TARGET_SLIDER_VALUE = 20.0
+                                #TARGET_SLIDER_VALUE = 20.0
                               
-                                raw_slider_value = float(dm_slider.value)
-                                f = raw_slider_value / TARGET_SLIDER_VALUE
-                              
+                                #raw_slider_value = float(dm_slider.value)
+                                #f = raw_slider_value / TARGET_SLIDER_VALUE
+                                f= float(dm_slider.value)
                                 M_bary = sim_state["M_bary_base"]
                                 M_dm = sim_state["M_dm_base"]
                                 r_safe = sim_state["r_safe"]
@@ -4198,18 +4136,12 @@ def create_page():
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
                         aria_button("Dataset", "Read the info about dataset",on_click=safe_click(lambda: [dataset_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
-                        aria_button("Info", "Read the detailed information about computational steps from data to plots",on_click=safe_click(lambda: [cluster_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
+                        aria_button("Physics Info", "Read the detailed information about computational steps from data to plots",on_click=safe_click(lambda: [cluster_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
                     
-                        aria_button("Image", "Show the cluster image corresponding to the selected dataset", on_click=safe_click(lambda: [
-                            update_cluster_image.refresh(), 
-                            image_dialog.open()
-                        ])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                        #aria_button("Image", "Show the cluster image corresponding to the selected dataset", on_click=safe_click(lambda: [ update_cluster_image.refresh(),  image_dialog.open() ])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
 
-                        aria_button("Table", "Show the data table corresponding to the selected dataset", on_click=safe_click(lambda: [
-                            update_cluster_table.refresh(), 
-                            table_dialog.open()
-                        ])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                        #aria_button("Table", "Show the data table corresponding to the selected dataset", on_click=safe_click(lambda: [                            update_cluster_table.refresh(),                             table_dialog.open()])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                         async def on_galaxies_click():
                             sim_dialog.open()          
                             await start_simulation_logic() 
@@ -4373,7 +4305,7 @@ def create_page():
                         cluster_state['r_padding'] = 0.1 * (cluster_state['r_max'] - cluster_state['r_min'])
 
                         
-                        cluster_state['dm_slider_min'], cluster_state['dm_slider_max'] = 0.0, 50.0
+                        cluster_state['dm_slider_min'], cluster_state['dm_slider_max'] = 0.0, 10.0
                         f_max = cluster_state['dm_slider_max']
 
                         cluster_state['M_bar_tot'] = np.sum(cluster_state['m_bary_at_gal'])
@@ -4428,9 +4360,9 @@ def create_page():
                                 
                                
                                 M200 = cluster_state.get('M200', 1e14)
-                                slider_max_val = getattr(dm_slider, 'max', 50.0) 
-                                dm_max_possible = M200 * slider_max_val
-                                x_max_chi_fallback = dm_max_possible * 1.05 if dm_max_possible > 0 else 1e15
+                                slider_max_val = getattr(dm_slider, 'max', 10.0) 
+                              
+                                x_max_chi_fallback = slider_max_val * 1.05 if slider_max_val > 0 else 10.0
                                 
                                 if chi2_points:
                                     xs, ys = zip(*chi2_points)
@@ -4441,7 +4373,7 @@ def create_page():
 
                                     if len(chi2_points) == 3:
                                      
-                                        x_scale = max(xs) if max(xs) > 0 else 1e14
+                                        x_scale = max(xs) if max(xs) > 0 else 1
                                         xs_scaled = np.array(xs) / x_scale
                                         coeffs = np.polyfit(xs_scaled, ys, 2)
                                         
@@ -4472,9 +4404,8 @@ def create_page():
                                 
                                
                                 if all_xs:
-                                   
                                     plot_x_max = max(all_xs) * 1.1
-                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else 1e14)
+                                    ax.set_xlim(0, plot_x_max if plot_x_max > 0 else x_max_chi_fallback)
                                     
                                
                                     valid_ys = [y for y in all_ys if np.isfinite(y)]
@@ -4488,7 +4419,7 @@ def create_page():
                                     ax.set_xlim(0, x_max_chi_fallback)
                                     ax.set_ylim(0, 10.0)
                                     
-                                ax.set_xlabel("DM mass ($M_{\\odot}$)", fontsize=10)
+                                ax.set_xlabel(r" $M_{DM}/M_{tot}$")
                                 ax.set_ylabel(r"χ²/dof", fontsize=10)
                                 ax.grid(True, alpha=0.3)
                                 
@@ -4561,26 +4492,20 @@ def create_page():
                         
                         chi2_val = chi2_hist / max(1, len(counts_obs))
 
-                        is_duplicate = any(x == M_dm_tot for x, y in cluster_state['chi2_points'])
-                        
+                        is_duplicate = any(x == f for x, y in cluster_state['chi2_points'])
                         if is_duplicate:
-                          
                             cluster_state['chi2_slider_result'] = "Point already added! Move the slider."
                             plot_cluster_chi2_curve()
                             return  
                             
-                   
-                        cluster_state['chi2_points'].append((M_dm_tot, chi2_val))
+                        cluster_state['chi2_points'].append((f, chi2_val))
                         
-                        if len(cluster_state['chi2_points']) > 3:
-                            cluster_state['chi2_points'].pop(0)
+                        if len(cluster_state['chi2_points']) > 3: cluster_state['chi2_points'].pop(0)
                       
                         if len(cluster_state['chi2_points']) == 3:
                             xs, ys = zip(*cluster_state['chi2_points'])
                             
-                           
-                            x_scale = max(xs) if max(xs) > 0 else 1e14
-                            
+                            x_scale = max(xs) if max(xs) > 0 else 1
                             xs_scaled = np.array(xs) / x_scale
                             coeffs = np.polyfit(xs_scaled, ys, 2)
                             
@@ -4590,11 +4515,11 @@ def create_page():
                                 ymin = np.polyval(coeffs, xmin_scaled) 
                                 
                                 if xmin < 0 or ymin < 0:
-                                    cluster_state['chi2_slider_result'] = "Invalid Result: DM mass and χ² cannot be negative!"
+                                    cluster_state['chi2_slider_result'] = "Invalid Result: Ratio and χ² cannot be negative!"
                                 else:
-                                    cluster_state['chi2_slider_result'] = f"Min: $M_{{DM}} \\approx {xmin:.2e} \\, M_{{\\odot}}, \\chi^2_{{min}} \\approx {ymin:.2f}$"
+                                    cluster_state['chi2_slider_result'] = f"Min Ratio ≈ {xmin:.2f}, χ²_min ≈ {ymin:.2f}"
                             else:
-                                cluster_state['chi2_slider_result'] = "Invalid shape. Try smaller DM values!"
+                                cluster_state['chi2_slider_result'] = "Invalid shape. Try different values!"
 
                         plot_cluster_chi2_curve()
 
@@ -4607,46 +4532,47 @@ def create_page():
                   
 
                     with ui.column().classes('w-full items-center '):
-                        dm_slider_min, dm_slider_max = 0.0, 50.0
+                        dm_slider_min, dm_slider_max = 0.0, 60.0
                         ui.label("Move the slider to add dark matter to the simulated velocity distribution in the cluster").props('id=dm_slider_label')
                         dm_slider = aria_slider(min=dm_slider_min, max=dm_slider_max,
                         value=0.0, step=0.01,  aria_label="Dark matter fraction control slider").props('aria-describedby=dm_slider_label label-always debounce=300')
 
                         
                         
-                        with ui.row().classes('w-full justify-center gap-2 px-2'):
-    
-                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
-                                plot_container_histo = ui.column().classes('w-full')
-                                aria_button("Activity 5.3: verify model", "Read the instructions for activity 3", 
-                                            on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
-                                    .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2")
-                                    
-                          
-                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
-                                cluster_chi2_plot_container = ui.column().classes('w-full p-0 m-0')
-                                plot_cluster_chi2_curve()
-                                with ui.row().classes("w-full justify-center items-center gap-4 px-1 mt-2"):
-                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()) \
-                                        .classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
-                                    aria_button("Reset", "Refresh plot", on_click=lambda: refresh_cluster_chi2_plot()) \
-                                        .classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
-                                    aria_button("How is χ² calculated?", "Read the explanation of the Chi-Square method for clusters", 
-                                    on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
-                            .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                          
-                            with ui.column().classes('flex-1 min-w-[30%] items-center'):
-                                plot_container_scatter = ui.column().classes('w-full')
-                                with ui.row().classes('w-full justify-center gap-4 mt-2'):
-                                    aria_button("Activity 5.1: virial theorem", "Read the instructions for activity 1", 
-                                                on_click=safe_click(lambda: [instr_cluster_virial.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                                    aria_button("Activity 5.2: cluster mass", "Read the instructions for activity 2", 
-                                                on_click=safe_click(lambda: [instr_cluster_mass.open(), ui.run_javascript("MathJax.typesetPromise()")])) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    
-                    
+                        with ui.row().classes('w-full items-start justify-between no-wrap gap-2 px-2 mt-4'):
+                       
+                            with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm flex flex-col gap-1'):
+                                cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-green-800 mb-2")
+                                cluster_img_display = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').on('click', image_dialog.open)
+                                #ui.html("<small class='text-gray-500'><i>Ref: ESA Hubble / Aladin</i></small>")
+                                cluster_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
+                                aria_button(" Table", "table", on_click=table_dialog.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
 
+                          
+                            with ui.column().classes('w-full items-center'):
+                                plot_container_histo = ui.column().classes('w-full')
+                                with ui.row().classes('w-full justify-center gap-2 mt-2'):
+                                    aria_button("Activity 5.1", "virial", on_click=lambda: instr_cluster_virial.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+                                    aria_button("Activity 5.2", "mass", on_click=lambda: instr_cluster_mass.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+
+                               
+                          
+                            with ui.column().classes('w-full items-center'):
+                                plot_container_scatter = ui.column().classes('w-full')
+                                
+                                aria_button("Activity 5.3", "verify model", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+
+                      
+                            with ui.column().classes('w-full items-center'):
+                                cluster_chi2_plot_container = ui.column().classes('w-full')
+                                
+                          
+                                plot_cluster_chi2_curve() 
+                                
+                                with ui.row().classes("w-full justify-center gap-1 mt-2"):
+                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-xs")
+                                    aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded text-xs")
+                                    aria_button("How is χ²?", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
                   
                     def refresh_cluster_plots(full_anim=False):
                            
@@ -4687,26 +4613,29 @@ def create_page():
                         refresh_cluster_chi2_plot()
                         if new_value.lower() == "coma_data.csv":
                             df = load_coma_dataset(new_value)
+                            new_max_clu = 60.0
                         else:
                             df = get_cluster_data_cached(new_value)
                             initialize_cluster_from_df(df)
-                        
+                            new_max_clu = 10.0
                         recompute_axis_limits()
                         # cluster_name = new_value
                     
                         #dm_slider.value = 0.0
                         sigma_obs = cluster_state['sigma_obs']
                         
-                        # Calcolo proporzionale: la massa scala con la dispersione
-                        new_max_clu = max(5.0, (sigma_obs / 100.0) * 3.0)
+                       
+                        #new_max_clu = max(5.0, (sigma_obs / 100.0) * 3.0)
+                      
                         
-                        # Aggiorniamo le proprietà di dm_slider
+                 
                         dm_slider.max = round(new_max_clu, 1)
                         dm_slider.step = round(new_max_clu / 100.0, 2)
                         dm_slider.value = 0.0
+                        dm_slider.props(f'max="{new_max_clu}" step="{round(new_max_clu / 100.0, 2)}"')
                         dm_slider.update()
                         
-                        # Puliamo la parabola precedente
+                 
                         cluster_state['chi2_points'].clear()
                         cluster_state['chi2_slider_result'] = "Add points to find the minimum."
                         refresh_cluster_plots(full_anim=True)
@@ -4795,7 +4724,7 @@ def create_page():
         
                             f = float(dm_slider.value) 
                 
-                            dm_slider.props(f'label-value="{f * M200:.2e} M☉"')
+                           
                         
                             r_safe = np.maximum(r_proj_kpc, 1) 
                         
@@ -4924,19 +4853,33 @@ def create_page():
                             chi2_scatter_norm = chi2_scatter / len(counts_obs)
 
 
-                            info_text_i = (     f'$<v_{{obs}}>={v_mean_val:.1f} km/s \\,   \\sigma_{{obs}} = {sigma_obs:.1f} km/s $\n' 
-                   
-                                                 f"$ <v_{{sim}}>={v_model_mean:.1f} km/s\\ ,\\sigma_{{sim}} = {v_model_sigma:.1f} km/s $\n"
-          
-                        f" $ N_{{gal}}={N_obs}   \\,\\sigma_{{bar}} = {sigma_bar_val:.1f} km/s $\n"         
-                         f" $\\chi^2={chi2_hist:.1f}\\ ,\\chi^2/N_{{obs}}={chi2_norm:.2f} $")
-
-                            info_text_s = (
-    f"$\\chi^2={chi2_scatter:.1f}\\ ,\\chi^2/N_{{gal}}={chi2_scatter_norm:.2f}$\n"
-    f"$\\sigma_{{bar}} ={sigma_bar_val:.1f} \\, km/s\\ ,N_{{gal\\_bar}}={N_bar}$\n"
-    f"$\\sigma_{{tot}}= {sigma_dm_val:.1f} \\, km/s\\,N_{{gal\\_sim}}={N_sim}$\n" 
-    f"$DM_{{tot}}= {f*M200:.2e} \\, M_\\odot\\ ,M_{{tot}}/M_{{bar}}={mass_ratio:.2f}$"
-)
+                          
+                            dm_slider.props(f'label-value="DM / Mₜₒₜ: {f:.2f}"')
+                            select_name = cluster_state.get("select", "coma_data.csv")
+                            clean_name = select_name.removesuffix('.csv').removesuffix('.txt')
+                            cluster_title_label.set_text(f"Cluster Info: {clean_name}")
+                          
+                            cluster_info_content.clear()
+                            with cluster_info_content:
+                                
+                                html_info_box(f"""
+                                    <ul class="list-none pl-2 space-y-1 text-sm text-gray-800">
+                                        <li><b>M<sub>tot</sub>:</b> {format_sci(M200)} M<sub>☉</sub></li>
+                                        <li><b>M<sub>DM</sub>:</b> {format_sci(f*M200)} M<sub>☉</sub></li>
+                                       
+                                        <li><b>M<sub>bar</sub>:</b> {format_sci(M_bar_tot_fixed)} M<sub>☉</sub></li>
+                                        <li><b>σ<sub>obs</sub>:</b> {sigma_obs:.1f} km/s</li>
+                                        <li><b>σ<sub>sim</sub>:</b> {sigma_dm_val:.1f} km/s</li>
+                                       
+                                    </ul>
+                                """)
+                                
+                            select_name = cluster_state["select"]
+                            img_name = "coma_img.jpg" if select_name.lower() == "coma_data.csv" else os.path.splitext(select_name)[0] + ".jpg"
+                            if os.path.exists(os.path.join(CLUSTER_IMG_PATH, img_name)):
+                                cluster_img_display.source = f"/cluster_img/{img_name}"
+                            else:
+                                cluster_img_display.source = ""
                             sort_idx = np.argsort(r_proj_kpc)
         
                             r_sorted = r_proj_kpc[sort_idx]
@@ -4956,7 +4899,10 @@ def create_page():
                                         plot_container_histo.clear()
                                         plt.close('all')
                                         with ui.pyplot(figsize=(6, 4)):
-                                        
+                                            ax = plt.gca()
+                                            ax.yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                            ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+                                          
                                             plt.hist(current_obs, bins=bins, alpha=1.0,color='blue', orientation='horizontal',
                         label='Observed Velocities', 
                         rasterized=True)
@@ -4974,23 +4920,17 @@ def create_page():
                                                         rasterized=True)
                                                 
                                             
-                                            plt.text(0.96, 0.96, info_text_i, 
-                        transform=plt.gca().transAxes, 
-                        fontsize=8, 
-                        verticalalignment='top', 
-                        horizontalalignment='right',
-                        linespacing=1.8, 
-                        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.9, edgecolor='gray'))
+                                           
                                             plt.xlim(0,y_max )
                                             #plt.yscale('log')
                                             plt.ylim(0, x_max + padding )
-                                            plt.ylabel('Velocity [km/s]',fontsize=12)
-                                            plt.xlabel('N° of Galaxies',fontsize=12)
+                                            plt.ylabel('Velocity [km/s]',fontsize=10)
+                                            plt.xlabel('N° of Galaxies',fontsize=10)
                                             #if cluster_name is not None:
                                             #    plt.title(f'Galaxy Velocity Distribution ({cluster_name})')
                                             #else:
                                             #    plt.title('Galaxy Velocity Distribution (Cluster)')
-                                            plt.title('Galaxy Velocity Distribution (Cluster)',fontsize=14,fontweight='bold')
+                                            plt.title('Histogram of velocities distribution ',fontsize=12,fontweight='bold')
                                             plt.legend(fontsize=10, loc='upper left')
                                             plt.tight_layout()
                                             plt.grid(True, axis='y', linestyle='--', alpha=0.7)
@@ -5006,7 +4946,11 @@ def create_page():
                                         with ui.pyplot(figsize=(6, 4)):
                                     
                                         
-
+                                            ax = plt.gca()
+                                            ax.yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                            ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+                                            ax.xaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
+                                            ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
                                             plt.scatter(curr_r_obs, current_obs, s=10, color='blue', alpha=0.6, label="Observed Galaxies", rasterized=True)
 
                                             plt.scatter(curr_r_bar, current_bar, s=10, color='red', alpha=0.6, 
@@ -5020,25 +4964,19 @@ def create_page():
 
                                     
                                             
-                                            plt.text(0.96, 0.96, info_text_s, 
-                        transform=plt.gca().transAxes, 
-                        fontsize=8, 
-                        verticalalignment='top', 
-                        horizontalalignment='right',
-                        linespacing=1.8, 
-                        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.9, edgecolor='gray'))
+                                            
 
                                             plt.xlim(0, r_max + r_padding)
                                             plt.ylim(0, ylim_max)
 
 
-                                            plt.xlabel("Radius [kpc]",fontsize=12)
-                                            plt.ylabel("Velocity [km/s]",fontsize=12)
+                                            plt.xlabel("Radius [kpc]",fontsize=10)
+                                            plt.ylabel("Velocity [km/s]",fontsize=10)
                                             #if cluster_name is not None:
                                             #    plt.title(f"Phase-space diagram of cluster galaxies ({cluster_name})")
                                             #else:
                                             #    plt.title("Phase-space diagram of cluster galaxies")
-                                            plt.title("Scatter plot of cluster galaxies velocities",fontsize=14,fontweight='bold')
+                                            plt.title("Cluster galaxies velocities",fontsize=12,fontweight='bold')
                                             plt.legend(fontsize=10, loc='upper left')
                                             plt.grid(True, linestyle="--", alpha=0.7)
                                             
