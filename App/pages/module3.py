@@ -401,7 +401,7 @@ def create_page():
     "Explore the nature of thermal radiation to understand how the Black Body spectrum describes the afterglow of the Big Bang."
 )
                     
-                    with ui.dialog() as plank,ui.card():
+                    with ui.dialog() as plank,ui.card().props('aria-label="COBE-FIRAS dataset information dialog" role=dialog aria-modal=true'):
                     
                         reference_box("""**Dataset reference**: Fixsen et al. (1996), The Astrophysical Journal. [COBE-FIRAS monopole spetrum](https://lambda.gsfc.nasa.gov/product/cobe/firas_monopole_spect.html)""")
                         info_box("**Dataset**:frequency(cm^-1) monopole_spectrum(MJy/sr) uncertainty(kJy/sr)")
@@ -410,7 +410,7 @@ def create_page():
                         
                 
                         
-                    with ui.dialog() as cur_planck, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_planck, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="The Big Bang on Your TV" role=dialog aria-modal=true'):
                         html_info_box(r"""
                         <h3>The Big Bang on Your TV</h3>
                         <p>Before digital television, when you tuned an old analog TV to a dead channel, about <b>1% of the static "snow"</b> you saw was actually caused by the Cosmic Microwave Background (CMB).</p>
@@ -422,7 +422,7 @@ def create_page():
                    
                     
                     with ui.dialog().props('aria-modal="true" role="dialog" aria-labelledby="planck-info-title" aria-describedby="planck-info-content"') as info_dlg, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                        ui.label("Information").classes("text-lg font-semibold text-blue-400").props("id=planck-info-title")
+                        ui.label("Information").classes("text-lg font-semibold text-blue-400").props("id=planck-info-title role=heading aria-level=2 tabindex=0")
     
                         html_info_box(r"""
         
@@ -476,7 +476,7 @@ def create_page():
 
                     
                     with ui.dialog().props('aria-modal="true" role="dialog" aria-labelledby="planck-legend-title" aria-describedby="planck-legend-content"') as legend_dlg, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                        ui.label("Legend").classes("text-lg font-semibold text-blue-400").props("id=planck-legend-title")
+                        ui.label("Legend").classes("text-lg font-semibold text-blue-400").props("id=planck-legend-title role=heading aria-level=2 tabindex=0")
     
                         html_info_box(r"""
         <h3>Symbols and Units</h3>
@@ -499,7 +499,7 @@ def create_page():
 
 
                 
-                    with ui.dialog() as temp, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    with ui.dialog() as temp, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('aria-label="Comparison instructions" role=dialog aria-modal=true'):
                         html_info_box(r"""
         <h3>Comparison Instructions</h3>
         <p>Compare theoretical blackbody curves at different temperatures with the COBE/FIRAS CMB spectrum.</p>
@@ -614,14 +614,14 @@ def create_page():
                             plt.tight_layout()
 
                             aria_chart_label("Plot of COBE/FIRAS CMB spectrum and Planck blackbody curve")
-                    with ui.dialog() as wien,ui.card():
+                    with ui.dialog() as wien,ui.card().props('aria-label="Wien\'s Law Calculator" role=dialog aria-modal=true'):
                             
                         info_box("Wien’s Law Calculator: T=λₘₐₓ/b"
                         
                         "\n\nInsert the observed peak wavelength 'λₘₐₓ' to compute the temperature")
 
                         lambda_input = aria_input("λₘₐₓ [m]", "Enter peak wavelength in meters").classes("w-full")
-                        T_output = ui.label("").classes("text-md font-medium text-blue-600 mt-2")
+                        T_output = ui.label("").classes("text-md font-medium text-blue-600 mt-2").props('aria-live=polite')
 
                         def compute_T_from_lambda():
                             try:
@@ -645,7 +645,7 @@ def create_page():
 
                         aria_button("Close","close",on_click=lambda:wien.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                    with ui.dialog() as gen_data_dlg, ui.card().classes('w-full h-full'):
+                    with ui.dialog() as gen_data_dlg, ui.card().classes('w-full h-full').props('aria-label="Generated spectrum data" role=dialog aria-modal=true'):
                         with ui.row().classes('w-full items-center justify-between'):
                             ui.label("Generated spectrum from input peak temperature ").classes('text-lg font-bold').props('aria-label="Generated spectrum table title"')
     
@@ -655,7 +655,7 @@ def create_page():
                                 {'name':'intensity','label':'Intensity','field':'intensity'}
                             ], 
                             rows=[]
-                        ).classes('w-full')
+                        ).classes('w-full').props('role=table tabindex=0 aria-label="Generated spectrum table"')
                         aria_button("Close","close",on_click=lambda:gen_data_dlg.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     with ui.row().classes("w-full justify-center items-center gap-2"):
                         
@@ -676,7 +676,7 @@ def create_page():
                     with ui.row().classes('w-full justify-center items-center gap-8'):
                         with ui.column().classes('flex-1'):
                             draw_plot()
-                            lambda_peak_box = ui.label("").classes("text-md font-semibold text-blue-400 ")
+                            lambda_peak_box = ui.label("").classes("text-md font-semibold text-blue-400 ").props('aria-live=polite')
                         
                         
                     
@@ -876,7 +876,7 @@ def create_page():
                     description_on_dark(
     "Analyze the thermodynamics of the expanding Universe to understand how it cooled down from a hot plasma to the transparent cosmos we see today."
 )
-                    with ui.dialog() as info_dlg, ui.card().classes('p-4 w-full overflow-x-auto'):
+                    with ui.dialog() as info_dlg, ui.card().classes('p-4 w-full overflow-x-auto').props('aria-label="CMB thermodynamics activity instructions" role=dialog aria-modal=true'):
                         html_info_box(r"""
  
 
@@ -904,7 +904,7 @@ def create_page():
 """).props("id=cmb-thermo-info role=document aria-live=polite")
                         aria_button("Close","close",on_click=lambda:info_dlg.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                   
-                    with ui.dialog() as cur_adia, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_adia, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Is the Universe perfectly adiabatic?" role=dialog aria-modal=true'):
                         html_info_box(r"""
                         <h3>Is the Universe Perfectly Adiabatic?</h3>
                         <p>We model the expansion of the Universe as <b>adiabatic</b> (constant entropy), but technically, stars and black holes produce entropy, making the process irreversible.</p>
@@ -916,7 +916,7 @@ def create_page():
 
                
                     
-                    with ui.dialog() as ref_dialog, ui.card().classes('p-4 w-full overflow-x-auto'):
+                    with ui.dialog() as ref_dialog, ui.card().classes('p-4 w-full overflow-x-auto').props('aria-label="Reference data for CMB analysis" role=dialog aria-modal=true'):
                         info_box(
                         
                         "**Dataset**: Redshift (z), CMB Temperature (K), T/z+1, T_error"
@@ -1118,7 +1118,7 @@ def create_page():
 ''')
                         with ui.column().classes("flex-1"):
                             with ui.card().classes("p-6 w-full max-w-4xl min-w-[600px] !bg-gray-900 text-white rounded-xl shadow-xl"):
-                                ui.markdown(" CMB Thermodynamics Exercise: fill in the missing variables").classes("text-xl font-bold text-blue-300").props("aria-label='CMB Thermodynamics Exercise Title'")
+                                ui.markdown(" CMB Thermodynamics Exercise: fill in the missing variables").classes("text-xl font-bold text-blue-300").props("role=heading aria-level=2 tabindex=0")
                             
 
                                 answer_du, answer_dq, answer_pdv, answer_pv, answer_gamma, answer_cp, answer_cv, answer_meno1, answer_zero, answer_zrel, answer_gamma_uno, answer_p, answer_v, answer_32, answer_T, answer_52, answer_75, answer_53, answer_four, answer_3, answer_1, answer_lambda_obs, answer_lambda_emit, answer_1z = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
@@ -1129,7 +1129,7 @@ def create_page():
                                         with ui.column().classes('flex-1 gap-1'):
 
                                             # 1) First Law Thermodynamics
-                                            ui.label("1) First Law Thermodynamics").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("1) First Law Thermodynamics").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 answer_dq["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('=')
@@ -1138,7 +1138,7 @@ def create_page():
                                                 answer_pdv["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
 
                                             # 2) Adiabatic condition
-                                            ui.label("2) Adiabatic condition").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("2) Adiabatic condition").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 answer_dq["el2"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('=')
@@ -1151,7 +1151,7 @@ def create_page():
                                                 ui.html('= 0')
 
                                             # 3) Adiabatic Transformation
-                                            ui.label("3) Adiabatic Transformation").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("3) Adiabatic Transformation").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 answer_p["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('&middot;')
@@ -1168,7 +1168,7 @@ def create_page():
                                                 ui.html(')</span>')
 
                                             # 4) Adiabatic Index
-                                            ui.label("4) Adiabatic Index").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("4) Adiabatic Index").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 ui.html('&gamma; = ')
                                                 answer_cp["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1178,7 +1178,7 @@ def create_page():
                                         with ui.column().classes('flex-1 gap-4 min-w-[300px]'):
                                             
                                             # 5) Energy Equipartition
-                                            ui.label("5) Energy Equipartition").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("5) Energy Equipartition").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                            
                                             ui.label("Monoatomic gas:").classes('text-md')
                                             with ui.row().classes("math-text"):
@@ -1199,7 +1199,7 @@ def create_page():
                                                 answer_75["el2"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
 
                                             # 6) Stefan-Boltzmann
-                                            ui.label("6) Stefan-Boltzmann law for radiation").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("6) Stefan-Boltzmann law for radiation").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 ui.html('U = a<span class="math-sub">rad</span> &middot;')
                                                 answer_T["el3"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1224,14 +1224,14 @@ def create_page():
                                         with ui.column().classes('flex-1 gap-4 min-w-[300px]'):
                                             
                                             # 7) Doppler–Redshift relation
-                                            ui.label("7) Doppler–Redshift relation").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("7) Doppler–Redshift relation").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
                                             with ui.row().classes("math-text"):
                                                 ui.html('1 + z = ')
                                                 answer_lambda_obs["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('/')
                                                 answer_lambda_emit["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                             
-                                            ui.label("λ_emitted ∝ a(t) → universe expansion factor").classes("text-md ")
+                                            ui.label("λ_emitted ∝ a(t) → universe expansion factor").classes("text-md ").props("tabindex=0")
 
                                             with ui.row().classes("math-text"):
                                                 ui.html('a(t) = ')
@@ -1240,15 +1240,15 @@ def create_page():
                                                 answer_1z["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
 
                                             # 8) Cosmological Application
-                                            ui.label("8) Cosmological Application").classes("text-blue-200 font-bold text-lg")
-                                            ui.label("The relation temperature-redshift: T(z) = T₀·(1+z)").classes("text-md ")
+                                            ui.label("8) Cosmological Application").classes("text-blue-200 font-bold text-lg").props('role=heading aria-level=3 tabindex=0')
+                                            ui.label("The relation temperature-redshift: T(z) = T₀·(1+z)").classes("text-md ").props("tabindex=0")
                                             
                                             with ui.row().classes("math-text"):
                                                 ui.html('T &propto; a(t)<span class="math-sup">(')
                                                 answer_meno1["el"] = aria_formula_input().props("dense filled").classes("w-10 formula-input")
                                                 ui.html(')</span>')
 
-                                            ui.label("Considering a section of the expanding universe V ∝ a(t)³").classes("text-md ")
+                                            ui.label("Considering a section of the expanding universe V ∝ a(t)³").classes("text-md ").props("tabindex=0")
                                             with ui.row().classes('items-center flex-wrap'):
                                                 ui.label("Adiabatic expansion:").classes('text-md')
                                             with ui.row().classes("math-text"):
@@ -1465,7 +1465,7 @@ def create_page():
                         aria_button("Close", label="Close the box", on_click=lambda: eq_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
                     
-                    with ui.dialog() as cur_rad, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_rad, ui.card().classes('p-4 w-full max-w-[600px]').props("id=goldilocks-info role=document aria-live=polite"):
                         html_info_box(r"""
                         <h3>The "Goldilocks" Epoch</h3>
                         <p>Today the CMB temperature is a freezing 2.7 K. However, about 10-17 million years after the Big Bang ($z \approx 100$), the temperature of the Universe was between <b>0°C and 100°C</b>.</p>
@@ -1476,7 +1476,7 @@ def create_page():
 
                     
 
-                    with ui.dialog() as eq_legend_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as eq_legend_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props("id=legend-info role=document aria-live=polite"):
                         html_info_box(r"""
         <h3>Legend: Symbols and Constants</h3>
         <ul>
@@ -1561,7 +1561,7 @@ def create_page():
                     with ui.row().classes("w-full justify-center items-start gap-6 "):
                         with ui.column().classes("flex-1"):
                             with ui.card().classes("p-6 w-full !bg-gray-900 text-white rounded-xl shadow-xl"):
-                                ui.markdown(" Radiation & Matter Density Evolution").classes("text-2xl font-bold mb-4 text-blue-300").props("aria-label='Radiation and Matter Density Evolution Exercise '")
+                                ui.markdown(" Radiation & Matter Density Evolution").classes("text-2xl font-bold mb-4 text-blue-300").props("role=heading aria-level=2 tabindex=0")
                                 
                                 @ui.refreshable
                                 def show_formulas():
@@ -1571,7 +1571,7 @@ def create_page():
                                         with ui.column().classes("flex-1 gap-1"):
     
                                             # 1) Energy density definition
-                                            ui.label("1) Energy density definition").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("1) Energy density definition").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes("math-text"):
                                                 ui.html('&rho; = ')
                                                 answer_u["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1579,9 +1579,9 @@ def create_page():
                                                 answer_v["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
 
                                             # 2) Matter particles energy
-                                            ui.label("2) Matter particles energy").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("2) Matter particles energy").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("The energy of non relativistic matter particles:").classes("text-md")
+                                                ui.label("The energy of non relativistic matter particles:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('E<span class="math-sub">m</span> = (')
                                                 answer_m["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1594,14 +1594,14 @@ def create_page():
                                                 ui.html('<span class="math-sup">2</span>)')
 
                                             # 3) Matter energy density
-                                            ui.label("3) Matter energy density").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("3) Matter energy density").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('&rho;<span class="math-sub">m</span> = ')
                                                 answer_E["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('/')
                                                 answer_v["el3"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("Considering a portion of universe:").classes("text-md")
+                                                ui.label("Considering a portion of universe:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 
                                                 ui.html('<span class="math-normal"> </span> V &propto; a(t)<span class="math-sup">3</span>')
@@ -1622,9 +1622,9 @@ def create_page():
                                                 ui.html('<span class="math-normal">with</span> &rho;<span class="math-sub">m0</span> = &Omega;<span class="math-sub">m0</span> &middot; &rho;<span class="math-sub">c</span>')
                                   
                                             # 4) Radiation energy density
-                                            ui.label("4) Radiation energy density").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("4) Radiation energy density").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("The energy for photons:").classes("text-md")
+                                                ui.label("The energy for photons:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes("math-text"):
                                                 
                                                 ui.html('<span class="math-normal"> </span> E<span class="math-sub">r</span> =')
@@ -1638,25 +1638,25 @@ def create_page():
                                                 ui.html('/')
                                                 answer_lambda["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("The wavelength stretches with universe expansion: ").classes("text-md")
+                                                ui.label("The wavelength stretches with universe expansion: ").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 
                                                 ui.html('<span class="math-normal"></span> &lambda; &propto; a(t)')
                                          
                                             
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("The number of photons per volume decreases with expansion: ").classes("text-md")
+                                                ui.label("The number of photons per volume decreases with expansion: ").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('<span class="math-normal"> </span> n &propto; a(t)<span class="math-sup">-3</span>')
                                         with ui.column().classes("flex-1 gap-1"): 
                                             
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("Every photon energy decreases with expansion:").classes("text-md")
+                                                ui.label("Every photon energy decreases with expansion:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('<span class="math-normal"> </span> E<span class="math-sub">r</span> &propto; a(t)<span class="math-sup">-1</span>')
 
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("From the energy equation:").classes("text-md")
+                                                ui.label("From the energy equation:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('<span class="math-normal"> </span> &rho;<span class="math-sub">r</span> = ')
                                                 answer_n["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1668,7 +1668,7 @@ def create_page():
 
                                         
                                             with ui.row().classes("items-center flex-wrap"):
-                                                ui.label("From the Stefan-Boltzmann law:").classes("text-md")
+                                                ui.label("From the Stefan-Boltzmann law:").classes("text-md").props("tabindex=0")
                                             with ui.row().classes("items-center math-text"):
                                                 ui.html('<span class="math-normal"> </span> &rho;<span class="math-sub">r</span> = a<span class="math-sub">rad</span> &middot;')
                                                 answer_T["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1695,7 +1695,7 @@ def create_page():
                                                 ui.html('<span class="math-normal">with</span> &rho;<span class="math-sub">r0</span> = &Omega;<span class="math-sub">r0</span> &middot; &rho;<span class="math-sub">c</span>')
                                         
                                             # 5) Equivalence condition
-                                            ui.label("5) Equivalence condition").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("5) Equivalence condition").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes("math-text"):
                                                 answer_rhom["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
                                                 ui.html('(z<span class="math-sub">eq</span>) = ')
@@ -1703,7 +1703,7 @@ def create_page():
                                                 ui.html('(z<span class="math-sub">eq</span>)')
 
                                             # 6) Redshift of equivalence
-                                            ui.label("6) Redshift of equivalence").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("6) Redshift of equivalence").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('1 + z<span class="math-sub">eq</span> = ')
                                                 answer_rhom0["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
@@ -1711,7 +1711,7 @@ def create_page():
                                                 answer_rhor0["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")
 
                                             # 7) Temperature–redshift relation
-                                            ui.label("7) Temperature–redshift relation").classes("text-blue-200 font-bold text-lg")
+                                            ui.label("7) Temperature–redshift relation").classes("text-blue-200 font-bold text-lg").props("role=heading aria-level=3 tabindex=0")
                                             with ui.row().classes(" math-text"):
                                                 ui.html('T(z) = ')
                                                 answer_T0["el"] = aria_formula_input().props("dense filled").classes("w-12 formula-input")

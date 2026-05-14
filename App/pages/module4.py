@@ -508,7 +508,7 @@ def create_page():
 
     
                 
-                with ui.dialog() as info_red, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as info_red, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props("id=redshift-info role=document aria-live=polite"):
                     html_info_box(r"""
     <h3>Galaxy Spectra Exploration</h3>
     <p>Explore how galaxy spectra reveal the cosmic redshift by analyzing emission lines and calculating recession velocities.</p>
@@ -550,7 +550,7 @@ def create_page():
     </ol>
 """).props("id=redshift-info-content role=document aria-live=polite")
                     aria_button("close","close",on_click=lambda: info_red.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as cur_red, ui.card().classes('p-4 w-full max-w-[600px]'):
+                with ui.dialog() as cur_red, ui.card().classes('p-4 w-full max-w-[600px]').props("id=redshift-curiosity role=document aria-live=polite"):
                     html_info_box(r"""
                     <h3>Not Everything is Moving Away!</h3>
                     <p>While most galaxies are redshifting away from us due to cosmic expansion, our neighbor, the <b>Andromeda Galaxy (M31)</b>, shows a <b>Blueshift</b>.</p>
@@ -560,7 +560,7 @@ def create_page():
                     aria_button("Close", "close", on_click=cur_red.close).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
                 
-                with ui.dialog() as redshift_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as redshift_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props("id=redshift-dialog role=document aria-modal=true aria-labelledby=redshift-dialog-title"):
                     html_info_box(r"""
         <h3>Redshift and Flux Relations</h3>
 
@@ -629,9 +629,7 @@ def create_page():
                         ui.label("No CSV spectra found in folder: " + spectra_csv_dir).classes("text-red-600")
 
                 
-                    file_select = ui.select(csv_files, label="Choose spectrum CSV",value=default_file).classes("w-80").props(
-                            'aria-describedby=tabs_desc aria-label=choose spectrum file'
-                        )
+                    file_select = ui.select(csv_files, label="Choose spectrum CSV",value=default_file).classes("w-80").props('aria-describedby=tabs_desc aria-label="choose spectrum file"')
                     plot_btn = aria_button("Plot Spectrum", "plot galaxy spectrum").classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                     aria_button("Instructions","Instruction",on_click=lambda: [info_red.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     aria_button("Dataset","Data",on_click=lambda: datalam.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
@@ -798,7 +796,7 @@ def create_page():
 
                     
 
-                    with ui.dialog() as tab_spectra,ui.card():
+                    with ui.dialog() as tab_spectra,ui.card().props('aria-label="spectral lines table" role=dialog'):
                         
 
                         try:
@@ -869,7 +867,7 @@ def create_page():
 
                         update_z_btn.on("click", update_z_table)
 
-                        with ui.dialog() as result_dialog, ui.card().classes("w-2/3 max-w-3xl"):
+                        with ui.dialog() as result_dialog, ui.card().classes("w-2/3 max-w-3xl").props('aria-label="Measured spectral lines results" role=dialog'):
                             result_dialog_card_label = ui.label("Measured Spectral Lines").classes("text-lg font-bold mb-2").props(
                                 'tabindex=0 role=heading aria-level=2'
                             )
@@ -918,7 +916,7 @@ def create_page():
                     
                     
                    
-                    with ui.dialog() as velocity,ui.card().props("aria-label=velocity exercise"):
+                    with ui.dialog() as velocity,ui.card().props('aria-label="velocity exercise" role=dialog'):
                         with ui.row().classes('w-full items-center'):
                             html_info_box(r"""
     <p>Insert a value of redshift to compute the velocities:</p>
@@ -1082,12 +1080,12 @@ def create_page():
 )
                 
                 
-                with ui.dialog() as datas_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto'):
+                with ui.dialog() as datas_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto').props('aria-label="information about supernovae dataset"'):
                     reference_box("""**Dataset reference**: [Supernovae data Pantheon-SH0ES](https://github.com/dscolnic/Pantheon , https://pantheonplussh0es.github.io/)""")
         
                     info_box("**Dataset**: zcmb (CMB frame redshift), mb (apparent B magnitude), err_mag.")
                     aria_button("Close", label="Close", on_click=lambda: datas_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as cur_hub, ui.card().classes('p-4 w-full max-w-[600px]'):
+                with ui.dialog() as cur_hub, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="curiosity about faster than light recession"'):
                     html_info_box(r"""
                     <h3>Faster Than Light?</h3>
                     <p>Hubble's Law ($v = H_0 d$) implies that galaxies sufficiently far away are receding from us faster than the speed of light ($c$).</p>
@@ -1097,7 +1095,7 @@ def create_page():
                     aria_button("Close", "close", on_click=lambda:cur_hub.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
                 
-                with ui.dialog() as cosmology_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto'):
+                with ui.dialog() as cosmology_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto').props('aria-label="information about cosmology relations"'):
                     html_info_box(r"""
         <h3>Fundamental Cosmological Relations</h3>
         
@@ -1125,14 +1123,14 @@ def create_page():
                 <span class="math">\( 1 + z = \frac{1}{a(t)} \)</span> → expansion of the Universe.
             </li>
         </ul>
-    """).props('aria-label=information about cosmology relations')
+    """).props('aria-label="information about cosmology relations"')
                     aria_button("Close", label="Close", on_click=lambda: cosmology_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
         
                     
 
             
-                with ui.dialog() as lcdm_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto'):
+                with ui.dialog() as lcdm_dialog, ui.card().classes('p-4 w-full max-w-[900px] max-h-[600px] overflow-y-auto').props('aria-label="information about cosmology relations in model with cosmological constant"'):
                     html_info_box(r"""
         <h3>\(\Lambda\)CDM Explanation</h3>
         
@@ -1147,11 +1145,11 @@ def create_page():
             <li><b>\(\Lambda\)CDM distance:</b> <span class="math">\( d_L(z) = \frac{c (1+z)}{H_0} \int_0^z \frac{dz'}{E(z')}, \quad E(z) = \sqrt{\Omega_m (1+z)^3 + \Omega_\Lambda} \)</span></li>
             <li><b>Typical parameters:</b> <span class="math">\(\Omega_m = 0.3, \Omega_\Lambda = 0.7, \Omega_k = 0\)</span> (flat Universe)</li>
         </ul>
-    """).props('aria-label=information about cosmology relations in model with cosmological constant')
+    """).props('aria-label="information about cosmology relations in model with cosmological constant"')
                     aria_button("Close", label="Close", on_click=lambda: lcdm_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                 with ui.dialog() as info_dlg, ui.card().props('aria-modal="true" role="dialog" aria-labelledby="info-title" aria-describedby="info-content"'):
-                    ui.label("Information").classes("text-lg font-semibold text-blue-400").props("id=info-title")
+                    ui.label("Information").classes("text-lg font-semibold text-blue-400").props("id=info-title ole=heading aria-level=2 tabindex=0")
     
                     html_info_box(r"""
     
@@ -1205,8 +1203,8 @@ def create_page():
 """).props("id=planck-info-content role=document aria-live=polite aria-describedby=info-content aria-label='Detailed information about redshift, flux, Hubble relation, Lambda CDM luminosity distance, velocities, and activity instructions.'")
                     aria_button("Close", label="Close", on_click=lambda: info_dlg.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                with ui.dialog() as leg_dlg, ui.card():
-                    ui.label("Legend: Symbols and Units").classes("text-lg font-semibold text-blue-400").props("id=info-title")
+                with ui.dialog() as leg_dlg, ui.card().props('aria-modal="true" role="dialog" aria-labelledby="legend-title" aria-describedby="legend-content"'):
+                    ui.label("Legend: Symbols and Units").classes("text-lg font-semibold text-blue-400").props("id=info-title ole=heading aria-level=2 tabindex=0")
     
                     html_info_box(r"""
         <h3>Symbols and Units</h3>
@@ -1253,7 +1251,7 @@ def create_page():
                     M_B_input = ui.number(label="Absolute Magnitude M_B (SNe Ia)", value=-19.3, format="%.3f").classes("w-52").props('aria-label="Absolute Magnitude of Type Ia Supernovae M sub B"')
                     with ui.column().classes("items-start gap-2"):
                         ui.label("Compute H₀ from data (linear fit v = H₀·dₗ)").classes("text-sm text-blue-600")
-                        result_label = ui.label("").classes("text-lg font-semibold text-green-600")
+                        result_label = ui.label("").classes("text-lg font-semibold text-green-600").props("aria-live=polite ")
                         aria_button("Compute H₀", "compute H0",on_click=lambda: compute_H0()).props("color=primary outline").classes(" w-32 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                     
                     df_base = get_supernovae_data_cached()
@@ -1282,7 +1280,7 @@ def create_page():
                         #mB_col = ui.column().style("flex: 1")
                         mu_col = ui.column().style("flex: 1")
                         
-                    with ui.dialog() as tablex,ui.card().props('aria-label=table exercise'):
+                    with ui.dialog() as tablex,ui.card().props('aria-label="table exercise" role=dialog aria-modal=true'):
                         info_box(" Exercise Table: Fill in missing values applying the correct formulas ")
                         sample = df.sample(10, random_state=2).reset_index(drop=True)
                         rows = [{"name": f"SN{i}", "z": round(float(r['zcmb']),4), "mB": round(float(r['mb']),3),
@@ -1358,7 +1356,7 @@ def create_page():
                                 result.append(row)
 
                         
-                            with ui.dialog() as dlg, ui.card():
+                            with ui.dialog() as dlg, ui.card().props('aria-modal="true" role="dialog" aria-labelledby="completed-table-title" aria-describedby="completed-table-content"'):
                                 ui.label("Completed Table ").classes("text-lg font-semibold")
                                 aria_table(
                                     columns=[{"name":k,"label":k,"field":k} for k in result[0].keys()],
@@ -1403,7 +1401,7 @@ def create_page():
                         result_label.set_text(f"Estimated H₀ ≈ {H0_est:.2f} km/s/Mpc")
                         H0_box.value = round(H0_est, 2)
 
-                        with ui.dialog() as dlg, ui.card():
+                        with ui.dialog() as dlg, ui.card().props('aria-modal="true" role="dialog" aria-labelledby="h0-result-title" aria-describedby="h0-result-content"'):
                             ui.label(f"Linear fit result: H₀ = {H0_est:.2f} km/s/Mpc").classes("text-lg font-semibold text-blue-700")
                             with ui.pyplot():
                                 plt.subplot(2, 1, 1)
@@ -1556,7 +1554,7 @@ def create_page():
         def add_cmb_activity(container):
             with container:
                 description_on_dark("Investigate how the Cosmic Microwave Background (CMB) affects the universe composition.")
-                with ui.dialog() as ref_dialog, ui.card().classes("p-4 w-full max-w-[1300px]").props('role=dialog aria-label=References'):
+                with ui.dialog() as ref_dialog, ui.card().classes("p-4 w-full max-w-[1300px]").props('role=dialog aria-label="References"'):
                     reference_box("""
     **Planck Simulator References:**  
     - [Chris North Planck Simulator](https://chrisnorth.github.io/planckapps/Simulator)  
@@ -1572,7 +1570,7 @@ def create_page():
     """)
                     aria_button("Close", "close popup", on_click=lambda:ref_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-                with ui.dialog() as instruction_d , ui.card().classes("p-4 w-full max-w-[800px]").props('role=dialog aria-label=Instructions'):
+                with ui.dialog() as instruction_d , ui.card().classes("p-4 w-full max-w-[800px]").props('role=dialog aria-label="Instructions"'):
                     html_info_box("""
     <h2 class="text-2xl font-bold mb-4">CMB Instructions</h2>
     <ol class="list-decimal list-inside space-y-2"> 

@@ -913,7 +913,7 @@ def create_page():
                 with ui.tab_panel('kepler').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg"):
                     description_on_dark("Review the Kepler's Laws and planetary motion to derive the orbital velocity.").classes("title-on-dark")
-                    with ui.dialog() as info_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as info_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-label="Detailed information about Kepler Laws activity"'):
                         html_info_box(r"""
         <h3>Kepler's Laws Exploration</h3>
         <p>Explore the orbital characteristics of planets in our solar system using Kepler's Laws.</p>
@@ -993,7 +993,7 @@ def create_page():
                     ]
 
 
-                    with ui.dialog() as instr_kepler_phase1, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_kepler_phase1, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-label="Step-by-step exercises on Kepler Laws"'):
                         
                         @ui.refreshable
                         def kepler_exercises_content():
@@ -1091,7 +1091,7 @@ def create_page():
                         else:
                             layout.accessible_notify('Invalid Google Sheets link.', type_='error')
                    
-                    with ui.dialog() as upload_zone_dialog, ui.card().classes('w-full max-w-2xl !bg-slate-900'):
+                    with ui.dialog() as upload_zone_dialog, ui.card().classes('w-full max-w-2xl !bg-slate-900').props('aria-label="Submission area dialog"'):
                         ui.label('Submission Area').classes('text-2xl font-bold text-cyan-400')
                         
                         with ui.tabs().classes('w-full text-white') as upload_tabs:
@@ -1136,7 +1136,7 @@ def create_page():
                                     label='Select your completed Excel file',
                                     on_upload=safe_offline_upload, 
                                     auto_upload=True
-                                ).classes('w-full mt-2')
+                                ).classes('w-full mt-2').props('tabindex=0 aria-label="Upload your dataset file"')
 
                          
                             with ui.tab_panel('Google Sheets (Online)'):
@@ -1160,7 +1160,7 @@ def create_page():
                         refreshable_submission_list() 
                         
                         aria_button('Close', 'close', on_click=upload_zone_dialog.close).classes('!bg-orange-500 mt-4')
-                    with ui.dialog() as data_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as data_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Kepler\'s laws information"'):
                         info_box( "**Dataset variables**: Celestial_Body (name of the planet), SemiMajorAxis(km) (orbital radius in km), Velocity(km/s) (orbital velocity in km/s), Period(days) (orbital period in days), Mass(kg) (mass of the planet in kg).")
                         reference_box(
         """**Dataset reference**: [NASA-SSD](https://ssd.jpl.nasa.gov/planets/) ;[Orbital Mechanics](https://orbital-mechanics.space/reference/planetary-parameters) ;Ryan S. Park, William M. Folkner, James G. Williams, and Dale H. Boggs. The JPL Planetary and Lunar Ephemerides DE440 and DE441. The Astronomical Journal, 161(3):105, February 2021.; Brandon Rhodes. Skyfield: high precision research-grade positions for planets and Earth satellites generator. July 2019""")
@@ -1187,7 +1187,7 @@ def create_page():
         .props('aria-label="Upload your completed exercises to the app folder"')
                             #aria_button('Upload Exercises', 'upload', on_click=lambda: ui.run_javascript('window.open("https://www.dropbox.com/request/RZWNDfeDXEN59yzNN8TW", "_blank")')).classes('!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded').props('aria-label="Upload your exercises to Dropbox"')
                         aria_button("Close", "close the box",on_click=lambda:data_kepler.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as cur_kep, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_kep, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-modal=true aria-label="Interesting fact about Saturn"'):
                         html_info_box(r"""
     <h3>Saturn's Density</h3>
     <p>While Kepler's laws apply to all planets, their compositions vary wildly. Saturn is the only planet in our Solar System that is less dense than water.</p>
@@ -1417,7 +1417,7 @@ def create_page():
                         """
 
                 
-                        ui.html(html).props('role=region tabindex=0 aria-label=Planet information panel')
+                        ui.html(html).props('role=region tabindex=0 aria-label="Planet information panel"')
 
                     def open_slides():
                         ui.run_javascript('window.open("/slides/cosmo_dark_matter.pdf", "_blank")')
@@ -1425,12 +1425,12 @@ def create_page():
                     mass_plot_ref = None
                 
                     with ui.dialog() as kepler_3_dialog, ui.card().classes('p-4 w-full max-w-[900px]'):
-                        ui.label("Kepler III: Period vs Semi-major axis").classes("text-lg font-bold").props('aria-label=kepler III law plot role=heading aria-level=3 tabindex=0')
+                        ui.label("Kepler III: Period vs Semi-major axis").classes("text-lg font-bold").props('aria-label="Kepler III law plot" role=heading aria-level=3 tabindex=0')
                         kepler_3_plot_ref = plot_kepler_III(None)
                         kepler_3_plot_ref.classes('w-full')
                         aria_button("Close","close", on_click=lambda:kepler_3_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as mass_plot_dialog, ui.card().classes('p-4 w-full max-w-[900px]'):
-                        ui.label("Mass vs Semi-major axis").classes("text-lg font-bold").props('aria-label=kepler mass plot role=heading aria-level=3 tabindex=0')
+                    with ui.dialog() as mass_plot_dialog, ui.card().classes('p-4 w-full max-w-[900px]').props('aria-label="Mass vs Semi-major axis plot dialog"'):
+                        ui.label("Mass vs Semi-major axis").classes("text-lg font-bold").props('aria-label="Kepler mass plot" role=heading aria-level=3 tabindex=0')
                         mass_plot_ref = plot_mass(None)
                         mass_plot_ref.classes('w-full') 
                         aria_button("Close","close", on_click=lambda:mass_plot_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -1538,7 +1538,7 @@ def create_page():
     'slider_result': " ---" 
 }
                     
-                    with ui.dialog() as info_galaxy, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as info_galaxy, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy rotation curve information"'):
                         html_info_box(r"""
     <h3>NGC3198 Rotation Curve</h3>
     <p>Explore the rotation curve of the NGC3198 galaxy to understand the evidence for Dark Matter.</p>
@@ -1605,7 +1605,7 @@ def create_page():
 """).props("id=ngc3198-info role=document aria-live=polite")
                         aria_button("close",'close',on_click=lambda:info_galaxy.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as data_galaxy,ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as data_galaxy,ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('id=dataset-galaxy role=document aria-live=polite'):
                     
                         info_box( "**Dataset variables**: Rad (radius), Vobs (observed velocity),  errV (velocity error), Vgas (gas velocity), Vdisk (disk velocity), Vbul (bulge velocity),SBdisk (surface brightness disk),SBbul (surface brightness bulge)")
                     
@@ -1636,7 +1636,7 @@ def create_page():
                         aria_button("close",'close',on_click=lambda:data_galaxy.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
     
-                    with ui.dialog() as cur_rot, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_rot, ui.card().classes('p-4 w-full max-w-[600px]').props('id=curiosity-rotation role=document aria-live=polite'):
                         html_info_box(r"""
                         <h3>We live in a Dark Halo</h3>
                         <p>Our own galaxy, the Milky Way, is spinning much faster than it should be based on the visible stars and gas. At our distance from the center (26,000 light-years), the Sun orbits at ~220 km/s.</p>
@@ -1649,7 +1649,7 @@ def create_page():
                     
                     
                     with ui.row().classes('w-full '):
-                        with ui.dialog() as velocity_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        with ui.dialog() as velocity_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('id=velocity-info role=document aria-live=polite'):
                             html_info_box(r"""
         <h3>Computational Notes</h3>
         
@@ -1773,16 +1773,16 @@ def create_page():
                         else:
                             ui.html("<p style='color:red;'>Table not found</p>")
                             
-                    with ui.dialog() as image_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl'):
+                    with ui.dialog() as image_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Galaxy image" role=dialog'):
                         ui.html("<h5>Galaxy Image</h5>")
                         update_image()
                         aria_button("close",'close',on_click=lambda:image_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as table_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl'):
+                    with ui.dialog() as table_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Galaxy information table" role=dialog'):
                         update_table()
                         aria_button("close",'close',on_click=lambda:table_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-                    with ui.dialog() as morpho, ui.card().classes('w-full max-w-xl mx-auto h-auto '):
+                    with ui.dialog() as morpho, ui.card().classes('w-full max-w-xl mx-auto h-auto ').props('aria-label="Galaxy morphology animation" role=dialog'):
                         morph_plot_container = ui.column().classes("w-full h-auto")
                         aria_button('close','close', on_click=lambda:morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                   
@@ -1829,7 +1829,7 @@ def create_page():
                     ]
 
 
-                    with ui.dialog() as instr_galaxy_phase2_3, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_galaxy_phase2_3, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy exercises about rotation curves" role=dialog'):
                         
                         @ui.refreshable
                         def galaxy_exercises_content():
@@ -1917,7 +1917,7 @@ def create_page():
                     ]
 
 
-                    with ui.dialog() as instr_galaxy_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_galaxy_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy slider exercises" role=dialog'):
                         
                         @ui.refreshable
                         def slider_exercises_content():
@@ -1957,7 +1957,7 @@ def create_page():
                         slider_exercises_content()
 
                    
-                    with ui.dialog() as chi2_info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as chi2_info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-label="Information about chi-squared minimization"'):
                         html_info_box(r"""
         <style>
             .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
@@ -2026,7 +2026,7 @@ def create_page():
                             galaxy_files,
                             value=default_galaxy,
                             label='Select a Galaxy Dataset'
-                        ).classes('w-1/2 max-w-md').props('id=galaxy_selector aria-label=Galaxy dataset selector role=listbox tabindex=0')
+                        ).classes('w-1/2 max-w-md').props('id=galaxy_selector aria-label="Galaxy dataset selector" role=listbox tabindex=0')
                         velocity_dialog.on('open', lambda: ui.run_javascript("MathJax.typesetPromise()"))
                         aria_button("Instructions","Instruction for galaxy panel",on_click=safe_click(lambda: [info_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
@@ -2048,7 +2048,7 @@ def create_page():
                     
                         ui.html('''
 <div class="flex space-x-2">
-<button id="audio-button" role="button" aria-label=" or deactivate audio" aria-pressed="false" onclick="initAudio()" 
+<button id="audio-button" role="button" aria-label=" activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
             class="!bg-blue-500 hover:!bg-gray-700 text-white font-bold py-1 px-2 rounded">
         Activate Audio
     </button>''')
@@ -2372,7 +2372,7 @@ def create_page():
                     chi2_input_dialog = ui.dialog().props('role="dialog" aria-modal="true"')
 
                     with chi2_input_dialog, ui.card().classes('w-full max-w-md'):
-                        ui.label('Chi² Minimization Data').classes('text-xl font-bold mb-4')
+                        ui.label('Chi² Minimization Data').classes('text-xl font-bold mb-4').props('role=heading aria-level=2 tabindex=0')
                         
                     
                         with ui.grid(columns=2).classes("w-full gap-4"):
@@ -2411,7 +2411,7 @@ def create_page():
                       
                         with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col gap-1'):
                             galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight ")
-                            galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').on('click', image_dialog2.open)
+                            galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge galaxy image"').on('click', image_dialog2.open).on('keydown.enter', image_dialog2.open)
                             #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
                             galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
                             aria_button(" Table", "table", on_click=table_dialog2.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
@@ -2752,6 +2752,7 @@ def create_page():
                             vmodel_use = v_total_curve[mask]
                             dof = max(1, len(vobs_use) - 1)
                             chi2_dof = np.sum(((vobs_use - vmodel_use)/verr_use)**2) / dof
+                            #chi2_dof = np.sum(((vobs_use - vmodel_use)/vmodel_use)**2) / dof
                             return chi2_dof
 
                         def add_chi2_point():
@@ -2790,7 +2791,7 @@ def create_page():
                         
 
                             chi2_val = np.sum(((vobs_use - vmodel_use)/verr_use)**2) / max(1, len(vobs_use)-1)
-                            
+                            #chi2_val = np.sum(((vobs_use - vmodel_use)/vmodel_use)**2) / max(1, len(vobs_use)-1)
                            
                             is_duplicate = any(x == f for x, y in chi2_points)
                             if is_duplicate:
@@ -2939,7 +2940,7 @@ def create_page():
                 # with ui.card().classes("p-4 !bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-lg"):
                     description_on_dark( " Explore the influence of dark matter on galaxy rotation curves of different datasets.  ")
                     
-                    with ui.dialog() as info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Information about the galaxy rotation curve activity" role=dialog'):
                         html_info_box(r"""
         <h3>Analysis Overview</h3>
         <p>You are an astrophysicist investigating the <b>presence of dark matter</b> in a galaxy.</p>
@@ -2949,7 +2950,7 @@ def create_page():
         </ul>
     """).props('aria-label="Descriptive text about galaxy velocity and mass activities"')
                         aria_button("Close", "close the box",on_click=lambda:info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as data_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto aria-label=Dataset description and references'):
+                    with ui.dialog() as data_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto ').props('aria-label="Dataset description and references" role=dialog'):
                         info_box( "**Dataset variables**: Rad (radius), Vobs (observed velocity),  errV (velocity error), Vgas (gas velocity), Vdisk (disk velocity), Vbul (bulge velocity),SBdisk (surface brightness disk),SBbul (surface brightness bulge)")
                         
                 
@@ -2957,7 +2958,7 @@ def create_page():
         """**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
                         aria_button("Close", "close the box",on_click=lambda:info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as baryonic_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as baryonic_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Baryonic calculation steps" role=dialog  '):
                         html_info_box(r"""
         <h3>Baryonic Calculation Steps</h3>
         
@@ -3018,7 +3019,7 @@ def create_page():
     """).props('id="units-desc"')
                         aria_button("Close","close the box", on_click=lambda:units1_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as cur_mass, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_mass, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Curiosity about ghost galaxies" role=dialog'):
                         html_info_box(r"""
                         <h3>Ghost Galaxies</h3>
                         <p>In 2016, astronomers discovered <b>Dragonfly 44</b>, a galaxy that has the same mass as the Milky Way but only 1% of the stars.</p>
@@ -3372,8 +3373,8 @@ def create_page():
                             accessible_notify('Wrong, try again!', type_='error')
 
 
-                    with ui.dialog() as plots_popup, ui.card().classes('p-4 w-full max-w-[1300px]'):
-                        ui.label("Galaxy Plots").classes("text-2xl font-bold mb-4")
+                    with ui.dialog() as plots_popup, ui.card().classes('p-4 w-full max-w-[1300px]').props('aria-label="Galaxy plots popup" role=dialog'):
+                        ui.label("Galaxy Plots").classes("text-2xl font-bold mb-4").props('role=heading aria-level=2 tabindex=0')
                         popup_plot_container = ui.column().classes("w-full items-center")
                         aria_button("Close", "close the plots popup", on_click=lambda:plots_popup.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
@@ -3417,7 +3418,7 @@ def create_page():
                             "x_model": [], "y_model": [], "vx_model": [], "vy_model": []
                         }
                     }
-                    with ui.dialog() as instruction_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instruction_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster simulation instructions" role=dialog'):
                         html_info_box(r"""
     <h3> Cluster Simulation</h3>
     <p>Explore the dynamics of the Coma Cluster and the evidence for Dark Matter using the Virial Theorem.</p>
@@ -3508,7 +3509,7 @@ def create_page():
                         """
                     ]
 
-                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster exercises about the Virial Theorem"'):
                         
                         @ui.refreshable
                         def cluster_exercises_content():
@@ -3580,7 +3581,7 @@ def create_page():
                         """
                     ]
 
-                    with ui.dialog() as instr_cluster_mass, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_cluster_mass, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster mass calculation exercises" role=dialog'):
                         
                         @ui.refreshable
                         def cluster_mass_exercises_content():
@@ -3646,7 +3647,7 @@ def create_page():
                         """
                     ]
 
-                    with ui.dialog() as instr_cluster_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as instr_cluster_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster slider exercise instructions" role=dialog'):
                         
                         @ui.refreshable
                         def cluster_slider_content():
@@ -3684,7 +3685,7 @@ def create_page():
 
                      
                         cluster_slider_content()
-                    with ui.dialog() as dataset_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto aria-label=Dataset info'):
+                    with ui.dialog() as dataset_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto ').props('aria-label="Dataset info" role=dialog'):
                 
                 
                         info_box("**Dataset variables**: objid (galaxy ID),ra (right ascension),dec (declination),modelmag_r (apparent magnitude in r band),modelmagerr_r (magnitude error),extinction_r,redshift (z),zErr (redshift error)")
@@ -3715,7 +3716,7 @@ def create_page():
                         aria_button("Close","Close the box", on_click=lambda:dataset_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 
                     with ui.row().classes('w-full justify-center '):
-                        with ui.dialog() as cluster_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                        with ui.dialog() as cluster_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster analysis info" role=dialog'):
                             html_info_box(r"""
         <h3>Computational Notes</h3>
         
@@ -3797,7 +3798,7 @@ def create_page():
                             aria_button("Close","Close the box", on_click=lambda:cluster_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                             
                             
-                    with ui.dialog() as cur_clust, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_clust, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Information about a galaxy without dark matter" role=dialog'):
                         html_info_box(r"""
                         <h3>A Galaxy Without Dark Matter?</h3>
     <p>Astronomers using the Hubble Space Telescope have confirmed that the galaxy <b>NGC 1052-DF2</b> is almost completely missing its Dark Matter.</p>
@@ -3808,7 +3809,7 @@ def create_page():
                  
                         
 
-                    with ui.dialog() as chi2_explanation_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as chi2_explanation_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Chi-Square calculation explanation" role=dialog'):
                         html_info_box(r"""
                         <h3>Chi-Square (χ²) Minimization for Histograms</h3>
                         <p>In the cluster panel, the goodness-of-fit between the observed and simulated velocity distributions is calculated using <b>Pearson's Chi-Square Test for binned data</b>.</p>
@@ -3862,7 +3863,7 @@ def create_page():
                             value=DEFAULT_CLUSTER,
                             label='Select a Cluster Dataset'
                         
-                        ).classes('w-1/2 max-w-md').props('id=galaxy_selector aria-label=Galaxy dataset selector role=listbox tabindex=0')
+                        ).classes('w-1/2 max-w-md').props('id=cluster_selector aria-label="Cluster dataset selector" role=listbox tabindex=0')
                                 
                                 
                     
@@ -3947,12 +3948,12 @@ def create_page():
 
                             else:
                                 ui.label("Table not found").classes('text-red-500 text-center')
-                        with ui.dialog() as image_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl'):
+                        with ui.dialog() as image_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster image" role=dialog aria-modal=true'):
                             ui.html("<h5>Cluster Image</h5>")
                             update_cluster_image()
                             aria_button("close",'close',on_click=lambda:image_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                         
-                        with ui.dialog() as table_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl'):
+                        with ui.dialog() as table_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster information table" role=dialog'):
                             update_cluster_table()
                             aria_button("close",'close',on_click=lambda:table_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                         chart_obs = None
@@ -4103,8 +4104,8 @@ def create_page():
                             
                             
                             sim_timer.activate()
-                        with ui.dialog() as sim_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                            ui.label('Cluster Galaxies Velocities View').classes('text-xl font-bold').props('aria-label=Galaxy Simulation View')
+                        with ui.dialog() as sim_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('aria-label="Cluster galaxies velocity simulation" role=dialog aria-modal=true'):
+                            ui.label('Cluster Galaxies Velocities View').classes('text-xl font-bold').props('role=heading aria-level=2 tabindex=0 aria-label=Galaxy Simulation View')
                             
                             with ui.row().classes('w-full justify-center gap-4 p-4'):
                                 
@@ -4489,7 +4490,7 @@ def create_page():
 
                         #chi2_hist = np.sum(((np.log1p(counts_obs) - np.log1p(counts_model))**2))
                         chi2_hist = np.sum(((counts_obs - counts_model)**2) / np.maximum(counts_model, 1.0))
-                        
+                        #chi2_hist = np.sum(((counts_obs - counts_model)**2) / np.maximum(counts_model, 1.0)**2)
                         chi2_val = chi2_hist / max(1, len(counts_obs))
 
                         is_duplicate = any(x == f for x, y in cluster_state['chi2_points'])
@@ -4543,7 +4544,7 @@ def create_page():
                        
                             with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm flex flex-col gap-1'):
                                 cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-green-800 mb-2")
-                                cluster_img_display = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').on('click', image_dialog.open)
+                                cluster_img_display = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge cluster image"').on('click', image_dialog.open).on('keydown.enter', image_dialog.open)
                                 #ui.html("<small class='text-gray-500'><i>Ref: ESA Hubble / Aladin</i></small>")
                                 cluster_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
                                 aria_button(" Table", "table", on_click=table_dialog.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
@@ -4816,6 +4817,7 @@ def create_page():
                         
                             #chi2_hist = np.sum(((np.log1p(counts_obs) - np.log1p(counts_model))**2))
                             chi2_hist = np.sum(((counts_obs - counts_model)**2) / np.maximum(counts_model, 1.0))
+                            #chi2_hist = np.sum(((counts_obs - counts_model)**2) / np.maximum(counts_model, 1.0)**2)
                             chi2_norm = chi2_hist / len(counts_obs)
                             
                             
@@ -5044,7 +5046,7 @@ def create_page():
                 with ui.tab_panel('clusdm').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow-lg"):
                     description_on_dark("Explore how virial theorem reveals dark matter in galaxy clusters. ")
-                    with ui.dialog() as inst_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as inst_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Instructions for cluster mass and density activities'):
                         html_info_box(r"""
         <h3>Cluster Mass Analysis</h3>
         <p>Imagine analyzing a <b>galaxy cluster</b> to reveal dark matter.</p>
@@ -5061,7 +5063,7 @@ def create_page():
                         reference_box("""**Dataset reference**: Way M.J. et al., *Redshifts in the Southern Abell Redshift Survey Clusters*. I. The Data'""").classes('text-base italic')
                         aria_button("Close", "Close the box",on_click=lambda:datac_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as formula_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as formula_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Formulas used in cluster mass and density calculations'):
                         html_info_box(r"""
         <h3>Computational Notes</h3>
 
@@ -5165,7 +5167,7 @@ def create_page():
                 
                         aria_button("Close", "Close the box",on_click=lambda:units_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                         
-                    with ui.dialog() as cur_el_gordo, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    with ui.dialog() as cur_el_gordo, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Information about El Gordo galaxy cluster"'):
                         html_info_box(r"""
                         <h3>"El Gordo": The Cosmic Heavyweight</h3>
                         <p>Did you know that astronomers discovered a galaxy cluster so massive they officially nicknamed it <b>"El Gordo"</b> (Spanish for <i>"The Fat One"</i>)?</p>
@@ -5179,7 +5181,7 @@ def create_page():
                         
                         aria_button("Close", "close", on_click=lambda:cur_el_gordo.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
-                    with ui.dialog() as more_DM_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                    with ui.dialog() as more_DM_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="More information about evidence for dark matter"'):
                         html_info_box(r"""
     <h3>Further Evidence: Lensing & Collisions</h3>
     <p>While rotation curves provided the first hint, other independent observations confirm the existence of Dark Matter.</p>
@@ -5303,7 +5305,7 @@ def create_page():
                             with ui.card().classes("items-center justify-center p-6 w-full !bg-gray-900 text-white rounded-xl shadow-xl"):
                                 ui.markdown("Cluster Mass Exercise: fill in the missing parts in the pseudo-code below")\
                                     .classes("text-2xl font-bold text-blue-300 mb-4 item-center")\
-                                    .props('aria-label=cluster exercises fill the formulas in the boxes')
+                                    .props('aria-label="cluster exercises fill the formulas in the boxes" role=heading aria-level=2 tabindex=0')
                                 
                               
                                 with ui.row().classes('w-full max-w-6xl justify-center gap-6 no-wrap items-start'):
@@ -5793,8 +5795,8 @@ def create_page():
                                 accessible_notify('Wrong! Try again!', type_='error')
 
                                 
-                        with ui.dialog() as cluster_plots_popup, ui.card().classes("p-4 w-full max-w-[1300px]"):
-                            ui.label("Cluster Plots").classes("text-2xl font-bold mb-4")
+                        with ui.dialog() as cluster_plots_popup, ui.card().classes("p-4 w-full max-w-[1300px]").props('role=dialog aria-modal=true aria-label=Cluster Plots'):
+                            ui.label("Cluster Plots").classes("text-2xl font-bold mb-4").props('role=heading aria-level=2 tabindex=0')
                             cluster_popup_container = ui.column().classes("w-full items-center")
                             aria_button("Close", "close popup", on_click=lambda:cluster_plots_popup.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                         with ui.row().classes('w-full justify-center'):

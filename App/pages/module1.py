@@ -323,13 +323,13 @@ def create_page():
             ui.tab('particles', label='Fundamental Particles').props('aria-label="Fundamental Particles"')
 #functions for observational methods and instruments dialog        
         def open_observational_info_dialog():
-            with ui.dialog() as dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden'):
+            with ui.dialog() as dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="title-dialog"'):
      
                 with ui.column().classes('w-full h-full bg-white'):
                     
                 
-                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0'):
-                        ui.label('Observational Techniques & Instruments').classes('text-xl font-bold')
+                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="title-dialog'):
+                        ui.label('Observational Techniques & Instruments').classes('text-xl font-bold').props('id="tile-dialog" role=heading aria-level=2 tabindex=0')
                         aria_button('Close', 'close', on_click=dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
 
@@ -528,7 +528,7 @@ def create_page():
                     aria_button("Close", "close popup", on_click=lambda:instruction_d.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                
-                with ui.dialog() as info_dialog, ui.card().classes('p-0 w-full max-w-[900px] overflow-hidden'):
+                with ui.dialog() as info_dialog, ui.card().classes('p-0 w-full max-w-[900px] overflow-hidden').props('role=dialog aria-label="Scientific Concepts & Instructions"'):
                     with ui.column().classes('p-6 bg-white w-full overflow-y-auto'):
                         
                         
@@ -585,7 +585,7 @@ def create_page():
                     aria_button("Close ", "Close", on_click=info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
              
               
-                with ui.dialog() as biblio_dialog, ui.card().classes('w-full max-w-3xl p-0 overflow-hidden'):
+                with ui.dialog() as biblio_dialog, ui.card().classes('w-full max-w-3xl p-0 overflow-hidden').props('role=dialog aria-label="Scientific Bibliography"'):
                     with ui.column().classes('p-6 bg-white w-full h-full overflow-y-auto'):
                         html_info_box(r"""
     
@@ -632,7 +632,7 @@ def create_page():
                         with ui.row().classes('w-full justify-center mt-6'):
                             aria_button("Close", "Close", on_click=biblio_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                with ui.dialog() as math_dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden'):
+                with ui.dialog() as math_dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden').props('role=dialog aria-label="Scientific Background & Logic"'):
                     
                 
                     with ui.column().classes('w-full h-full p-6 overflow-y-auto'):
@@ -803,7 +803,9 @@ def create_page():
                        
                 
                         
-                    
+                        visibility_status = ui.label("Image status: Waiting for parameters...").classes(
+                            "text-xl font-bold text-green-400 text-center w-full bg-slate-800 p-2 rounded border border-green-500/50"
+                        ).props('aria-live=polite')
                         plot_container = ui.column().classes('w-full items-center justify-start')
                 
             
@@ -873,6 +875,16 @@ def create_page():
 
                         total_signal = int(np.sum(S_map))  
                         total_bg_noise = int(np.sum(B_map + D_map)) 
+                        if snr < 5:
+                            status_text = "Image status: Dominated by noise. The galaxy is completely invisible."
+                        elif snr < 15:
+                            status_text = "Image status: Faint detection. A blurry central core is barely visible."
+                        elif snr < 30:
+                            status_text = "Image status: Good resolution. The core is bright and faint spiral arms are emerging."
+                        else:
+                            status_text = "Image status: Excellent visibility! The spiral structure and arms are perfectly clear."
+                            
+                        visibility_status.set_text(status_text)
                         with plot_container:
                          
                             with ui.pyplot(figsize=(8, 6), facecolor='none').classes('w-full max-w-[800px] mx-auto') as plot_element:
@@ -981,7 +993,7 @@ def create_page():
 
         def create_interactive_tile(image_file: str, title: str, description: str, size: int):
             safe_id = title.replace(" ", "_")
-            with ui.dialog() as popup, ui.card():
+            with ui.dialog() as popup, ui.card().props('role=dialog '):
                 ui.label(title).classes('text-h5').props('role=heading aria-level=3 tabindex=0')
                 aria_image(image_file, title).classes('w-96 h-auto')
                 info_box(markdown_to_html(description)).props('tabindex=0 aria-label="Description" role=document')
@@ -989,7 +1001,7 @@ def create_page():
             
             with ui.card().classes('p-2 hover:!bg-gray-200 transition-all cursor-pointer'):
                 thumb = aria_image(image_file, title).classes('w-40 h-40 object-cover rounded-md cursor-pointer')
-                thumb.on('click', lambda: popup.open())
+                thumb.props(f'role=button tabindex=0 aria-label="Open details for {title}"').on('click', lambda: popup.open()).on('keydown.enter', lambda: popup.open())
             
                 thumb.props('draggable="true"')
                 thumb.props(f'id="img-{safe_id}"')
@@ -1008,7 +1020,7 @@ def create_page():
                 description_on_dark("Embark on a journey through time and space to understand the scales and fundamental structures of the universe.")
                 
                
-                with ui.dialog() as units_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as units_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Cosmic Distance Scales"'):
                     html_info_box(r"""
         <h3>Cosmic Distance Scales: km, AU, and pc</h3>
         <p>In cosmology, distances range from the relatively "small" scale of planets to the vast expanse between galaxies. To handle these massive numbers without writing endless zeros, astronomers use three primary units of measurement.</p>
@@ -1150,7 +1162,7 @@ def create_page():
                     ui.timer(0.1, update_math, once=True)
                     #update_math()
              
-                with ui.dialog() as external_resources_dialog, ui.card().classes('p-0 w-full max-w-[600px] overflow-hidden'):
+                with ui.dialog() as external_resources_dialog, ui.card().classes('p-0 w-full max-w-[600px] overflow-hidden').props('role=dialog aria-label="External Resources"'):
             
            
                     html_info_box(r"""
@@ -1225,7 +1237,7 @@ def create_page():
 
 
             
-                with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Game Instructions"'):
                     html_info_box(r"""
 <div style="font-family: sans-serif; line-height: 1.6;">
     
@@ -1268,8 +1280,7 @@ def create_page():
                         on_click=lambda: (units_dialog.open(), update_math())
                     ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                    
-                   
-
+                    
                    
                     time_label = ui.label('Time: 0s').classes('text-xl font-bold w-28 text-center text-blue-700 bg-white rounded p-1 border border-blue-200')
                     ui.html('<div id="score_display" class="text-xl font-bold w-32 text-center text-blue-700 bg-white rounded p-1 border border-blue-200">Score: 0</div>')
@@ -1323,7 +1334,72 @@ def create_page():
                                 
                     render_drop_column()
 
-                  
+                    with ui.expansion('Accessibility Mode: Structures Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg').props('aria-label="Keyboard accessible alternative for structures classification"'):
+                        ui.label('Classify the objects by selecting their correct cosmic scale based on their description.').classes('mb-4 text-lg font-bold text-blue-200').props('tabindex=0')
+                        
+                       
+                        scale_options = [r[4] for r in ranges_data]
+                        
+                 
+                        user_choices = {}
+                        
+                        with ui.column().classes('w-full gap-4 p-2'):
+                           
+                            for obj in IMAGES_MACRO:
+                                with ui.row().classes('w-full items-center justify-between border-b border-slate-700 pb-2 flex-wrap'):
+                                    
+                                  
+                                    with ui.column().classes('flex-[2] min-w-[300px]'):
+                                        ui.label(obj['title']).classes('text-xl font-bold text-blue-300').props('tabindex=0')
+                                       
+                                        ui.markdown(obj['description']).classes('text-sm text-gray-300').props('tabindex=0')
+                                    
+                                    
+                                    user_choices[obj['title']] = ui.select(
+                                        options=scale_options, 
+                                        label='Select Scale'
+                                    ).classes('w-48 flex-[1]').props(f'dark aria-label="Select scale for {obj["title"]}"')
+                        
+                       
+                        def check_structures_accessible():
+                            score = 0
+                            errors = 0
+                            
+                          
+                            scale_limits = {r[4]: (r[2], r[3]) for r in ranges_data}
+                            
+                            for obj in IMAGES_MACRO:
+                                selected_scale = user_choices[obj['title']].value
+                                
+                                if not selected_scale:
+                                    continue 
+                                
+                                min_s, max_s = scale_limits[selected_scale]
+                                
+                            
+                                if min_s <= obj['size'] <= max_s:
+                                    score += 1
+                                else:
+                                    errors += 1
+                            
+                            tot_items = len(IMAGES_MACRO)
+                            
+                           
+                            if score == tot_items:
+                                accessible_notify(f"✅ Mission Complete! Perfect score: {score}/{tot_items}", type_='success')
+                            elif score > 0 and errors == 0:
+                                accessible_notify(f"Good start! Correct: {score}. Keep classifying the rest.", type_='info')
+                            elif errors > 0:
+                                accessible_notify(f"⚠️ Some errors found (Correct: {score}, Wrong: {errors}). Check the sizes and try again!", type_='warning')
+                            else:
+                                accessible_notify("Please select a scale for the objects before checking.", type_='warning')
+
+                       
+                        aria_button(
+                            'Verify Classification', 
+                            'Submit accessible structure classification', 
+                            on_click=check_structures_accessible
+                        ).classes('mt-4 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded')
                   
 
 
@@ -1490,7 +1566,7 @@ def create_page():
         def create_mass_conversion_dialog():
         
 
-            with ui.dialog() as mass_conversion_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+            with ui.dialog() as mass_conversion_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('role=dialog aria-label="Mass to Energy Conversion Information"'):
                 html_info_box(r"""
         <h3>Mass-Energy Conversion: kg to eV</h3>
         <p>In particle physics, mass (<span class="math">\(m\)</span>) is often expressed as equivalent energy (<span class="math">\(E\)</span>) using <b>Einstein's mass-energy equivalence</b> principle:</p>
@@ -1901,10 +1977,10 @@ def create_page():
             #ui.plotly(fig).classes('w-full h-full').style(f"height:{height}px; width: {plot_width}")
             if width is None:
         
-                ui.plotly(fig).classes('w-full h-full').style(f"height:{height}px;")
+                ui.plotly(fig).classes('w-full h-full').style(f"height:{height}px;").props('tabindex=0 aria-label="Interactive graph visualization of particles and processes"')
             else:
               
-                ui.plotly(fig).style(f"height:{height}px; width: {width}px;")
+                ui.plotly(fig).style(f"height:{height}px; width: {width}px;").props('tabindex=0 aria-label="Interactive graph visualization of particles and processes"')
 
         def _superscript(n: int):
             sup = str(n).replace('-', '⁻')
@@ -2157,9 +2233,9 @@ def create_page():
             )
 
             if width is None:
-                ui.plotly(fig).classes('w-full').style(f"height:{height}px; width: 100%;")
+                ui.plotly(fig).classes('w-full').style(f"height:{height}px; width: 100%;").props('tabindex=0 aria-label="Mass distribution of fundamental particles"')
             else:
-                ui.plotly(fig).style(f"height:{height}px; width: {width}px;")
+                ui.plotly(fig).style(f"height:{height}px; width: {width}px;").props('tabindex=0 aria-label="Mass distribution of fundamental particles"')
             #ui.plotly(fig).classes('w-full').style(f"height:{height}px; width: 100%;")
             #ui.plotly(fig).style(f"height:{height}px; width:100%")
         
@@ -2206,7 +2282,7 @@ def create_page():
 """)
                     aria_button("Close", "close popup", on_click=lambda:instru.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                with ui.dialog() as info_dialog, ui.card().classes('w-[800px] h-[80vh] overflow-y-auto'):
+                with ui.dialog() as info_dialog, ui.card().classes('w-[800px] h-[80vh] overflow-y-auto').props('role=dialog aria-label="Detailed information about particles and cosmology"'):
                     html_info_box(r"""
         <h3>1. The Particles Zoo in the universe(Micro-Cosmos)</h3>
         
@@ -2292,7 +2368,7 @@ def create_page():
             
                     aria_button("Close", 'close',on_click=lambda: info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
               
-                with ui.dialog() as cur_part, ui.card().classes('p-4 w-full max-w-[600px]'):
+                with ui.dialog() as cur_part, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-label="Curiosity: The Ghost Particles"'):
                     html_info_box(r"""
                     <h3>The Ghost Particles</h3>
                     <p>Did you know that you are currently being bombarded by "ghosts"?</p>
@@ -2305,28 +2381,28 @@ def create_page():
               
                 def open_particles():
                         ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
-                with ui.dialog() as mass, ui.card().classes('p-4 w-full h-auto min-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as mass, ui.card().classes('p-4 w-full h-auto min-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Mass Distribution in the Universe"'):
                     plot_mass_strip(container, height=400, width=1000)
                     aria_button("Close", 'close',on_click=lambda: mass.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as relation, ui.card().classes('w-full h-auto p-4 items-center '):
+                with ui.dialog() as relation, ui.card().classes('w-full h-auto p-4 items-center ').props('role=dialog aria-label="Particle Interactions and Cosmological Processes"'):
                     plot_particle_graph(
                             "Cosmological Processes ",    processes_nodes,  processes_edges,is_process_graph=True,            height=700 , width=500                     )
                     aria_button("Close", 'close',on_click=lambda: relation.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
              
-                with ui.dialog() as diag_leptons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                with ui.dialog() as diag_leptons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Leptons and their interactions"'):
                     aria_button("X", "close", on_click=diag_leptons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=600, width=800)
 
-                with ui.dialog() as diag_quarks, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                with ui.dialog() as diag_quarks, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Quarks and their interactions"'):
                     aria_button("X", "close", on_click=diag_quarks.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=600, width=800)
 
-                with ui.dialog() as diag_bosons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                with ui.dialog() as diag_bosons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Bosons and their interactions"'):
                     aria_button("X", "close", on_click=diag_bosons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=600, width=800)
 
-                with ui.dialog() as diag_hadrons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden'):
+                with ui.dialog() as diag_hadrons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Hadrons and their interactions"'):
                     aria_button("X", "close", on_click=diag_hadrons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=600, width=800)
 
@@ -2387,7 +2463,7 @@ def create_page():
                 random.shuffle(pool_items)
 
                 with ui.card().classes('w-full max-w-[1200px] p-6 bg-slate-800 rounded-xl shadow-2xl border border-slate-600 mx-auto'):
-                    ui.label('Particle Classification Challenge').classes('text-2xl font-bold text-center text-white w-full mb-4 uppercase tracking-widest drop-shadow-md')
+                    ui.label('Particle Classification Challenge').classes('text-2xl font-bold text-center text-white w-full mb-4 uppercase tracking-widest drop-shadow-md').props('role=heading aria-level=2 tabindex=0')
 
              
                     with ui.row().classes('w-full justify-center gap-6 items-center mb-6 bg-slate-700 p-3 rounded-lg border border-slate-500'):
@@ -2481,6 +2557,58 @@ def create_page():
 
                    
                     render_game()
+                    with ui.expansion('Accessibility Mode: Particle Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg border border-slate-600').props('aria-label="Keyboard accessible alternative for particle classification"'):
+                        ui.label('Classify each particle by selecting one of its correct categories.').classes('mb-4 text-lg font-bold text-blue-200').props('tabindex=0')
+                        
+                        user_choices = {}
+                        
+                        with ui.column().classes('w-full gap-4 p-2'):
+                           
+                            for p in GAME_PARTICLES:
+                                with ui.row().classes('w-full items-center justify-between border-b border-slate-700 pb-2 flex-wrap'):
+                                    
+                                 
+                                    ui.label(p['symbol']).classes('text-2xl font-bold text-blue-300').props('tabindex=0')
+                                    
+                                
+                                    user_choices[p['symbol']] = ui.select(
+                                        options=CATEGORIES, 
+                                        label='Select Category'
+                                    ).classes('w-48').props(f'dark aria-label="Select category for particle {p["symbol"]}"')
+                        
+                     
+                        def check_particles_accessible():
+                            score = 0
+                            errors = 0
+                            
+                            for p in GAME_PARTICLES:
+                                selected = user_choices[p['symbol']].value
+                                
+                                if not selected:
+                                    continue
+                                    
+                               
+                                if selected in p['targets']:
+                                    score += 1
+                                else:
+                                    errors += 1
+                            
+                            tot_items = len(GAME_PARTICLES)
+                            
+                            if score == tot_items:
+                                accessible_notify(f"✅ Quantum Mastery Achieved! Score: {score}/{tot_items}", type_='success')
+                            elif score > 0 and errors == 0:
+                                accessible_notify(f"Good progress! Correct: {score}. Keep going.", type_='info')
+                            elif errors > 0:
+                                accessible_notify(f"⚠️ Anomalies detected (Correct: {score}, Wrong: {errors}). Review the Standard Model and try again!", type_='warning')
+                            else:
+                                accessible_notify("Please select a category before checking.", type_='warning')
+
+                        aria_button(
+                            'Verify Particles', 
+                            'Submit accessible particle classification', 
+                            on_click=check_particles_accessible
+                        ).classes('mt-4 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded shadow-md')
                 
         
                     
@@ -2709,8 +2837,8 @@ def create_page():
                 text
             )
         def show_event_dialog(event):
-            with ui.dialog() as dialog, ui.card().classes('w-96'):
-                ui.label(f"**{event['year']} – {event['title']}**").classes('text-sm text-center w-40 text-white').props('tabindex=0 role=heading aria-level=3 aria-label=Event title and year')
+            with ui.dialog() as dialog, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=event_title'):
+                ui.label(f"**{event['year']} – {event['title']}**").classes('text-sm text-center w-40 text-white').props('tabindex=0 role=heading aria-level=3')
                 aria_image(f"/discovery_images/{event['image']}", f"Image of {event['title']}").classes('w-full rounded-lg shadow')
                 formatted_desc = format_desc_with_new_tab(event['desc'])
                 info_box(formatted_desc).props('tabindex=0 role=document aria-label=Event description')
@@ -2724,10 +2852,10 @@ def create_page():
            
             q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
             
-            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-slate-50'):
+            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-slate-50').props('role=dialog aria-modal=true aria-labelledby=quiz_title'):
                 aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
                 
-                ui.label('History of Astronomy Quiz').classes('text-2xl font-bold text-blue-600 mb-4 text-center')
+                ui.label('History of Astronomy Quiz').classes('text-2xl font-bold text-blue-600 mb-4 text-center').props('role=heading aria-level=2 tabindex=0')
                 
                 with ui.row().classes('w-full justify-between mb-4 bg-gray-200 p-3 rounded-lg border border-gray-300 shadow-inner'):
                     time_lbl = ui.label('Time: 0s').classes('text-lg text-black font-bold')
@@ -2792,7 +2920,7 @@ def create_page():
         def astronomy_timeline(container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
-                with ui.dialog() as introd, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as introd, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=intro_title'):
                     html_info_box(r"""
 <div style="font-family: sans-serif; line-height: 1.6;">
     
@@ -2837,7 +2965,7 @@ def create_page():
                     selected_events = DISCOVERY_EVENTS[era_name]
                     
                  
-                    with ui.dialog() as timeline_dialog, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-slate-50 overflow-hidden shadow-none'):
+                    with ui.dialog() as timeline_dialog, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-slate-50 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-labelledby=timeline_title'):
                         
                         
                         aria_button('X', 'Close timeline', on_click=timeline_dialog.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
@@ -2853,7 +2981,7 @@ def create_page():
                                                 on_click=lambda e=event: show_event_dialog(e)
                                                 ).classes('!bg-blue-600 text-white hover:!bg-blue-800 transition-transform hover:scale-110 z-10')
                                     
-                                    ui.label(event['title']).classes('text-sm text-center w-40 text-black leading-tight mt-2').props('tabindex=0 aria-label=Event title')
+                                    ui.label(event['title']).classes('text-sm text-center w-40 text-black leading-tight mt-2').props('tabindex=0 ')
                     
                     timeline_dialog.open()
               
@@ -2869,8 +2997,7 @@ def create_page():
                   
                         
                     
-                        with ui.card().classes('w-full h-40 p-0 relative cursor-pointer overflow-hidden group hover:ring-4 ring-blue-500 transition-all shadow-lg rounded-xl') \
-                                .on('click', lambda k=era_key: load_era(k)):
+                        with ui.card().classes('w-full h-40 p-0 relative cursor-pointer overflow-hidden group hover:ring-4 ring-blue-500 transition-all shadow-lg rounded-xl').props(f'role=button tabindex=0 aria-label="Explore {era_key} era"').on('click', lambda k=era_key: load_era(k)).on('keydown.enter', lambda k=era_key: load_era(k)):
                             
                            
                             aria_image(f"/discovery_images/{bg_image}", f"Image of {era_key}").classes('w-full h-full object-cover absolute top-0 left-0 opacity-60 group-hover:opacity-40 group-hover:scale-110 transition-all duration-500')
@@ -3006,13 +3133,13 @@ def create_page():
             
 
             
-            with ui.dialog() as dialog, ui.card().classes('w-96'):
-                ui.label(f"**{epoch['name']} (z={epoch['z_ref']:.2e})**").classes('text-sm text-center text-white').props('tabindex=0 aria-label=Epoch name and redshift')
+            with ui.dialog() as dialog, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=epoch_title'):
+                ui.label(f"**{epoch['name']} (z={epoch['z_ref']:.2e})**").classes('text-sm text-center text-white').props('tabindex=0 role=heading aria-level=3')
                 time_sec = z_to_time_seconds(z)
                 if not math.isnan(time_sec):
-                    ui.label(f"Universe age: {age:.2e} Gyr ({time_sec:.2e} s)").classes('text-sm text-center text-white').props('tabindex=0 aria-label=Universe age in gigayears')
+                    ui.label(f"Universe age: {age:.2e} Gyr ({time_sec:.2e} s)").classes('text-sm text-center text-white').props('tabindex=0 ')
                 else:
-                    ui.label(f"Universe age: {age:.2e} Gyr (time in seconds not defined for theoretical epochs)").props('tabindex=0 aria-label=Universe age in gigayears')
+                    ui.label(f"Universe age: {age:.2e} Gyr (time in seconds not defined for theoretical epochs)").props('tabindex=0 ')
 
                 aria_image(f"/cosmic_epochs/{epoch['image']}", f"Image of {epoch['name']} epoch").classes('w-full rounded-lg shadow')
                 formatted_desc = format_desc_with_new_tab(epoch['desc'])
@@ -3028,14 +3155,14 @@ def create_page():
             
             q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
             
-            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-gray-900 border border-gray-700'):
+            with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-gray-900 border border-gray-700').props('role=dialog aria-modal=true aria-labelledby=quiz_title'):
                 aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
                 
-                ui.label('Cosmological Epochs Quiz').classes('text-2xl font-bold text-green-400 mb-4 text-center drop-shadow-md')
+                ui.label('Cosmological Epochs Quiz').classes('text-2xl font-bold text-green-400 mb-4 text-center drop-shadow-md').props('role=heading aria-level=2 tabindex=0')
                 
                 with ui.row().classes('w-full justify-between mb-4 bg-gray-800 p-3 rounded-lg border border-gray-600 shadow-inner'):
                     time_lbl = ui.label('Time: 0s').classes('text-lg text-white font-bold')
-                    score_lbl = ui.label('Score: 0').classes('text-lg text-blue-400 font-bold')
+                    score_lbl = ui.label('Score: 0').classes('text-lg text-blue-400 font-bold').props('aria-live=polite')
                 
                 q_text = ui.label('').classes('text-xl font-semibold text-gray-100 text-center mb-6 h-16 flex items-center justify-center')
                 
@@ -3104,7 +3231,7 @@ def create_page():
                     return '!bg-green-600 hover:!bg-green-800'
                 return '!bg-blue-600 hover:!bg-blue-800'
             with container:
-                with ui.dialog() as introc, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as introc, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby:intro_title'):
                     html_info_box(r"""
 <div style="font-family: sans-serif; line-height: 1.6;">
     
@@ -3166,7 +3293,7 @@ def create_page():
                     selected_epochs = EPOCHS_EXTENDED.get(era_name, [])
                     
                    
-                    with ui.dialog() as timeline_dialog2, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-gray-900 overflow-hidden shadow-none'):
+                    with ui.dialog() as timeline_dialog2, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-gray-900 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-labelledby=timeline_title'):
                         
                      
                         aria_button('X', 'Close timeline', on_click=timeline_dialog2.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
@@ -3182,7 +3309,7 @@ def create_page():
                                         on_click=lambda e=epoch: show_epoch_dialog(e)
                                         ).classes(f'{btn_color} text-white text-xs font-bold w-24 h-24 rounded-full shadow-lg border-4 border-gray-700 hover:scale-110 transition-transform z-10 text-center break-words p-1 flex items-center justify-center')
 
-                                    ui.label(f"z ≈ {epoch['z_ref']:.2e}").classes('text-md text-center text-gray-300 mt-2').props('tabindex=0 aria-label=Redshift value')
+                                    ui.label(f"z ≈ {epoch['z_ref']:.2e}").classes('text-md text-center text-gray-300 mt-2').props('tabindex=0 ')
 
                     timeline_dialog2.open()
                 with ui.grid(columns=2).classes('w-full items-center justify-center gap-6 mb-8'):
@@ -3198,8 +3325,7 @@ def create_page():
                         bg_image = data["file"]
                         
                        
-                        with ui.card().classes('w-full h-40 p-0 relative cursor-pointer overflow-hidden group hover:ring-4 ring-green-500 transition-all shadow-lg rounded-xl') \
-                                .on('click', lambda k=era_key: load_cosmic_era(k)):
+                        with ui.card().classes('w-full h-40 p-0 relative cursor-pointer overflow-hidden group hover:ring-4 ring-green-500 transition-all shadow-lg rounded-xl').props(f'role=button tabindex=0 aria-label="Explore {era_key} phase"').on('click', lambda k=era_key: load_cosmic_era(k)).on('keydown.enter', lambda k=era_key: load_cosmic_era(k)):
                             
                          
                             aria_image(f"/cosmic_epochs/{bg_image}", f"Image of {era_key}").classes('w-full h-full object-cover absolute top-0 left-0 opacity-60 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700')
@@ -3623,14 +3749,14 @@ namelength=-1,
             )
 
             #ui.plotly(fig).style(f"height:{height}px; width:600px")
-            ui.plotly(fig).classes('w-full').style(f"height:{height}px")
+            ui.plotly(fig).classes('w-full').style(f"height:{height}px").props('tabindex=0 aria-label="Stellar evolution graph with nodes and edges"')
 
 
 
 
         def show_star_dialog(df, i):
             row = df.iloc[i]
-            with ui.dialog() as dialog, ui.card().classes('w-96'):
+            with ui.dialog() as dialog, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=star_title'):
                 ui.label(f"Star: {row['source_id']}").classes('text-sm text-center').props('tabindex=0 aria-label=Star ID')
                 ui.label(f"RA: {row['ra']:.5f}, DEC: {row['dec']:.5f}").props('tabindex=0 aria-label=Star coordinates')
                 #aria_image(row['image_url'], f"Image of star {row['source_id']}").classes('w-full rounded shadow')
@@ -3745,7 +3871,7 @@ namelength=-1,
 )
               
                
-                with ui.dialog() as hr_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as hr_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=hr_title'):
                     html_info_box(r"""
         <h3>Hertzsprung–Russell (H–R) Diagram</h3>
         <p>The <b>Hertzsprung–Russell (H–R)</b> diagram shows stars according to their color or temperature and luminosity (brightness) or absolute magnitude. The diagram reveals distinct groups of stars from GAIA dataset providing information about stellar evolution and properties.</p>
@@ -3770,7 +3896,7 @@ namelength=-1,
                         aria_image('/images/H-R_ESO.png', "Image of Hertzsprung–Russell diagram").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                         aria_image('/images/Life-Cycle-of-a-Star.png', "Image of life-cycle of a star").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_button('Close','close button', on_click=lambda:hr_info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as cur_intro, ui.card().classes('p-4 w-full max-w-[600px]'):
+                with ui.dialog() as cur_intro, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-modal=true aria-labelledby=curiosities_title'):
                     html_info_box(r"""
                     <h3>Stars vs. Sand</h3>
                     <p>Did you know that there are more stars in the observable Universe than there are grains of sand on all the beaches on Earth?</p>
@@ -3786,7 +3912,7 @@ namelength=-1,
                     reference_box("**Source:** [Wikipedia](https://en.wikipedia.org/wiki/BPM_37093)")
                     aria_button("Close", "close", on_click=lambda:cur_intro.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
-                with ui.dialog() as introd, ui.card().classes('p-4 w-full max-w-[600px]'):
+                with ui.dialog() as introd, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-modal=true aria-labelledby=introd_title'):
                     html_info_box(r"""
                     <div style="font-family: sans-serif; line-height: 1.6;">
                         
@@ -3916,16 +4042,16 @@ namelength=-1,
                     
 
                     )
-                    plot = ui.plotly(fig)
+                    plot = ui.plotly(fig).props('tabindex=0 aria-label="Interactive Hertzsprung-Russell diagram of Gaia star dataset"')
 
 
                     plot.on('plotly_click', lambda e: show_star_dialog(df, e.args['points'][0]['pointIndex']))
-                with ui.dialog() as evolution_graph_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center'):
+                with ui.dialog() as evolution_graph_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_graph_title'):
                     aria_button('X', 'Close', on_click=evolution_graph_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                     plot_star_graph(title="Life Cycle of a Star", nodes=stellar_nodes, edges=stellar_edges, height=600, width=800)
 
              
-                with ui.dialog() as evolution_gif_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center'):
+                with ui.dialog() as evolution_gif_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_gif_title'):
                     aria_button('X', 'Close', on_click=evolution_gif_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
                    
 
@@ -3941,7 +4067,7 @@ namelength=-1,
                     render_gif.refresh()
                    
                     evolution_gif_dialog.open()
-                with ui.dialog() as data_info, ui.card().classes('w-96'):
+                with ui.dialog() as data_info, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=data_info_title'):
                     info_box("Dataset Gaia DR3: RA (right ascension),DEC(declination),z (redshift),mag_ur(magnitude in u-band filter, r-band filter). Dataset MIST:logTeff (effective temperature),logL (luminosity),stellar_mass")
                     reference_box(""" **Dataset reference**: [GAIA SDR3](https://gea.esac.esa.int/archive/), Sysoliatina Kseniia 2022 JJ-model isochrone set: PARSEC MIST and BaSTI stellar evolution, [MIST](https://doi.org/10.11588/DATA/ZCXHOE) """)
                     aria_button('Close','close button', on_click=data_info.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -3959,12 +4085,12 @@ namelength=-1,
 
               
                 with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
-                    ui.label("Stellar Roleplay: You Are a Star!").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider")
+                    ui.label("Stellar Roleplay: You Are a Star!").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
                     
                   
                     with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner'):
                         lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold')
-                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold')
+                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold').props('aria-live=polite')
                         
                     def game_tick():
                         if game_state['running']:
@@ -4012,7 +4138,7 @@ namelength=-1,
                             return
                         
                         if game_state['step'] >= len(game_state['path']):
-                            ui.label("Evolution Complete!").classes("text-4xl text-green-400 font-bold text-center mt-6")
+                            ui.label("Evolution Complete!").classes("text-4xl text-green-400 font-bold text-center mt-6").props('role=alert aria-live=assertive')
                             ui.label("You have reached your final destiny in the cosmos. 🌌").classes("text-white text-center mt-3 text-2xl")
                             return
                     
@@ -4020,7 +4146,7 @@ namelength=-1,
                         current_phase_name = node_names[current_phase_id]
                         
                         ui.label(f"Your Mass: {game_state['mass']} M☉").classes("text-3xl text-orange-400 font-bold text-center mb-4 bg-slate-800 px-8 py-3 rounded-lg border-2 border-orange-500 shadow-lg")
-                        ui.label(f"Current Phase: {current_phase_name}").classes("text-2xl text-cyan-300 font-bold text-center mb-6")
+                        ui.label(f"Current Phase: {current_phase_name}").classes("text-2xl text-cyan-300 font-bold text-center mb-6").props('aria-live=polite')
                         ui.label("Select your NEXT evolutionary phase:").classes("text-gray-200 mb-6 text-center text-xl")
                         
                       
@@ -4071,7 +4197,7 @@ namelength=-1,
 #panel galaxy
 
         def show_galaxy_dialog(df, i):
-            with ui.dialog() as dialog, ui.card().classes('w-96'):
+            with ui.dialog() as dialog, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=galaxy_title'):
                 ui.label(f"{df.loc[i,'galaxy_name']}").classes('text-sm text-center').props('tabindex=0 aria-label=Galaxy name')
                 aria_image(df.loc[i,'image_url'], f"Image of galaxy {df.loc[i,'galaxy_name']}").classes('w-full rounded shadow')
                 info_box(
@@ -4218,7 +4344,7 @@ namelength=-1,
           
             #gal_name = row['galaxy_name'] if row['galaxy_name'] != 'Unknown' else ''
 
-            with ui.dialog() as dialog, ui.card().classes('w-96 p-0 overflow-hidden'):
+            with ui.dialog() as dialog, ui.card().classes('w-96 p-0 overflow-hidden').props('role=dialog aria-modal=true aria-labelledby=galaxy_title'):
                 
                 html_info_box(f"""
                 <div style="font-family: sans-serif; padding: 20px;">
@@ -4393,7 +4519,7 @@ namelength=-1,
             fig2.update_yaxes(autorange='reversed')
             
             
-            plot1 = ui.plotly(fig1).classes("w-full")
+            plot1 = ui.plotly(fig1).classes("w-full").props('tabindex=0 aria-label="Color vs Concentration scatter plot of SDSS galaxy morphology classification"')
             
             #plot2 = ui.plotly(fig2).classes("w-full")  
 
@@ -4427,7 +4553,7 @@ namelength=-1,
     "Visualize the large-scale structures of the Universe by mapping galaxies in the space to understand their distribution and morphological classification."
 )
                     
-                with ui.dialog() as info_morpho, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as info_morpho, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=morphology_info_title'):
                     html_info_box(r"""
         <h3>Morphology Classification</h3>
         <p>This plot presents a classification of galaxy morphologies based on their color and concentration index using data from the Sloan Digital Sky Survey (SDSS). Galaxies are categorized into four main types: Elliptical, Lenticular, Spiral, and Irregular. The classification is based on the u−r color index and the concentration index (R90/R50), which are indicative of the stellar populations and structural properties of galaxies.</p>
@@ -4471,7 +4597,7 @@ namelength=-1,
                     aria_button('Close','close button', on_click=lambda: info_morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                             
                             
-                with ui.dialog() as info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=morphology_info_title'):
                     html_info_box(r"""
                     <div style="font-family: sans-serif; line-height: 1.6;">
                         
@@ -4566,7 +4692,7 @@ namelength=-1,
                     """).props('tabindex=0 role=document aria-label="Galaxy map instructions"')
                     
                     aria_button('Close', 'close button', on_click=lambda: info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
-                with ui.dialog() as data_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as data_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=data_info_title'):
                     info_box('Dataset:RA (right ascension),DEC(declination),z(redshift),z_error,subclass').props('tabindex=0 role=document aria-label=Galaxy data')
                     reference_box(""" **Dataset reference**: [SDSS DR16](https://www.sdss.org/dr16/), [SDSS](https://cdsarc.cds.unistra.fr/ftp/J/A+A/648/A122/), VizieR Online Data Catalog: SDSS galaxies morphological classification (Vavilova+, 2021)""")
                 
@@ -4574,7 +4700,7 @@ namelength=-1,
                     aria_button('Close','close button', on_click=lambda: data_info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
             
                                 
-                with ui.dialog() as cur_gal, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto'):
+                with ui.dialog() as cur_gal, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=cur_gal_title'):
                     html_info_box(r"""
                     <h3>The "Green Valley"</h3>
                     <p>Galaxies usually fall into two color categories: the <b>"Red Sequence"</b> (old, dead elliptical galaxies) and the <b>"Blue Cloud"</b> (active, star-forming spiral galaxies).</p>
@@ -4587,7 +4713,7 @@ namelength=-1,
               
 
 
-                with ui.dialog() as galaxy_class_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                with ui.dialog() as galaxy_class_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_class_title'):
                     html_info_box(r"""
         <h3>SDSS Galaxy Subclasses Explained</h3>
         <p>Galaxies in the Sloan Digital Sky Survey (SDSS) are spectroscopically classified based on their observed spectral lines, which reveal the dominant energy sources within the galaxy.</p>
@@ -4648,14 +4774,14 @@ namelength=-1,
 
                 
                         
-                with ui.dialog() as img, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                with ui.dialog() as img, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
                     galaxy_image_grid(GALAXY_IMAGES)
                     aria_button('Close','close button', on_click=lambda: img.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as img2, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto'):
+                with ui.dialog() as img2, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
                     aria_image('/images/sdss_gal_z.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_image('/images/sdss_gal_z3D.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_button('Close','close button', on_click=lambda: img2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as img3, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto'):
+                with ui.dialog() as img3, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
                     aria_image('/images/mag_gal_redshift.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_image('/images/mag_gal_z_color.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_button('Close','close button', on_click=lambda: img3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -4674,7 +4800,7 @@ namelength=-1,
               
                     
                    
-                    with ui.dialog() as dialog, ui.card().style('min-width: 90vw; height: 90vh; max-width: 100vw;').classes('p-4 items-center bg-slate-50 overflow-hidden shadow-none'):
+                    with ui.dialog() as dialog, ui.card().style('min-width: 90vw; height: 90vh; max-width: 100vw;').classes('p-4 items-center bg-slate-50 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-label="Locate the Solar System interactive game"'):
                         
                       
                         with ui.row().classes('w-full h-full flex-nowrap justify-center gap-6 items-start overflow-hidden pb-8'):
@@ -4726,7 +4852,28 @@ namelength=-1,
                               
                                 aria_button('Close','close', on_click=dialog.close).props('flat round dense').classes('bg-orange-500 hover:bg-orange-700 text-white')
 
-                            
+                                with ui.expansion('Accessibility Mode: Locate Solar System Quiz', icon='accessible').classes('w-full mt-6 bg-slate-800 text-white rounded-lg').props('aria-label="Keyboard accessible alternative for finding the solar system"'):
+                                    ui.label("Identify the Solar System's position based on the provided context:").classes('text-blue-200 font-bold mb-4').props('tabindex=0')
+
+                                    opts = [
+                                        'At the exact center of the Galactic Bulge',
+                                        'In the Orion Arm, about 8 kpc from the center',
+                                        'In the Perseus Arm, about 15 kpc away',
+                                        'In the extreme outer edge of the Stellar Halo'
+                                    ]
+                                    loc_choice = ui.radio(opts).classes('text-white gap-2').props('dark aria-label="Select the correct location"')
+
+                                    def check_loc_alt():
+                                        if not loc_choice.value:
+                                            ui.notify('Please select an option first.', type='warning')
+                                            return
+                                            
+                                        if 'Orion Arm' in loc_choice.value:
+                                            ui.notify('✅ Correct! The Solar System is in the Orion Arm.', type='positive')
+                                        else:
+                                            ui.notify('❌ Incorrect location. Re-read the clues and try again!', type='negative')
+
+                                    aria_button('Confirm Location', 'Submit accessible location answer', on_click=check_loc_alt).classes('mt-4 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded')
                         
                         
                             
@@ -4839,7 +4986,7 @@ namelength=-1,
                     gif_marker.update()
 
                
-                with ui.dialog() as map_gif_dialog:
+                with ui.dialog().props('role=dialog aria-modal=true aria-labelledby=map_gif_title') as map_gif_dialog:
              
                     with ui.card().style('width: 850px; max-width: 95vw; overflow: visible !important;').classes('p-6 bg-slate-900 flex flex-col items-center'):
                         aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
@@ -4899,7 +5046,7 @@ namelength=-1,
                                 label='Galaxy ID',
                                 with_input=True,
                                 on_change=on_select
-                            ).classes('w-80').props('dark aria-label=Galaxy selection dropdown').props('aria-label=Galaxy selection dropdown')
+                            ).classes('w-80').props('dark aria-label="Galaxy selection dropdown"')
 
                        
                         with ui.element('div').classes('w-full max-w-[800px] relative rounded-lg shadow-lg border border-gray-300'):
@@ -4923,7 +5070,7 @@ namelength=-1,
                     map_gif_dialog.open()
 
                
-                with ui.dialog() as morpho_gif_dialog:
+                with ui.dialog().props('role=dialog aria-modal=true aria-labelledby=morpho_gif_title') as morpho_gif_dialog:
                     with ui.element('div').classes('relative inline-block rounded-xl overflow-hidden shadow-2xl bg-white p-2'):
                         aria_button('X', 'Close', on_click=morpho_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
                         
@@ -4963,7 +5110,7 @@ namelength=-1,
                     
                     with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
                         lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
-                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold w-32 text-center')
+                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold w-32 text-center').props('aria-live=polite')
                         
                         def game_tick():
                             if mem_state['running']:
@@ -5048,7 +5195,7 @@ namelength=-1,
                             return
 
                         if len(mem_state['matched']) == len(mem_state['cards']) and len(mem_state['cards']) > 0:
-                            ui.label("Universe Unlocked! All pairs found. 🌌").classes("text-3xl text-green-400 font-bold text-center mt-6")
+                            ui.label("Universe Unlocked! All pairs found. 🌌").classes("text-3xl text-green-400 font-bold text-center mt-6").props('role=alert aria-live=assertive')
                             mem_state['running'] = False
                             return
 
@@ -5104,11 +5251,11 @@ namelength=-1,
                         with ui.grid(columns=8).classes('w-full gap-4'):
                             for card in mem_state['cards']:
                                 is_revealed = card['id'] in mem_state['flipped'] or card['id'] in mem_state['matched']
-                                
-                                with ui.card().style('aspect-ratio: 1').classes('p-0 cursor-pointer w-full flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').on('click', lambda c_id=card['id']: flip_card(c_id)):
+                                label_stato = f"{card['type']} revealed" if is_revealed else "Hidden card"
+                                with ui.card().style('aspect-ratio: 1').classes('p-0 cursor-pointer w-full flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').props(f'role=button tabindex=0 aria-label="Memory card: {label_stato}"').on('click', lambda c_id=card['id']: flip_card(c_id)).on('keydown.enter', lambda c_id=card['id']: flip_card(c_id)):
                                     if is_revealed:
                                         
-                                        ui.image(card['img']).classes('w-full h-full object-cover')
+                                        ui.image(card['img']).classes('w-full h-full object-cover').props('aria-hidden="true"')
                                     else:
                                        
                                         ui.element('div').classes('w-full h-full bg-blue-900 flex items-center justify-center').style('background-image: radial-gradient(circle, #1e3a8a, #0f172a);')
