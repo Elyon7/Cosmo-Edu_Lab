@@ -36,14 +36,15 @@ def create_auth_routes():
               
                 accessible_notify('Wrong Access Code. Ask your teacher.', type_='error')
                 code_input.value = "" 
+                code_input.focus()
 
        
         with ui.column().classes('w-full h-screen items-center justify-center bg-slate-900'):
           
-            with ui.card().classes('p-8 items-center shadow-2xl !bg-slate-800 border border-slate-700'):
-                ui.icon('lock', size='4em').classes('text-indigo-400 mb-4') 
-                ui.label('Classroom Access').classes('text-2xl font-bold text-white mb-2') 
-                ui.label('Enter the class code to proceed.').classes('text-sm text-slate-300 mb-6') 
+            with ui.card().classes('p-8 items-center shadow-2xl !bg-slate-800 border border-slate-700').props('role=region aria-label="Classroom Access Form"'):
+                ui.icon('lock', size='4em').classes('text-indigo-400 mb-4').props('aria-hidden=true')
+                ui.label('Classroom Access').classes('text-2xl font-bold text-white mb-2').props('role=heading aria-level=1 tabindex=0') 
+                ui.label('Enter the class code to proceed.').classes('text-sm text-slate-300 mb-6').props('tabindex=0')
                 
              
                 code_input = aria_input('Access Code', "Enter class code", password=True).classes('w-full text-lg')
@@ -67,9 +68,12 @@ def create_auth_routes():
                 ui.navigate.to('/main')
             else:
                 accessible_notify('Invalid username or password', type_='warning')
+                password.value = ""
+                password.focus()
 
-        with ui.card().classes('absolute-center'):
-            ui.label(' Login').classes('text-2xl font-bold').props('role=heading aria-level=2 aria-label=Login form area tabindex=0')
+    
+        with ui.card().classes('absolute-center').props('role=region aria-label="Login Form"'):
+            ui.label(' Login').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
             username = aria_input('Username',"Insert the username").on('keydown.enter', lambda: password.focus())
             password = aria_input('Password',"Insert the password", password=True).on('keydown.enter', try_login)
             aria_button('Login', "Log in", on_click=try_login)
@@ -97,7 +101,7 @@ def create_auth_routes():
             accessible_notify('User registered! You can now log in.', type_='success')
             ui.navigate.to('/login')
 
-        with ui.card().classes('absolute-center'):
+        with ui.card().classes('absolute-center').props('role=region aria-label="Registration Form"'):
             ui.label('Register New Account').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
             new_user = aria_input('New Username', "Insert the new username")
             new_pass = aria_input('New Password',"Insert the new password", password=True)

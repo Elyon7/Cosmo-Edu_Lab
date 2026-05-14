@@ -89,6 +89,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         host="0.0.0.0",
         port=7860,
         title='Cosmo-Edu Lab', 
+        language='en-US',
         storage_secret='CosmoEduSecretKey2024Fixed', 
         dark=True,
         reconnect_timeout=30.0,

@@ -60,12 +60,12 @@ def create_routes():
                 
         
         with ui.column().classes('w-full items-center p-8'):
-            ui.label(f"Welcome, {app.storage.user.get('name', 'Explorer')}!").classes('text-5xl font-extrabold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] tracking-wide').props('role=heading aria-level=2 tabindex=0')
+            ui.label(f"Welcome, {app.storage.user.get('name', 'Explorer')}!").classes('text-5xl font-extrabold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] tracking-wide').props('role=note tabindex=0')
 
 
         
             
-            ui.label('\"The cosmos is within us. We are made of star-stuff.\" — Carl Sagan').classes('italic text-3xl text-blue-100 mt-4 font-serif drop-shadow-md text-center ').props('role=heading aria-level=2 tabindex=0')
+            ui.label('\"The cosmos is within us. We are made of star-stuff.\" — Carl Sagan').classes('italic text-3xl text-blue-100 mt-4 font-serif drop-shadow-md text-center ').props(' tabindex=0')
             
 
             with ui.grid(columns=4).classes('w-full justify-center gap-10 mt-8 mb-8 flex-wrap'):
@@ -81,12 +81,17 @@ def create_routes():
                         'hover:scale-110 hover:shadow-[0_0_60px_rgba(255,255,255,0.9)] hover:z-10' # Effetto hover
                     )
                 for i, title in enumerate(module_titles, 1):
-                    with ui.card().classes(star_style).on('click', 
+                    with ui.card().classes(star_style).props(
+    f'role=button tabindex=0 aria-label="Go to module {i}: {title}"'
+).on('click', 
                         lambda i=i: (
                             ui.navigate.to(f'/module{i}'), 
                             ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
                         )
-                    ): 
+                    ).on('keydown.enter', lambda i=i: (
+                            ui.navigate.to(f'/module{i}'), 
+                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
+                        )): 
                         ui.label(f'{i}').classes('text-6xl font-black text-yellow-600/30 absolute top-4')
                         
                     
@@ -176,7 +181,7 @@ def create_routes():
                 rows=rows,
                 row_key='classical'
             ).classes('w-full') \
-                .props('flat separator="cell" hide-bottom') 
+                .props('flat separator="cell" hide-bottom role=table tabindex=0 aria-label="Connections between Classical Physics and Cosmology"') 
 
          
             table.add_slot('header', r'''
@@ -229,7 +234,7 @@ def create_routes():
         main_layout("Physics Curriculum → Cosmology Modules")
         with ui.column().classes('w-full items-center p-6'):
             
-            ui.label("Physics Curriculum Integration").classes('text-5xl font-black text-white drop-shadow-lg mb-10 text-center')
+            ui.label("Physics Curriculum Integration").classes('text-5xl font-black text-white drop-shadow-lg mb-10 text-center').props('role=heading aria-level=1 tabindex=0')
 
             physics_curriculum = [
             ("1st–2nd Year", [

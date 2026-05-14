@@ -131,14 +131,14 @@ def section(text: str):
 def html_info_box(html_content: str):
     """Crea un box HTML con lo stile CSS definito sopra"""
     return ui.html(f'<div class="info-box">{html_content}</div>').props(
-        'role=note aria-label=Information box tabindex=0'
+        'role=note aria-label="Information box" tabindex=0'
     )
 
 
 def info_box(text: str):
     """Box informativo (sfondo chiaro, bordo blu, testo scuro)"""
     return ui.markdown(text).classes("info-box").props(
-        'role=note aria-label=Information box tabindex=0'
+        'role=note aria-label="Information box" tabindex=0'
     )
 
 def warning_box(text: str):
@@ -154,12 +154,12 @@ def success_box(text: str):
 def reference_box(text: str):
     """Box per reference e bibliografia (grigio elegante, italico)"""
     return ui.markdown(text).classes("reference-box").props(
-        'role=doc-biblioentry tabindex=0 aria-label=Reference section'
+        'role=doc-biblioentry tabindex=0 aria-label="Reference section"'
     )
 def plot_info_box(info: dict, title: str = "📊 Results"):
     with ui.card().classes(
         "p-4 !bg-slate-50 border border-slate-300 rounded-lg shadow-md w-full max-w-2xl mt-2"
-    ).props('role=region aria-label=Plot results summary tabindex=0'):
+    ).props('role=region aria-label="Plot results summary" tabindex=0'):
         with ui.element('h4').classes("text-lg font-bold text-slate-700 mb-2").props('tabindex=0 role=heading aria-level=4'):
             ui.label(title)
         for label, value in info.items():
@@ -202,7 +202,7 @@ def plot_info_box_compact2(info: dict, title: str = None, compact: bool = True):
 
    
     with ui.element("div").classes(base_classes).props(
-        'role=region aria-label=Compact plot results summary tabindex=0'
+        'role=region aria-label="Compact plot results summary" tabindex=0'
     ):
        
         if title:
@@ -226,7 +226,7 @@ def plot_info_box_compact(info: dict, title: str = None, compact: bool = True):
         base_classes += " compact"
 
     with ui.element("div").classes(base_classes).props(
-        'role=region aria-label=Compact plot results summary tabindex=0'
+        'role=region aria-label="Compact plot results summary" tabindex=0'
     ):
         if title:
             with ui.element('h3').classes(
@@ -298,7 +298,9 @@ def enlargeable_plot(plot_func, width_percent=100):
             ui.icon('zoom_in', size='sm').classes('text-blue-600')
         
      
-        with ui.element('div').on('click', large_dialog.open).classes('w-full'):
+        with ui.element('div').classes('w-full cursor-pointer').props(
+    'role=button tabindex=0 aria-label="Enlarge plot"'
+).on('click', large_dialog.open).on('keydown.enter', large_dialog.open):
             plot_func() 
             ui.tooltip("Click to enlarge graph")
 def aria_button(text: str, label: str, **kwargs):
@@ -322,7 +324,7 @@ def aria_button2(text, label, **kwargs):
     return btn
 def aria_image(src: str, alt_text: str, **kwargs):
     
-    return ui.image(src, **kwargs).props(f'alt={alt_text}')
+    return ui.image(src, **kwargs).props(f'alt="{alt_text}"')
 
 
 def aria_chart_label(description: str):
@@ -332,29 +334,27 @@ def aria_chart_label(description: str):
 
 def aria_table(columns, rows, label: str, **kwargs):
     
-    return ui.table(columns=columns, rows=rows, **kwargs).props(f'role=table tabindex=0 aria-label={label}')
+    return ui.table(columns=columns, rows=rows, **kwargs).props(f'role=table tabindex=0 aria-label="{label}"')
 
 
 def aria_input(label: str, aria_label: str, **kwargs):
    
-    return ui.input(label, **kwargs).props(f'aria-label={aria_label} role=textbox tabindex=0')
+    return ui.input(label, **kwargs).props(f'input-attr="{{aria-label: \'{aria_label}\'}}"')
 
 def aria_textarea(label: str, aria_label: str, **kwargs):
-   
-    return ui.textarea(label, **kwargs).props(f'aria-label={aria_label} role=textbox tabindex=0')
+    return ui.textarea(label, **kwargs).props(f'input-attr="{{aria-label: \'{aria_label}\'}}"')
 
 def aria_slider(*, min_value=None, max_value=None, min=None, max=None, value=0.0, step=0.01, aria_label='', **kwargs):
     min_v = min_value if min_value is not None else min
     max_v = max_value if max_value is not None else max
     return ui.slider(min=min_v, max=max_v, value=value, step=step, **kwargs).props(
-        f'role=slider aria-valuemin={min_v} aria-valuemax={max_v} aria-valuenow={value} aria-label={aria_label} tabindex=0'
+        f'role=slider aria-valuemin={min_v} aria-valuemax={max_v} aria-valuenow={value} aria-label="{aria_label}" tabindex=0'
     )
 
 
 
 def aria_formula_input(**kwargs):
- 
-    return ui.input(label="", **kwargs).props('aria-label="Input the missing term in the formula" role=textbox tabindex=0')
+    return ui.input(label="", **kwargs).props('input-attr="{aria-label: \'Input the missing term in the formula\'}"')
 
 def aria_navigate(path: str, message: str):
     ui.run_javascript(f"""
