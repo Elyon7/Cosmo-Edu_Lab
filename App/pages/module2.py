@@ -2037,8 +2037,7 @@ def create_page():
             )
                         #aria_button("Image", "Show galaxy image",on_click=lambda: image_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         #aria_button("Table", "Show galaxy data table",on_click=lambda: table_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Info chi2", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                        
                         aria_button("Galaxy morphology ", "Plot galaxy ", 
                                             on_click=lambda: morpho.open()).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_rot.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
@@ -2049,7 +2048,7 @@ def create_page():
                         ui.html('''
 <div class="flex space-x-2">
 <button id="audio-button" role="button" aria-label=" activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
-            class="!bg-blue-500 hover:!bg-gray-700 text-white font-bold py-1 px-2 rounded">
+            class="!bg-green-500 hover:!bg-green-700 text-black font-bold py-1 px-2 rounded">
         Activate Audio
     </button>''')
                         ui.label("").props(
@@ -2057,14 +2056,14 @@ def create_page():
         )
                         ui.html('''
         <div class="flex space-x-2">
-        <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" class="!bg-blue-500 hover:!bg-blue-700 text-white px-2 py-1 rounded">▶ Observed Vel (mean)</button>
-        <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" class="!bg-blue-300 hover:!bg-blue-500 text-white px-2 py-1 rounded">▶ Observed Vel (curve)</button>
-        <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" class="!bg-red-500 hover:!bg-red-700 text-white px-2 py-1 rounded">▶ Baryonic Vel (mean)</button>
-        <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" class="!bg-red-300 hover:!bg-red-500 text-white px-2 py-1 rounded">▶ Baryonic Vel (curve)</button>
-        <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" class="!bg-green-500 hover:!bg-green-700 text-white px-2 py-1 rounded">▶ Simulated Vel (mean)</button>
-        <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-white px-2 py-1 rounded">▶ Simulated Vel (curve)</button>
-        <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" class="!bg-yellow-500 hover:!bg-yellow-700 text-black px-2 py-1 rounded">▶ Difference (mean)</button>
-        <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" class="!bg-yellow-300 hover:!bg-yellow-500 text-black px-2 py-1 rounded">▶ Difference (curve)</button>
+        <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Observed Vel (mean)</button>
+        <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Observed Vel (curve)</button>
+        <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Baryonic Vel (mean)</button>
+        <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Baryonic Vel (curve)</button>
+        <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Simulated Vel (mean)</button>
+        <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Simulated Vel (curve)</button>
+        <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Difference (mean)</button>
+        <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Difference (curve)</button>
         </div>
         ''')
                         ui.label("").props(
@@ -2406,38 +2405,46 @@ def create_page():
                     points_display = ui.column()
                     history_display = ui.column()
 
-                    with ui.row().classes('w-full items-start justify-between no-wrap gap-2 px-2'):
+                    with ui.row().classes('w-full items-stretch justify-between no-wrap gap-2 px-2'):
                     
                       
-                        with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col gap-1'):
-                            galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight ")
-                            galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge galaxy image"').on('click', image_dialog2.open).on('keydown.enter', image_dialog2.open)
-                            #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
-                            galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
-                            aria_button(" Table", "table", on_click=table_dialog2.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
+                        with ui.column().classes('w-[260px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-between overflow-hidden'):
+                                
+                               
+                            with ui.column().classes('w-full gap-1 p-0 m-0'):
+                                galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight whitespace-nowrap")
+                                galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge galaxy image"').on('click', image_dialog2.open).on('keydown.enter', image_dialog2.open)
+                                #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
+                                galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
+                            with ui.row().classes('w-full justify-center mt-2 shrink-0'):
+                                aria_button(" Table", "table", on_click=table_dialog2.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded mt-auto")
 
-               
-                        with ui.column().classes('w-full items-center'):
+            
+                        with ui.column().classes('w-full justify-between items-center'):
                             plot_container = ui.column().classes('w-full')
-                            aria_button("Activity 2-3: build model", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
+                            with ui.row().classes('w-full justify-center mt-2'):
+                                aria_button("Activity 2-3: build model", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
 
                     
-                        with ui.column().classes('w-full items-center'):
+                        with ui.column().classes('w-full justify-between items-center'):
                             mass_plot_container = ui.column().classes("w-full")
-                            aria_button("Activity 4: quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
+                            with ui.row().classes('w-full justify-center mt-2'):
+                                aria_button("Activity 4: quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
 
                     
-                        with ui.column().classes('w-full items-center'):
+                        with ui.column().classes('w-full justify-between items-center'):
                             chi2_plot_container = ui.column().classes('w-full')
-                            with ui.row().classes("w-full justify-center gap-2 mt-2"):
-                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-sm")
-                                aria_button("Tool", "Tool", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-sm")
-                                aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded text-sm")
-                        
+                            with ui.row().classes("w-full justify-center mt-2"):
+                                aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
+                                
+                                aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded ")
+                                aria_button("Info chi2", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
+                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                                aria_button("Tool", "Tool", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                         
-                    
-                   
-                    
+                
+                
+                
 
                     
                     with ui.row().classes("gap-4 "):
@@ -4155,17 +4162,17 @@ def create_page():
         <div class="flex space-x-2">
         <button id="audio-button" role="button" aria-label="Activate or deactivate audio" aria-pressed="false"
                     onclick="initAudio()" 
-                    class="!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    class="!bg-green-500 hover:!bg-green-700 text-black font-bold py-2 px-4 rounded">
                 Activate Audio
             </button>
-        <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" class="!bg-blue-500 hover:!bg-blue-700 text-white px-3 py-1 rounded">▶ Observed σ (mean)</button>
-        <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" class="!bg-blue-300 hover:!bg-blue-500 text-white px-3 py-1 rounded">▶ Observed σ (curve)</button>
-        <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" class="!bg-red-500 hover:!bg-red-700 text-white px-3 py-1 rounded">▶ Baryonic σ (mean)</button>
-        <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" class="!bg-red-300 hover:!bg-red-500 text-white px-3 py-1 rounded">▶ Baryonic σ (curve)</button>
-        <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-white px-3 py-1 rounded">▶ Simulated σ (mean)</button>
-        <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-white px-3 py-1 rounded">▶ Simulated σ (curve)</button>
-        <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" class="!bg-purple-700 hover:!bg-purple-900 text-white px-3 py-1 rounded">▶ Difference σ (mean)</button>
-        <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" class="!bg-purple-500 hover:!bg-purple-700 text-white px-3 py-1 rounded">▶ Difference σ (curve)</button>
+        <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Observed σ (mean)</button>
+        <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Observed σ (curve)</button>
+        <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Baryonic σ (mean)</button>
+        <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Baryonic σ (curve)</button>
+        <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Simulated σ (mean)</button>
+        <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Simulated σ (curve)</button>
+        <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" class="!bg-green-700 hover:!bg-green-900 text-black px-3 py-1 rounded">▶ Difference σ (mean)</button>
+        <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Difference σ (curve)</button>
 
         </div>
         ''')
@@ -4540,40 +4547,45 @@ def create_page():
 
                         
                         
-                        with ui.row().classes('w-full items-start justify-between no-wrap gap-2 px-2 mt-4'):
+                        with ui.row().classes('w-full items-stretch justify-between no-wrap gap-2 px-2 mt-4'):
                        
-                            with ui.column().classes('w-[220px] flex-shrink-0 p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm flex flex-col gap-1'):
-                                cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-green-800 mb-2")
-                                cluster_img_display = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge cluster image"').on('click', image_dialog.open).on('keydown.enter', image_dialog.open)
-                                #ui.html("<small class='text-gray-500'><i>Ref: ESA Hubble / Aladin</i></small>")
-                                cluster_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
-                                aria_button(" Table", "table", on_click=table_dialog.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs mt-auto")
-
+                            with ui.column().classes('w-[260px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-between overflow-hidden'):
+                                
+                            
+                                with ui.column().classes('w-full gap-1 p-0 m-0'):
+                                    cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-blue-800 mb-2 whitespace-nowrap")
+                                    cluster_img_display = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge cluster image"').on('click', image_dialog.open).on('keydown.enter', image_dialog.open)
+                                    cluster_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
+                                
+                           
+                                with ui.row().classes('w-full justify-center mt-2 shrink-0'):
+                                    aria_button(" Table", "table", on_click=table_dialog.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
                           
-                            with ui.column().classes('w-full items-center'):
+                            with ui.column().classes('w-full items-center justify-between'):
                                 plot_container_histo = ui.column().classes('w-full')
-                                with ui.row().classes('w-full justify-center gap-2 mt-2'):
-                                    aria_button("Activity 5.1", "virial", on_click=lambda: instr_cluster_virial.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
-                                    aria_button("Activity 5.2", "mass", on_click=lambda: instr_cluster_mass.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+                                with ui.row().classes('w-full justify-center mt-2'):
+                                    aria_button("Activity 5.1", "virial", on_click=lambda: instr_cluster_virial.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
+                                    aria_button("Activity 5.2", "mass", on_click=lambda: instr_cluster_mass.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
 
                                
                           
-                            with ui.column().classes('w-full items-center'):
+                            with ui.column().classes('w-full items-center justify-between'):
                                 plot_container_scatter = ui.column().classes('w-full')
+                                with ui.row().classes('w-full justify-center mt-2'):
                                 
-                                aria_button("Activity 5.3", "verify model", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+                                    aria_button("Activity 5.3", "verify model", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
 
                       
-                            with ui.column().classes('w-full items-center'):
+                            with ui.column().classes('w-full justify-between items-center'):
                                 cluster_chi2_plot_container = ui.column().classes('w-full')
                                 
                           
                                 plot_cluster_chi2_curve() 
                                 
-                                with ui.row().classes("w-full justify-center gap-1 mt-2"):
-                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded text-xs")
-                                    aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded text-xs")
-                                    aria_button("How is χ²?", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded text-xs")
+                                with ui.row().classes("w-full justify-center mt-2"):
+                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
+                                    aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded ")
+                                    aria_button("How is χ²?", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
                   
                     def refresh_cluster_plots(full_anim=False):
                            

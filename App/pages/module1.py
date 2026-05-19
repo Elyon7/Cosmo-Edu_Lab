@@ -4986,14 +4986,15 @@ namelength=-1,
                     gif_marker.update()
 
                
-                with ui.dialog().props('role=dialog aria-modal=true aria-labelledby=map_gif_title') as map_gif_dialog:
-             
-                    with ui.card().style('width: 850px; max-width: 95vw; overflow: visible !important;').classes('p-6 bg-slate-900 flex flex-col items-center'):
+                with ui.dialog().props('role=dialog aria-modal="true" aria-labelledby="map_gif_title"') as map_gif_dialog:
+            
+                    
+                    with ui.card().style('width: 850px; max-width: 95vw; max-height: 90vh; overflow-y: auto;').classes('p-6 bg-slate-900 flex flex-col items-center'):
                         aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
                         
-                        ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-white')
+                    
+                        ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-white').props('id="map_gif_title" tabindex=0')
                         
-                     
                         marker_state = {'element': None}
                         
                         def move_marker_on_gif(ra, dec):
@@ -5007,15 +5008,14 @@ namelength=-1,
                             left_pos = margin_left_pct + (norm_ra * plot_width_pct)
                             margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
                             top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
-                         
+                        
                             marker_state['element'].classes(remove='hidden')
                             marker_state['element'].style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
 
-                       
+         
                         with ui.row().classes('w-full justify-center items-center mb-4 z-50 gap-4'):
                             ui.label("Select a galaxy:").classes('text-lg font-bold text-gray-200')
                             
-                         
                             local_df = full_df.dropna(subset=['ra_deg','dec_deg','z']).copy()
                             if len(local_df) > 100:
                                 local_df = local_df.sample(100, random_state=1).reset_index(drop=True)
@@ -5030,26 +5030,25 @@ namelength=-1,
                             )
                             local_df['galaxy_name'] = 'Unknown'
 
-                           
                             options = {i: str(row['specobj_id']) for i, row in local_df.iterrows()}
 
                             def on_select(e):
-                              
                                 if e.value is not None and e.value in local_df.index:
                                     i = e.value
-                                    show_galaxy_dialog(local_df, i) # 1. Apre box info
+                                    show_galaxy_dialog(local_df, i)
                                     row = local_df.loc[i]
-                                    move_marker_on_gif(row['ra_deg'], row['dec_deg']) # 2. Muove e mostra il pallino
+                                    move_marker_on_gif(row['ra_deg'], row['dec_deg'])
 
+                          
                             ui.select(
                                 options=options,
                                 label='Galaxy ID',
                                 with_input=True,
                                 on_change=on_select
-                            ).classes('w-80').props('dark aria-label="Galaxy selection dropdown"')
+                            ).classes('w-80').props('dark behavior="menu" aria-label="Galaxy selection dropdown"')
 
                        
-                        with ui.element('div').classes('w-full max-w-[800px] relative rounded-lg shadow-lg border border-gray-300'):
+                        with ui.element('div').classes('w-full max-w-[500px] relative rounded-lg shadow-lg border border-gray-300'):
                             @ui.refreshable
                             def render_map_gif():
                                 import time
@@ -5057,7 +5056,6 @@ namelength=-1,
                             
                             render_map_gif()
                             
-                          
                             marker_state['element'] = ui.element('div').classes(
                                 'absolute w-6 h-6 bg-cyan-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(0,255,255,1)] z-50 hidden'
                             ).style('transform: translate(-50%, -50%); transition: top 0.5s ease-out, left 0.5s ease-out;')
