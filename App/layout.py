@@ -655,7 +655,7 @@ You are integrated into an app with 4 specific modules. When a student asks a qu
             try:
                 response = client.models.generate_content(model='gemini-2.5-flash', contents=final_prompt)
                 answer = response.text.strip()
-            except Exception:
+            except Exception as e:
                 print(f"⚠️ Gemini 2.5 busy error ({e}), move to backup...")
                 try:
                

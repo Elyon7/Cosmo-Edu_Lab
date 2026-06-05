@@ -36,7 +36,7 @@ def create_auth_routes():
               
                 accessible_notify('Wrong Access Code. Ask your teacher.', type_='error')
                 code_input.value = "" 
-                code_input.focus()
+                code_input.run_method('focus')
 
        
         with ui.column().classes('w-full h-screen items-center justify-center bg-slate-900'):
@@ -69,12 +69,12 @@ def create_auth_routes():
             else:
                 accessible_notify('Invalid username or password', type_='warning')
                 password.value = ""
-                password.focus()
+                password.run_method('focus')
 
     
         with ui.card().classes('absolute-center').props('role=region aria-label="Login Form"'):
             ui.label(' Login').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
-            username = aria_input('Username',"Insert the username").on('keydown.enter', lambda: password.focus())
+            username = aria_input('Username',"Insert the username").on('keydown.enter', lambda: password.run_method('focus'))
             password = aria_input('Password',"Insert the password", password=True).on('keydown.enter', try_login)
             aria_button('Login', "Log in", on_click=try_login)
             
