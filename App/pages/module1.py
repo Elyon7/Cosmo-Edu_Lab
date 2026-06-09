@@ -317,9 +317,9 @@ def create_page():
             ui.tab('discovery', label='Discoveries Timeline').props('aria-label="Discoveries Timeline"')
             ui.tab('universe', label='Universe Evolution').props('aria-label="Universe Evolution"')
             ui.tab('instrument', label='Observational Methods').props('aria-label="Observational Instruments and Methods"')
-            
-            ui.tab('galaxy', label='Galaxy Map').props('aria-label="Galaxy Map"')
-            ui.tab('stars', label='Stars Map').props('aria-label="Stars Map"')
+            ui.tab('planets', label='Planets ').props('aria-label="Planets and Milky Way"')
+            ui.tab('galaxy', label='Galaxies ').props('aria-label="Galaxy Map"')
+            ui.tab('stars', label='Stars ').props('aria-label="Stars Map"')
             ui.tab('particles', label='Fundamental Particles').props('aria-label="Fundamental Particles"')
 #functions for observational methods and instruments dialog        
         def open_observational_info_dialog():
@@ -509,9 +509,9 @@ def create_page():
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             
             with container:
-                description_on_dark(
+                ui.label(
     "Discover how modern technology and sky surveys allow us to observe the deep universe and map the structure of the cosmos."
-)
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                 with ui.dialog() as instruction_d , ui.card().classes("p-4 w-full max-w-[800px]").props('role=dialog aria-label=Instructions'):
                     html_info_box(r"""
     <h2 class="text-2xl font-bold mb-4">Observational methods and instruments instructions</h2>
@@ -735,22 +735,22 @@ def create_page():
                         'Instructions', 
                         'Open Instructions Dialog', 
                         on_click=lambda: [instruction_d.open(), ui.run_javascript("MathJax.typesetPromise()")]
-                    ).classes('bg-blue-600 text-white font-bold px-6 py-2 shadow-md')
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                         'Scientific Background', 
                         'Open Scientific Background Dialog', 
                         on_click=lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-                    ).classes('bg-blue-600 text-white font-bold px-6 py-2 shadow-md')
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button('Signal-Noise Math', 'Open Math Explanation', 
                 on_click=lambda: [math_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-            ).classes('bg-blue-600 text-white font-bold px-6 py-2 shadow-md')
+            ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                         "Methods & Instruments", 
                         "Open Theory Dialog", 
                         on_click=open_observational_info_dialog
-                    ).classes('bg-blue-600 text-white font-bold px-6 py-2 shadow-md')
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button('Bibliography', 'Open Bibliography', on_click=lambda:[biblio_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-                    ).classes('bg-slate-600 text-white font-bold px-6 py-2 shadow-md')
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
 
                
                 with ui.row().classes('w-full items-center justify-center gap-5'):
@@ -919,72 +919,72 @@ def create_page():
 #panel structures of universe                  
         IMAGES_MACRO = [
             {'file': 'images/spiral_galaxy.jpg', 'title': 'Spiral Galaxy',
-            'description': 'A spiral galaxy rich in gas, dust, and billions of stars (Messier 77) [NASA](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-77/).', 'size': 9.5e17},
+            'description': 'A spiral galaxy rich in gas, dust, and billions of stars. Image of Messier 77,Source: [NASA](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-77/).', 'size': 9.5e17},
 
             {'file': 'images/elliptical_galaxy.jpg', 'title': 'Elliptical Galaxy',
-            'description': 'A smooth, featureless galaxy composed mostly of old stars (Messier 32) [UniverseToday](https://www.universetoday.com/articles/messier-32).', 'size': 3e17},
+            'description': 'A smooth, featureless galaxy composed mostly of old stars. Image of Messier 32,Source: [UniverseToday](https://www.universetoday.com/articles/messier-32).', 'size': 3e17},
 
             {'file': 'images/irregular_galaxy.jpg', 'title': 'Irregular Galaxy',
-            'description': 'A chaotic galaxy without a defined structure (NGC 55) [ESO](https://www.eso.org/public/italy/images/eso0914a/).', 'size': 6e17},
+            'description': 'A chaotic galaxy without a defined structure. Image of NGC 55,Source: [ESO](https://www.eso.org/public/italy/images/eso0914a/).', 'size': 6e17},
             {'file': 'images/lenticular_galaxy.jpg', 'title': 'Lenticular Galaxy',
-            'description': 'A galaxy with a central bulge and disk but no spiral arms (NGC 6861) [SciNews](https://www.sci.news/astronomy/science-hubble-space-telescope-lenticular-galaxy-ngc6861-02416.html).', 'size': 5e17},
+            'description': 'A galaxy with a central bulge and disk but no spiral arms. Image of NGC 6861,Source: [SciNews](https://www.sci.news/astronomy/science-hubble-space-telescope-lenticular-galaxy-ngc6861-02416.html).', 'size': 5e17},
 
             {'file': 'images/nebula_emission.jpg', 'title': 'Emission Nebula',
-            'description': 'Clouds of ionized gas glowing due to nearby young stars (N44) [Wikipedia-ESA](https://en.wikipedia.org/wiki/N44_%28emission_nebula%29).', 'size': 9e16},
+            'description': 'Clouds of ionized gas glowing due to nearby young stars. Image of N44,Source: [Wikipedia-ESA](https://en.wikipedia.org/wiki/N44_%28emission_nebula%29).', 'size': 9e16},
 
             {'file': 'images/nebula_dark.jpg', 'title': 'Dark Nebula',
-            'description': 'Dense, cold clouds of dust blocking background starlight (Bernard 3) [AstroCarballada](https://astro.carballada.com/barnard_3/).', 'size': 3e16},
+            'description': 'Dense, cold clouds of dust blocking background starlight. Image of Bernard 3,Source: [AstroCarballada](https://astro.carballada.com/barnard_3/).', 'size': 3e16},
 
             {'file': 'images/protoplanetary_disk.jpg', 'title': 'Protoplanetary Disk',
-            'description': 'A disk of gas and dust where new planets are forming (HL Tauri) [Wikipedia-ALMA](https://en.wikipedia.org/wiki/Protoplanetary_disk).', 'size': 3e12},
+            'description': 'A disk of gas and dust where new planets are forming. Image of HL Tauri,Source: [Wikipedia-ALMA](https://en.wikipedia.org/wiki/Protoplanetary_disk).', 'size': 3e12},
 
             {'file': 'images/star.jpg', 'title': 'Main Sequence Star',
-            'description': 'A stable star fusing hydrogen into helium in its core (Sun) [BBC](https://www.skyatnightmagazine.com/space-science/main-sequence-stars).', 'size': 1.39e6},
+            'description': 'A stable star fusing hydrogen into helium in its core. Image of the Sun,Source: [BBC](https://www.skyatnightmagazine.com/space-science/main-sequence-stars).', 'size': 1.39e6},
 
             {'file': 'images/red_giant.jpg', 'title': 'Red Giant',
-            'description': 'A dying star that has swollen to enormous size (CW Leonin) [SciNews](https://www.sci.news/astronomy/hubble-cw-leonis-10219.html).', 'size': 1e8},
+            'description': 'A dying star that has swollen to enormous size. Image of CW Leonis,Source: [SciNews](https://www.sci.news/astronomy/hubble-cw-leonis-10219.html).', 'size': 1e8},
 
             {'file': 'images/supernova.jpg', 'title': 'Supernova Explosion',
-            'description': 'A catastrophic stellar explosion releasing heavy elements (Cassiopea A) [NASA-JLP-Caltech](https://www.schoolsobservatory.org/discover/projects/supernovae/examples).', 'size': 1e17},
+            'description': 'A catastrophic stellar explosion releasing heavy elements. Image of Cassiopea A,Source: [NASA-JLP-Caltech](https://www.schoolsobservatory.org/discover/projects/supernovae/examples).', 'size': 1e17},
 
             {'file': 'images/black_hole.jpg', 'title': 'Black Hole',
-            'description': 'A region where gravity is so strong that nothing can escape (Messier 87) [Wikipedia](https://en.wikipedia.org/wiki/Black_hole).', 'size': 3e10},
+            'description': 'A region where gravity is so strong that nothing can escape. Image of Messier 87,Source: [Wikipedia](https://en.wikipedia.org/wiki/Black_hole).', 'size': 3e10},
 
             {'file': 'images/quasar.jpg', 'title': 'Quasar',
-            'description': 'An extremely luminous active galactic nucleus powered by a supermassive black hole (J0749 2255) [NASA](https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-quasars/).', 'size': 1e14},
+            'description': 'An extremely luminous active galactic nucleus powered by a supermassive black hole. Image of J0749 2255,Source: [NASA](https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-quasars/).', 'size': 1e14},
 
             {'file': 'images/exoplanet.jpg', 'title': 'Exoplanet',
-            'description': 'A planet orbiting a star outside our solar system (2M1207b) [NASA](https://science.nasa.gov/resource/2m1207-b-first-image-of-an-exoplanet/).', 'size': 1e5},
+            'description': 'A planet orbiting a star outside our solar system. Image of 2M1207b,Source: [NASA](https://science.nasa.gov/resource/2m1207-b-first-image-of-an-exoplanet/).', 'size': 1e5},
 
             {'file': 'images/planet.jpg', 'title': 'Planet',
-            'description': 'A world orbiting a star, possibly with an atmosphere and moons (Jupiter) [ESA](https://www.esa.int/Science_Exploration/Space_Science/Juice/Hello_Jupiter!_How_to_observe_a_gas_giant).', 'size': 1.4e5},
+            'description': 'A world orbiting a star, possibly with an atmosphere and moons. Image of Jupiter,Source: [ESA](https://www.esa.int/Science_Exploration/Space_Science/Juice/Hello_Jupiter!_How_to_observe_a_gas_giant).', 'size': 1.4e5},
 
             {'file': 'images/moon.jpeg', 'title': 'Moon',
-            'description': 'A natural satellite orbiting a planet (Moon) [NASA](https://science.nasa.gov/moon/viewing-guide/).', 'size': 3474},
+            'description': 'A natural satellite orbiting a planet. Image of the Moon,Source: [NASA](https://science.nasa.gov/moon/viewing-guide/).', 'size': 3474},
 
             {'file': 'images/comet.jpg', 'title': 'Comet',
-            'description': 'Ice-rich bodies that form glowing tails when near a star (Halley) [Wikipedia](https://en.wikipedia.org/wiki/Halley%27s_Comet).', 'size': 20},
+            'description': 'Ice-rich bodies that form glowing tails when near a star. Image of Halley,Source: [Wikipedia](https://en.wikipedia.org/wiki/Halley%27s_Comet).', 'size': 20},
 
             {'file': 'images/asteroid.jpg', 'title': 'Asteroid',
-            'description': 'A small rocky body left over from the formation of the solar system (Psyche) [NASA](https://science.nasa.gov/solar-system/asteroids/16-psyche/).', 'size': 226},
+            'description': 'A small rocky body left over from the formation of the solar system. Image of Psyche,Source: [NASA](https://science.nasa.gov/solar-system/asteroids/16-psyche/).', 'size': 226},
 
             {'file': 'images/meteor.jpg', 'title': 'Meteor',
-            'description': 'A piece of debris burning in a planet’s atmosphere. [BBC](https://www.skyatnightmagazine.com/astrophotography/observe-photograph-meteor-train)', 'size': 0.01},
+            'description': 'A piece of debris burning in a planet’s atmosphere. Image of a typical meteor,Source: [BBC](https://www.skyatnightmagazine.com/astrophotography/observe-photograph-meteor-train)', 'size': 0.01},
 
             {'file': 'images/globular_cluster.jpg', 'title': 'Globular Cluster',
-            'description': 'A dense spherical group of very old stars (NGC 2298) [NASA](https://science.nasa.gov/image-detail/hubble-ngc2298-acs-wfc3-v3-5fcont-final/).', 'size': 3e15},
+            'description': 'A dense spherical group of very old stars. Image of NGC 2298,Source:[NASA](https://science.nasa.gov/image-detail/hubble-ngc2298-acs-wfc3-v3-5fcont-final/).', 'size': 3e15},
 
             {'file': 'images/galaxy_cluster.jpg', 'title': 'Galaxy Cluster',
-            'description': 'A massive structure containing hundreds or thousands of galaxies (Abell 370) [NASA-ESA-Harvard](https://www.cfa.harvard.edu/research/topic/galaxy-clusters).', 'size': 3e22},
+            'description': 'A massive structure containing hundreds or thousands of galaxies. Image of Abell 370,Source: [NASA-ESA-Harvard](https://www.cfa.harvard.edu/research/topic/galaxy-clusters).', 'size': 3e22},
             {'file': 'images/galaxy_group.jpg', 'title': 'Galaxy Group',
-            'description': 'A small collection of galaxies bound by gravity (Local Group) [BBC](https://www.skyatnightmagazine.com/space-science/local-group-guide-galaxy-neighbourhood).', 'size': 3e19},
+            'description': 'A small collection of galaxies bound by gravity. Image of the Local Group,Source: [BBC](https://www.skyatnightmagazine.com/space-science/local-group-guide-galaxy-neighbourhood).', 'size': 3e19},
 
             {'file': 'images/filaments.jpg', 'title': 'Cosmic Filament (Simulation)',
-            'description': 'One of the largest structures in the universe, forming the cosmic web [SciTech](https://scitechdaily.com/first-direct-image-of-the-cosmic-web-reveals-the-universes-hidden-highways/).', 'size': 3e23},
+            'description': 'One of the largest structures in the universe, forming the cosmic web. Simulation of a cosmic filament,Source: [SciTech](https://scitechdaily.com/first-direct-image-of-the-cosmic-web-reveals-the-universes-hidden-highways/).', 'size': 3e23},
             {'file': 'images/voids.jpg', 'title': 'Cosmic Void (Simulation)',
-            'description': 'Vast, empty regions of space with very few galaxies [LiveScience](https://www.livescience.com/65928-stare-into-the-fuzzy-dark-void.html).', 'size': 3e24},
+            'description': 'Vast, empty regions of space with very few galaxies. Simulation of a cosmic void,Source: [LiveScience](https://www.livescience.com/65928-stare-into-the-fuzzy-dark-void.html).', 'size': 3e24},
             {'file': 'images/cosmic_web.jpg', 'title': 'Cosmic Web (Simulation)',
-            'description': 'The large-scale structure of the universe, composed of filaments and voids [UniverseToday](https://www.universetoday.com/articles/astronomy-without-a-telescope-the-edge-of-greatness).', 'size': 1e25}
+            'description': 'The large-scale structure of the universe, composed of filaments and voids. Simulation of the cosmic web,Source: [UniverseToday](https://www.universetoday.com/articles/astronomy-without-a-telescope-the-edge-of-greatness).', 'size': 1e25}
         ]
         def markdown_to_html(md_text):
             import re
@@ -1013,11 +1013,11 @@ def create_page():
 
         def introduction_page(container):
             ui.run_javascript('window.gameRunning = false; window.gameScore = 0;')
-            timer_state = {'time': 0, 'running': False}
+            timer_state = {'time': 0, 'running': False, 'started': False}
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
 
-                description_on_dark("Embark on a journey through time and space to understand the scales and fundamental structures of the universe.")
+                ui.label("Embark on a journey through time and space to understand the scales and fundamental structures of the universe.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                 
                
                 with ui.dialog() as units_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Cosmic Distance Scales"'):
@@ -1280,62 +1280,86 @@ def create_page():
                         on_click=lambda: (units_dialog.open(), update_math())
                     ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                    
-                    
-                   
-                    time_label = ui.label('Time: 0s').classes('text-xl font-bold w-28 text-center text-blue-700 bg-white rounded p-1 border border-blue-200')
-                    ui.html('<div id="score_display" class="text-xl font-bold w-32 text-center text-blue-700 bg-white rounded p-1 border border-blue-200">Score: 0</div>')
-
-                   
-                    def update_timer():
-                        if timer_state['running']:
-                            timer_state['time'] += 1
-                            time_label.set_text(f"Time: {timer_state['time']}s")
-                            
-                    ui.timer(1.0, update_timer)
-
-                    def start_game():
-                        timer_state['time'] = 0
-                        timer_state['running'] = True
-                        time_label.set_text("Time: 0s")
-                        ui.run_javascript("window.gameRunning = true; window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
-
-                    def stop_game():
-                        timer_state['running'] = False
-                        ui.run_javascript("window.gameRunning = false;")
-
-                    
-                    aria_button("Start", "start game", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Stop", "stop game", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded")
-
-                    
-                    aria_button("Reset", "reset", on_click=lambda: (
-                        render_drop_column.refresh(),
-                        ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
-                        ui.timer(0.2, update_math, once=True),
-                        stop_game(),
-                        (timer_state.update({'time': 0}) or time_label.set_text('Time: 0s')),
-                        ui.run_javascript("window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
-                    )).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
-                ' Simulators ', 
+                ' External Resources', 
                 "Open external resources list",
                 on_click=external_resources_dialog.open
             ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(
+                        '♿ Accessibility Mode', 
+                        'Jump to accessibility exercise',
+                        on_click=lambda: (
+                            acc_structures.open(), 
+                            ui.run_javascript("setTimeout(() => document.getElementById('acc_structures').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);")
+                        )
+                    ).classes("!bg-red-600 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded shadow-md")
+                  
+                   
+                 
                 
 
-                with ui.row().classes("w-full items-center justify-center gap-6"):
+             
+                with ui.column().classes('w-full p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
+                    ui.label("🎮 AstroScales: Cosmic Structures").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
+                    
+                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
+                        time_label = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
+                        ui.html('<div id="score_display" class="text-xl font-bold w-32 text-center text-green-400">Score: 0</div>')
 
-
-                    with ui.column().classes("flex-[3]"):
-    
-                        with ui.grid(columns=6).classes('gap-4 p-4'):
-                            for obj in IMAGES_MACRO:
-                                create_interactive_tile(obj['file'], obj['title'], obj['description'], obj['size'])
+                        def update_timer():
+                            if timer_state['running']:
+                                timer_state['time'] += 1
+                                time_label.set_text(f"Time: {timer_state['time']}s")
                                 
-                    render_drop_column()
+                        ui.timer(1.0, update_timer)
 
-                    with ui.expansion('Accessibility Mode: Structures Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg').props('aria-label="Keyboard accessible alternative for structures classification"'):
+                        def start_game():
+                            timer_state['time'] = 0
+                            timer_state['running'] = True
+                            timer_state['started'] = True
+                            time_label.set_text("Time: 0s")
+                            ui.run_javascript("window.gameRunning = true; window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
+                            render_astroscales_board.refresh()
+
+                        def stop_game():
+                            timer_state['running'] = False
+                            ui.run_javascript("window.gameRunning = false;")
+                            
+                        with ui.row().classes('gap-4'):
+                            aria_button("Start", "start game", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105 animate-pulse")
+                            aria_button("Stop", "stop game", on_click=stop_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+                            aria_button("Reset", "reset", on_click=lambda: (
+                                timer_state.update({'time': 0, 'started': False}),
+                                stop_game(),
+                                time_label.set_text('Time: 0s'),
+                                ui.run_javascript("window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';"),
+                                ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
+                                render_astroscales_board.refresh(),
+                                render_drop_column.refresh(),
+                                ui.timer(0.2, update_math, once=True)
+                            )).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+
+                    @ui.refreshable
+                    def render_astroscales_board():
+                        if not timer_state.get('started', False):
+                            ui.label("Press Start to reveal the cosmic structures!").classes("text-slate-400 italic text-center text-2xl w-full py-12")
+                            return
+
+                        with ui.row().classes("w-full items-start justify-center gap-6"):
+                            with ui.column().classes("flex-[3]"):
+                                with ui.grid(columns=6).classes('gap-4 p-4'):
+                                    for obj in IMAGES_MACRO:
+                                        create_interactive_tile(obj['file'], obj['title'], obj['description'], obj['size'])
+                            render_drop_column()
+                    
+                    render_astroscales_board()
+                    
+                 
+
+                    acc_structures = ui.expansion('Accessibility Mode: Structures Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg').props('id="acc_structures" aria-label="Keyboard accessible alternative for structures classification"')
+                    with acc_structures:
                         ui.label('Classify the objects by selecting their correct cosmic scale based on their description.').classes('mb-4 text-lg font-bold text-blue-200').props('tabindex=0')
+                        
                         
                        
                         scale_options = [r[4] for r in ranges_data]
@@ -2247,11 +2271,11 @@ def create_page():
 
 
         def particle_page(container):
+            timer_state = {'time': 0, 'running': False, 'started': False}
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
-                description_on_dark(
-    "Dive into the subatomic world to identify the fundamental particles and physical forces that weave the composition of the universe ."
-)
+                ui.label(
+    "Dive into the subatomic world to identify the fundamental particles and physical forces that weave the composition of the universe.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                 with ui.dialog() as instru , ui.card().classes("p-4 w-full max-w-[800px]").props('role=dialog aria-label=Instructions'):
                     html_info_box(r"""
 <div style="font-family: sans-serif; line-height: 1.6;">
@@ -2391,25 +2415,42 @@ def create_page():
                 
              
                 with ui.dialog() as diag_leptons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Leptons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_leptons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button("X", "close", on_click=diag_leptons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=600, width=800)
 
                 with ui.dialog() as diag_quarks, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Quarks and their interactions"'):
-                    aria_button("X", "close", on_click=diag_quarks.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button("X", "close", on_click=diag_quarks.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=600, width=800)
 
                 with ui.dialog() as diag_bosons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Bosons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_bosons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button("X", "close", on_click=diag_bosons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=600, width=800)
 
                 with ui.dialog() as diag_hadrons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Hadrons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_hadrons.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button("X", "close", on_click=diag_hadrons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                     plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=600, width=800)
 
                 with ui.row().classes('w-full justify-center gap-2'):
                     aria_button("Instructions", "Open instructions", on_click=lambda:instru.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button("Particles Info ", "Open particle guide", on_click=lambda:[ info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     create_mass_conversion_dialog()
+                    aria_button(
+                        'Supplementary Materials', 
+                        'Open Introductory Slides: Particles',
+                        on_click=open_particles
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    
+                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_part.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button(
+                        '♿ Accessibility Mode', 
+                        'Jump to accessibility exercise',
+                        on_click=lambda: (
+                            acc_particles.open(), 
+                            ui.run_javascript("setTimeout(() => document.getElementById('acc_particles').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);")
+                        )
+                    ).classes("!bg-red-600 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded shadow-md")
+                    
+                with ui.row().classes('w-full justify-center gap-2'):
                     aria_button(" Leptons", "Open Leptons", on_click=diag_leptons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     aria_button(" Quarks", "Open Quarks", on_click=diag_quarks.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     aria_button(" Bosons", "Open Bosons", on_click=diag_bosons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
@@ -2419,14 +2460,7 @@ def create_page():
                     
                     aria_button("Mass Particle plot","Mass Particle plot",on_click=lambda: mass.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     
-                    aria_button(
-                        'Particles Intro', 
-                        'Open Introductory Slides: Particles',
-                        on_click=open_particles
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     
-                    aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_part.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-
                 ui.run_javascript('window.particleGameRunning = false; window.particleScore = 0;')
                 timer_state = {'time': 0, 'running': False}
 
@@ -2462,12 +2496,11 @@ def create_page():
                
                 random.shuffle(pool_items)
 
-                with ui.card().classes('w-full max-w-[1200px] p-6 bg-slate-800 rounded-xl shadow-2xl border border-slate-600 mx-auto'):
-                    ui.label('Particle Classification Challenge').classes('text-2xl font-bold text-center text-white w-full mb-4 uppercase tracking-widest drop-shadow-md').props('role=heading aria-level=2 tabindex=0')
+                with ui.column().classes('w-full p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
+                    ui.label("🎮 AstroParticles: Challenge").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
 
-             
-                    with ui.row().classes('w-full justify-center gap-6 items-center mb-6 bg-slate-700 p-3 rounded-lg border border-slate-500'):
-                        time_label = ui.label('Time: 0s').classes('text-xl font-bold w-28 text-center text-blue-300')
+                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
+                        time_label = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
                         ui.html('<div id="particle_score" class="text-xl font-bold w-32 text-center text-green-400">Score: 0</div>')
 
                         def update_timer():
@@ -2479,29 +2512,33 @@ def create_page():
                         def start_game():
                             timer_state['time'] = 0
                             timer_state['running'] = True
+                            timer_state['started'] = True
                             time_label.set_text("Time: 0s")
                             ui.run_javascript("window.particleGameRunning = true; window.particleScore = 0; document.getElementById('particle_score').innerText = 'Score: 0';")
+                            render_game.refresh()
 
                         def stop_game():
                             timer_state['running'] = False
                             ui.run_javascript("window.particleGameRunning = false;")
 
-                        aria_button("Start", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                        aria_button("Stop", "stop", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded")
-                        aria_button("Reset", "reset", on_click=lambda: (
-                            stop_game(),
-                            timer_state.update({'time': 0}),
-                            time_label.set_text("Time: 0s"),
-                            ui.run_javascript("window.particleScore = 0; document.getElementById('particle_score').innerText = 'Score: 0';"),
-                            render_game.refresh()
-                        )).classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
+                        with ui.row().classes('gap-4'):
+                            aria_button("Start", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105 animate-pulse")
+                            aria_button("Stop", "stop", on_click=stop_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+                            aria_button("Reset", "reset", on_click=lambda: (
+                                stop_game(),
+                                timer_state.update({'time': 0, 'started': False}),
+                                time_label.set_text("Time: 0s"),
+                                ui.run_javascript("window.particleScore = 0; document.getElementById('particle_score').innerText = 'Score: 0';"),
+                                render_game.refresh()
+                            )).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
 
-                
                     @ui.refreshable
                     def render_game():
+                        if not timer_state.get('started', False):
+                            ui.label("Press Start to reveal the quantum realm!").classes("text-slate-400 italic text-center text-2xl w-full py-12")
+                            return
+
                         with ui.row().classes('w-full items-start justify-between gap-6 flex-wrap md:flex-nowrap'):
-                            
-                        
                             with ui.column().classes('w-full md:w-1/3 min-h-[500px] bg-slate-900 rounded-lg p-4 border border-slate-600 shadow-inner'):
                                 ui.label('Particle Pool').classes('text-lg font-bold text-gray-300 mb-2 text-center w-full border-b border-slate-600 pb-2')
                                 with ui.row().classes('w-full flex-wrap gap-3 justify-center mt-2'):
@@ -2509,24 +2546,16 @@ def create_page():
                                         ball = ui.label(item['symbol']).classes(
                                             'w-10 h-10 rounded-full flex items-center justify-center font-bold text-black shadow-md cursor-grab active:cursor-grabbing hover:scale-110 transition-transform'
                                         ).style(f"background-color: {item['color']};")
-                                        
                                         ball.props('draggable="true"')
                                         ball.props(f'id="{item["uid"]}"')
-                                        
-                                        
                                         target_str = ",".join(item['targets']) 
-                                        
                                         ball.props(f'ondragstart="event.dataTransfer.setData(\'application/json\', JSON.stringify({{uid:\'{item["uid"]}\', symbol:\'{item["symbol"]}\', color:\'{item["color"]}\', targets:\'{target_str}\'}}))"')
 
-                            
                             with ui.column().classes('w-full md:w-2/3 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4'):
                                 for box_name in CATEGORIES:
                                     with ui.card().classes('bg-slate-700 border-2 border-dashed border-slate-400 rounded-lg p-2 min-h-[140px] flex flex-col items-center shadow-lg'):
                                         ui.label(box_name).classes('text-sm font-bold text-white mb-2 uppercase tracking-wide border-b border-slate-500 w-full text-center pb-1')
-                                        
                                         drop_zone = ui.row().classes('w-full h-full flex-wrap gap-1 justify-center items-start content-start min-h-[100px]')
-
-                                        
                                         js_logic = (
                                             f'ondragover="event.preventDefault();" '
                                             f'ondrop="event.preventDefault(); '
@@ -2555,9 +2584,9 @@ def create_page():
                                         )
                                         drop_zone.props(js_logic)
 
-                   
                     render_game()
-                    with ui.expansion('Accessibility Mode: Particle Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg border border-slate-600').props('aria-label="Keyboard accessible alternative for particle classification"'):
+                    acc_particles = ui.expansion('Accessibility Mode: Particle Classification', icon='accessible').classes('w-full mt-8 bg-slate-800 text-white rounded-lg border border-slate-600').props('id="acc_particles" aria-label="Keyboard accessible alternative for particle classification"')
+                    with acc_particles:
                         ui.label('Classify each particle by selecting one of its correct categories.').classes('mb-4 text-lg font-bold text-blue-200').props('tabindex=0')
                         
                         user_choices = {}
@@ -2596,7 +2625,7 @@ def create_page():
                             tot_items = len(GAME_PARTICLES)
                             
                             if score == tot_items:
-                                accessible_notify(f"✅ Quantum Mastery Achieved! Score: {score}/{tot_items}", type_='success')
+                                accessible_notify(f"✅  Mastery Achieved! Score: {score}/{tot_items}", type_='success')
                             elif score > 0 and errors == 0:
                                 accessible_notify(f"Good progress! Correct: {score}. Keep going.", type_='info')
                             elif errors > 0:
@@ -2853,7 +2882,7 @@ def create_page():
             q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
             
             with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-slate-50').props('role=dialog aria-modal=true aria-labelledby=quiz_title'):
-                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
+                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded z-50')
                 
                 ui.label('History of Astronomy Quiz').classes('text-2xl font-bold text-blue-600 mb-4 text-center').props('role=heading aria-level=2 tabindex=0')
                 
@@ -2955,20 +2984,22 @@ def create_page():
                     aria_button("Close", "close the box",on_click=lambda:introd.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 with ui.row().classes('w-full gap-1 mb-4 items-center justify-center'):
                     
-                  
+                    ui.label(
+    "Trace the evolution of human discoveries of the cosmos, from ancient observations to the breakthroughs of modern astrophysics."
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+                with ui.row().classes('w-full gap-1 mb-4 items-center justify-center'):
                     aria_button("Instructions", "Open introduction", on_click=lambda:introd.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button("Start Quiz", "Start interactive quiz", on_click=start_history_quiz).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-lg animate-pulse")
-                    description_on_dark(
-    "Trace the evolution of human discoveries of the cosmos, from ancient observations to the breakthroughs of modern astrophysics."
-)
+                    
                 def load_era(era_name):
+                    
                     selected_events = DISCOVERY_EVENTS[era_name]
                     
                  
                     with ui.dialog() as timeline_dialog, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-slate-50 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-labelledby=timeline_title'):
                         
                         
-                        aria_button('X', 'Close timeline', on_click=timeline_dialog.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
+                        aria_button('X', 'Close timeline', on_click=timeline_dialog.close).classes("absolute top-4 right-4 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded z-50")
                         
                         ui.label(f"Era: {era_name}").classes('text-2xl font-bold text-blue-600 mb-4')
                         
@@ -3156,7 +3187,7 @@ def create_page():
             q_state = {'idx': 0, 'score': 0, 'time': 0, 'correct': False}
             
             with ui.dialog() as q_dialog, ui.card().style('width: 600px; max-width: 95vw;').classes('p-6 items-center bg-gray-900 border border-gray-700').props('role=dialog aria-modal=true aria-labelledby=quiz_title'):
-                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50')
+                aria_button('X', 'close', on_click=q_dialog.close).classes('absolute top-2 right-2 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded z-50')
                 
                 ui.label('Cosmological Epochs Quiz').classes('text-2xl font-bold text-green-400 mb-4 text-center drop-shadow-md').props('role=heading aria-level=2 tabindex=0')
                 
@@ -3275,14 +3306,15 @@ def create_page():
 """)
                     aria_button("Close", "close the box",on_click=lambda:introc.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-                with ui.row().classes('w-full items-center justify-center flex-nowrap '):
+                with ui.row().classes('w-full items-center justify-center '):
+                    ui.label(
+    "Explore the chronology of the Universe from the Big Bang to the present day, witnessing the major epochs of cosmic evolution."
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+              
+                with ui.row().classes('w-full gap-1 mb-4 items-center justify-center'):
                     aria_button("Instructions", "Open introduction", on_click=lambda:introc.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button("Start Quiz", "Start interactive quiz", on_click=start_cosmic_quiz).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg animate-pulse")
-                    description_on_dark(
-    "Explore the chronology of the Universe from the Big Bang to the present day, witnessing the major epochs of cosmic evolution."
-)
-              
-                
+                    
                         
              
                         
@@ -3296,7 +3328,7 @@ def create_page():
                     with ui.dialog() as timeline_dialog2, ui.card().style('width: fit-content; max-width: 98vw;').classes('p-6 flex flex-col items-center bg-gray-900 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-labelledby=timeline_title'):
                         
                      
-                        aria_button('X', 'Close timeline', on_click=timeline_dialog2.close).classes("absolute top-4 right-4 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded z-50")
+                        aria_button('X', 'Close timeline', on_click=timeline_dialog2.close).classes("absolute top-4 right-4 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded z-50")
                         
                         ui.label(f"Phase: {era_name}").classes('text-2xl font-bold text-blue-400 mb-4 animate-pulse')
                         
@@ -3866,10 +3898,9 @@ namelength=-1,
         
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
             with container:
-                description_on_dark(
+                ui.label(
     "Analyze the life cycle of stars using the Hertzsprung-Russell diagram to understand stellar evolution and classification."
-)
-              
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                
                 with ui.dialog() as hr_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=hr_title'):
                     html_info_box(r"""
@@ -4047,12 +4078,12 @@ namelength=-1,
 
                     plot.on('plotly_click', lambda e: show_star_dialog(df, e.args['points'][0]['pointIndex']))
                 with ui.dialog() as evolution_graph_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_graph_title'):
-                    aria_button('X', 'Close', on_click=evolution_graph_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button('X', 'Close', on_click=evolution_graph_dialog.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                     plot_star_graph(title="Life Cycle of a Star", nodes=stellar_nodes, edges=stellar_edges, height=600, width=800)
 
              
                 with ui.dialog() as evolution_gif_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_gif_title'):
-                    aria_button('X', 'Close', on_click=evolution_gif_dialog.close).classes('absolute top-4 right-4 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded')
+                    aria_button('X', 'Close', on_click=evolution_gif_dialog.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
                    
 
                     @ui.refreshable
@@ -4074,7 +4105,7 @@ namelength=-1,
                 with ui.row().classes('w-full justify-center items-center gap-4'):
                     aria_button('Instructions','Introduction to the stars activity', on_click=lambda:[introd.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button('Info H-R stars','Information about H-R diagram stars', on_click=lambda:[hr_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Dataset','Datasets info and references', on_click=lambda:[data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button('Dataset Info','Datasets info and references', on_click=lambda:[data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(" Evolution Graph", "Open Graph", on_click=evolution_graph_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(" H-R Animation", "Open GIF", on_click=open_animated_gif).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-md")
                     aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
@@ -4084,13 +4115,18 @@ namelength=-1,
                 node_names = {n['id']: n['label'] for n in stellar_nodes}
 
               
-                with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
-                    ui.label("Stellar Roleplay: You Are a Star!").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
+                with ui.column().classes('w-full p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
+                    ui.label("🎮 AstroStars: Roleplay").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
                     
-                  
-                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner'):
-                        lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold')
-                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold').props('aria-live=polite')
+                    with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
+                        lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
+                        lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold w-32 text-center').props('aria-live=polite')
+                        
+                        def game_tick():
+                            if game_state['running']:
+                                game_state['time'] += 1
+                                lbl_time.set_text(f"Time: {game_state['time']}s")
+                        ui.timer(1.0, game_tick)
                         
                     def game_tick():
                         if game_state['running']:
@@ -4100,11 +4136,9 @@ namelength=-1,
                     
                     def start_game():
                         import random
-                      
                         game_state['running'] = True
                         game_state['time'] = 0
                         game_state['score'] = 0
-                      
                         game_state['step'] = 1 
                         lbl_time.set_text("Time: 0s")
                         lbl_score.set_text("Score: 0")
@@ -4122,14 +4156,25 @@ namelength=-1,
                         render_game_ui.refresh()
 
                     def stop_game():
+                          
+                            game_state['running'] = False
+
+                    def reset_game():
+              
                         game_state['running'] = False
+                        game_state['time'] = 0
+                        game_state['score'] = 0
+                        game_state['step'] = 0
+                        game_state['path'] = []
+                        lbl_time.set_text("Time: 0s")
+                        lbl_score.set_text("Score: 0")
                         render_game_ui.refresh()
 
-                    with ui.row().classes('gap-6 mb-8'):
-                        aria_button("Start Evolution", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg animate-pulse")
-                        aria_button("Stop", "stop", on_click=stop_game).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg")
-
-                  
+                    with ui.row().classes('gap-4'):
+                        aria_button("Start ", "start", on_click=start_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105 animate-pulse")
+                        aria_button("Stop", "stop", on_click=stop_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+                        aria_button("Reset", "reset", on_click=reset_game).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+                
                     @ui.refreshable
                     def render_game_ui():
                         import random
@@ -4190,8 +4235,212 @@ namelength=-1,
 
 
             
+#panel planets
+        def planets_page(container):
+            container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
+            with container:
+                ui.label(
+                    "Explore our cosmic neighborhood, from the planets of our Solar System to the vast spiral arms of the Milky Way."
+                ).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
 
+           
+                
+                with ui.dialog() as instru, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    html_info_box(r"""
+                    <h3>How to play AstroLocation</h3>
+                    <p>Your mission is to find the exact location of our Solar System within the Milky Way!</p>
+                    <ul>
+                        <li>Click directly on the interactive map of the galaxy.</li>
+                        <li>A marker will appear where you click, and the system will tell you if you are too close to the center, too far, or in the right orbit but the wrong spiral arm.</li>
+                        <li>Read the <b>Info</b> section to find the mathematical clues (distance in kpc) needed to solve the puzzle.</li>
+                    </ul>
+                    """)
+                    aria_button("Close", "close", on_click=instru.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
 
+                with ui.dialog() as info_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    html_info_box(r"""
+                    <h3>The Milky Way Context</h3>
+                    <p>The Milky Way is a barred spiral galaxy. Its mass is approx. <b>1.5 trillion solar masses (M☉)</b>.</p>
+                    <p>By analyzing rotation data, astronomers determined the Sun's orbital velocity is approx. <b>220-250 km/s</b>.</p>
+                    <p>Using the keplerian law, we relate velocity (<i>v</i>) to distance (<i>r</i>):</p>
+                    <div class="my-2 py-2 bg-gray-100 text-center rounded">
+                        $$ v = \sqrt{\frac{G \cdot M}{r}} $$
+                    </div>
+                    <p>According to this relation, the velocity corresponds to a distance of roughly <b>8.2 kpc</b> from the center.</p>
+                    <p>Why 8.2 kpc? The Sun is located in the <b>Orion Arm</b>, a minor spiral arm between the Sagittarius and Perseus arms.</p>
+                    """)
+                    aria_button("Close", "close", on_click=info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+                with ui.dialog() as solar_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    html_info_box(r"""
+                    <h3>Our Solar System</h3>
+                    <p>Our planetary system is located in an outer spiral arm of the Milky Way. It consists of our star, the Sun, and everything bound to it by gravity.</p>
+                    <ul>
+                        <li><b>Inner Terrestrial Planets:</b> Mercury, Venus, Earth, and Mars. These are relatively small, dense, and rocky.</li>
+                        <li><b>Outer Gas/Ice Giants:</b> Jupiter, Saturn, Uranus, and Neptune. Massive planets composed mostly of hydrogen, helium, water, ammonia, and methane.</li>
+                        <li><b>Asteroid Belt & Kuiper Belt:</b> Regions filled with millions of rocky and icy remnants from the system's formation, including dwarf planets like Pluto.</li>
+                    </ul>
+                    """)
+                    aria_button("Close", "close", on_click=solar_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+                with ui.dialog() as exo_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    html_info_box(r"""
+                    <h3>Exoplanets</h3>
+                    <p>An exoplanet is any planet beyond our solar system. Most orbit other stars, but free-floating "rogue planets" orbit the galactic center directly.</p>
+                    <ul>
+                        <li><b>Detection Methods:</b> We usually find them via the <i>Transit Method</i> (a tiny dip in starlight as the planet passes in front) or the <i>Radial Velocity Method</i> (the star "wobbling" due to the planet's gravity).</li>
+                        <li><b>Habitable Zone:</b> Also known as the "Goldilocks Zone", it's the distance from a star where conditions might be just right (not too hot, not too cold) for liquid water to exist on the surface.</li>
+                    </ul>
+                    """)
+                    aria_button("Close", "close", on_click=exo_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+                with ui.dialog() as milky_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
+                    html_info_box(r"""
+                    <h3>The Milky Way Galaxy</h3>
+                    <p>The Milky Way is our home galaxy, a vast rotating disk of stars, gas, and dust.</p>
+                    <ul>
+                        <li><b>Structure:</b> It is a "barred spiral galaxy", meaning it has a central bar-shaped structure composed of stars, with multiple spiral arms extending outward.</li>
+                        <li><b>Sagittarius A*:</b> At the very heart of our galaxy lies a supermassive black hole, about 4 million times the mass of our Sun.</li>
+                        <li><b>Dark Matter Halo:</b> The visible disk of the Milky Way is embedded in a massive, invisible spherical halo of dark matter that holds the galaxy together.</li>
+                    </ul>
+                    """)
+                    aria_button("Close", "close", on_click=milky_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+                with ui.dialog() as curio_dialog, ui.card().classes('p-4 w-full max-w-[600px]'):
+                    html_info_box(r"""
+                    <h3>Cosmic Curiosities</h3>
+                    <p><b>Venus's weird rotation:</b> A day on Venus lasts longer than its year! It takes 243 Earth days to rotate on its axis, but only 225 Earth days to orbit the Sun.</p>
+                    <p><b>Rogue Planets:</b> Astronomers estimate there could be billions of "rogue planets" wandering through the Milky Way without a star, floating in perpetual darkness.</p>
+                    <p><b>Voyager 1:</b> Launched in 1977, Voyager 1 is the farthest human-made object. It has officially left the solar system and entered interstellar space.</p>
+                    """)
+                    aria_button("Close", "close", on_click=curio_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+              
+                with ui.row().classes('w-full justify-center gap-4 mt-2'):
+                    aria_button("Instructions", "Open instructions", on_click=instru.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Info", "Open info", on_click=lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Solar System", "Open solar system info", on_click=solar_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Exoplanets", "Open exoplanets info", on_click=exo_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Milky Way", "Open milky way info", on_click=milky_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Curiosity", "Open curiosity", on_click=curio_dialog.open).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button('♿ Accessibility Mode', 'Jump to accessibility', on_click=lambda: (
+                        acc_solar.open(), 
+                        ui.run_javascript("setTimeout(() => document.getElementById('acc_solar').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);")
+                    )).classes("!bg-red-600 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded shadow-md")
+
+             
+                IMG_PIXEL_SIZE = 800  
+                REAL_WIDTH_KPC = 40.0 
+                SUN_DIST_KPC = 8.2  
+                KPC_TO_PX = IMG_PIXEL_SIZE / REAL_WIDTH_KPC 
+                CENTER_PX = IMG_PIXEL_SIZE / 2.0
+
+                with ui.column().classes('w-full max-w-[1000px] mx-auto p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-6'):
+                    ui.label("🎮 AstroEarth: Locate the Solar System").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-6 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
+                    
+                    img_container = ui.element('div').classes('relative rounded-xl shadow-2xl border-4 border-slate-800 cursor-crosshair shrink bg-black')
+                    img_container.style(f'width: {IMG_PIXEL_SIZE}px; max-width: 100%; aspect-ratio: 1/1;')
+                    
+                    with img_container:
+                        src_img = '/images/MKW.jpg' 
+                        feedback_label = ui.label('Click on the map to find Earth!').classes('absolute top-4 left-4 z-10 bg-black/80 text-white px-4 py-2 rounded font-mono text-lg border-l-4 border-slate-500')
+                        
+                        def on_click(e: MouseEventArguments):
+                                 
+                            click_x, click_y = e.image_x, e.image_y
+                            
+                        
+                            dx = click_x - CENTER_PX
+                            dy = click_y - CENTER_PX
+                            r_px = math.sqrt(dx**2 + dy**2)
+                            r_kpc = r_px / KPC_TO_PX
+                            dist_error = abs(r_kpc - SUN_DIST_KPC)
+                            
+                            
+                            # Atan2 restituisce radianti tra -pi e pi.
+                            # 0° = Destra, 90° = Giù (Sotto), 180° = Sinistra, -90° = Su
+                            angle_rad = math.atan2(dy, dx)
+                            angle_deg = math.degrees(angle_rad)
+                            
+                            
+                            TARGET_ANGLE_MIN = 80   
+                            TARGET_ANGLE_MAX = 125  
+                            
+                            angle_correct = TARGET_ANGLE_MIN <= angle_deg <= TARGET_ANGLE_MAX
+                            
+                            
+                            if dist_error <= 1.5 and angle_correct:
+                                status = "✅ ORBIT FOUND!"
+                                color = "#4ade80" # Verde
+                                msg = f"Distance: {r_kpc:.1f} kpc. Correct Location!"
+                            elif dist_error <= 1.5 and not angle_correct:
+                                status = "⚠️ RIGHT ORBIT, WRONG ARM"
+                                color = "#facc15" # Giallo
+                                msg = f"Distance correct ({r_kpc:.1f} kpc), but wrong position. We are in the Orion Arm!"
+                            elif r_kpc < SUN_DIST_KPC:
+                                status = "🔥 TOO CLOSE"
+                                color = "#f87171" # Rosso
+                                msg = f"Distance: {r_kpc:.1f} kpc. Too hot!"
+                            else:
+                                status = "❄️ TOO FAR"
+                                color = "#60a5fa" # Blu
+                                msg = f"Distance: {r_kpc:.1f} kpc. Too cold!"
+
+                            feedback_label.text = status
+                            feedback_label.style(f'color: {color}; border-left: 5px solid {color}')
+                            
+                            
+                            svg_content = f'''
+                                <line x1="{click_x-10}" y1="{click_y-10}" x2="{click_x+10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
+                                <line x1="{click_x+10}" y1="{click_y-10}" x2="{click_x-10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
+                                <text x="{click_x+20}" y="{click_y}" fill="white" font-weight="bold" font-size="24" style="text-shadow: 2px 2px 4px black;">YOU</text>
+                                
+                                <circle cx="{CENTER_PX}" cy="{CENTER_PX}" r="{SUN_DIST_KPC * KPC_TO_PX}" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="10,10" opacity="0.5" />
+                            '''
+                            
+                            
+                            if dist_error <= 1.5:
+                                
+                                r_target_px = SUN_DIST_KPC * KPC_TO_PX
+                                x1 = CENTER_PX + r_target_px * math.cos(math.radians(TARGET_ANGLE_MIN))
+                                y1 = CENTER_PX + r_target_px * math.sin(math.radians(TARGET_ANGLE_MIN))
+                                x2 = CENTER_PX + r_target_px * math.cos(math.radians(TARGET_ANGLE_MAX))
+                                y2 = CENTER_PX + r_target_px * math.sin(math.radians(TARGET_ANGLE_MAX))
+                                
+                                svg_content += f'''
+                                    <path d="M {CENTER_PX} {CENTER_PX} L {x1} {y1} A {r_target_px} {r_target_px} 0 0 1 {x2} {y2} Z" fill="#4ade80" fill-opacity="0.2" stroke="none" />
+                                    <text x="{CENTER_PX}" y="{CENTER_PX + r_target_px + 30}" text-anchor="middle" fill="#4ade80" font-weight="bold" font-size="18">Correct Zone</text>
+                                '''
+
+                            interactive_img.content = svg_content
+                            ui.notify(msg, type='positive' if "✅" in status else 'warning')
+
+                        interactive_img = ui.interactive_image(src_img, on_mouse=on_click, cross=True).classes('w-full h-full object-contain')
+
+              
+                acc_solar = ui.expansion('Accessibility Mode: Locate Solar System Quiz', icon='accessible').classes('w-full max-w-[1000px] mx-auto mt-2 mb-12 bg-slate-800 text-white rounded-lg border border-slate-600').props('id="acc_solar" aria-label="Keyboard accessible alternative for finding the solar system"')
+                with acc_solar:
+                    ui.label("Identify the Solar System's position based on the provided context in the 'Info' dialog:").classes('text-blue-200 font-bold mb-4').props('tabindex=0')
+                    
+                    opts = [
+                        'At the exact center of the Galactic Bulge',
+                        'In the Orion Arm, about 8.2 kpc from the center',
+                        'In the Perseus Arm, about 15 kpc away',
+                        'In the extreme outer edge of the Stellar Halo'
+                    ]
+                    loc_choice = ui.radio(opts).classes('text-white gap-2 p-2').props('dark aria-label="Select the correct location"')
+
+                    def check_loc_alt():
+                        if not loc_choice.value:
+                            ui.notify('Please select an option first.', type='warning')
+                            return
+                            
+                        if 'Orion Arm' in loc_choice.value:
+                            accessible_notify('✅ Correct! The Solar System is located approx. 8.2 kpc from the center in the Orion Arm.', type_='success')
+                        else:
+                            accessible_notify('❌ Incorrect location. Re-read the Info clues and try again!', type_='error')
+
+                    aria_button('Confirm Location', 'Submit accessible location answer', on_click=check_loc_alt).classes('mt-4 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded shadow-md')
 
 
 #panel galaxy
@@ -4528,7 +4777,7 @@ namelength=-1,
             #plot2.on(    'plotly_click',    lambda e: show_morphology_dialog(df, e.args["points"][0]["pointIndex"]))
 
 
-    
+
                     
         def galaxy_map_page( container):
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
@@ -4549,10 +4798,10 @@ namelength=-1,
             RA_SPAN = RA_MAX - RA_MIN
             DEC_SPAN = DEC_MAX - DEC_MIN
             with container:
-                description_on_dark(
+                ui.label(
     "Visualize the large-scale structures of the Universe by mapping galaxies in the space to understand their distribution and morphological classification."
-)
-                    
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+
                 with ui.dialog() as info_morpho, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=morphology_info_title'):
                     html_info_box(r"""
         <h3>Morphology Classification</h3>
@@ -4786,211 +5035,15 @@ namelength=-1,
                     aria_image('/images/mag_gal_z_color.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
                     aria_button('Close','close button', on_click=lambda: img3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-   #milky way map            
-                IMG_PIXEL_SIZE = 1024  
-             
-                REAL_WIDTH_KPC = 40.0 
 
-             
-                SUN_DIST_KPC = 8.2  # Real distance of Sun from Center
-                KPC_TO_PX = IMG_PIXEL_SIZE / REAL_WIDTH_KPC # Conversion factor
-                CENTER_PX = IMG_PIXEL_SIZE / 2.0
-
-                def open_find_sun_game():
-              
-                    
-                   
-                    with ui.dialog() as dialog, ui.card().style('min-width: 90vw; height: 90vh; max-width: 100vw;').classes('p-4 items-center bg-slate-50 overflow-hidden shadow-none').props('role=dialog aria-modal=true aria-label="Locate the Solar System interactive game"'):
-                        
-                      
-                        with ui.row().classes('w-full h-full flex-nowrap justify-center gap-6 items-start overflow-hidden pb-8'):
-                            with ui.column():
-                                ui.label('🕵️ Mission: Locate the Solar System').classes('text-3xl font-bold text-slate-800').props('aria-label="Mission: Locate the Solar System"')
-                                html_info_box("""
-                    <h3>The Milky Way Context</h3>
-                    <p>
-                        The Milky Way is a barred spiral galaxy. Its mass is approx. <b>1.5 trillion solar masses (M☉)</b>.
-                    </p>
-                    <p>
-                    By analyzing rotation data (Module 4), 
-                        astronomers determined the Sun's orbital velocity is approx. <b>220-250 km/s</b>.
-                    </p>
-                    <p>
-                        Using the keplerian law (solar system orbital motion), we relate velocity (<i>v</i>) to distance (<i>r</i>):
-                    </p>
-                    
-                    <div class="formula-container">
-                        v = &radic;( G &middot; M / r )
-                    </div>
-                    
-                    <p>
-                        According to this relation, the velocity corresponds to a distance of roughly <b>8 kpc</b> from the center. 
-                    </p>
-                    <p>
-                     Why 8 kpc? The Sun is located in the <b>Orion Arm</b>, a minor spiral arm between the Sagittarius and Perseus arms.
-                    </p>
-                  
-                    <p>
-                        👉 <b>YOUR TASK:</b> Click on the map where you think our Solar System is located.
-                    </p>
-                """).props('tabindex=0 role=document aria-label="Milky Way context and mission instructions"')
-                                ui.link('Reference: NASA-JPL, Caltech, ESO, Robert Hurt  🔗', 'https://science.nasa.gov/asset/webb/milky-way-and-our-location/', new_tab=True).classes('text-sm text-blue-600 underline font-bold').props('aria-label="NASA Reference link"')
-
-
-                                with ui.row().classes('w-full items-center justify-center gap-4 mt-4'):
-                                  
-                                    with ui.column().classes('w-1/2 gap-2'):
-                                        with ui.card().classes('w-full bg-blue-50 p-4'):
-                                            ui.label('Sun Orbital Velocity').classes('text-xs font-bold text-gray-500 uppercase')
-                                            ui.label('~ 220-250 km/s').classes('text-2xl font-bold text-blue-700')
-                                    with ui.column().classes('w-1/2 gap-2'):
-                                        with ui.card().classes('w-full bg-purple-50 p-4'):
-                                            ui.label('Derived Distance').classes('text-xs font-bold text-gray-500 uppercase')
-                                            ui.label('~ 8.2 kpc').classes('text-2xl font-bold text-purple-700')
-                                            ui.label('(26,000 ly)').classes('text-sm text-gray-600')
-
-                              
-                                aria_button('Close','close', on_click=dialog.close).props('flat round dense').classes('bg-orange-500 hover:bg-orange-700 text-white')
-
-                                with ui.expansion('Accessibility Mode: Locate Solar System Quiz', icon='accessible').classes('w-full mt-6 bg-slate-800 text-white rounded-lg').props('aria-label="Keyboard accessible alternative for finding the solar system"'):
-                                    ui.label("Identify the Solar System's position based on the provided context:").classes('text-blue-200 font-bold mb-4').props('tabindex=0')
-
-                                    opts = [
-                                        'At the exact center of the Galactic Bulge',
-                                        'In the Orion Arm, about 8 kpc from the center',
-                                        'In the Perseus Arm, about 15 kpc away',
-                                        'In the extreme outer edge of the Stellar Halo'
-                                    ]
-                                    loc_choice = ui.radio(opts).classes('text-white gap-2').props('dark aria-label="Select the correct location"')
-
-                                    def check_loc_alt():
-                                        if not loc_choice.value:
-                                            ui.notify('Please select an option first.', type='warning')
-                                            return
-                                            
-                                        if 'Orion Arm' in loc_choice.value:
-                                            ui.notify('✅ Correct! The Solar System is in the Orion Arm.', type='positive')
-                                        else:
-                                            ui.notify('❌ Incorrect location. Re-read the clues and try again!', type='negative')
-
-                                    aria_button('Confirm Location', 'Submit accessible location answer', on_click=check_loc_alt).classes('mt-4 !bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded')
-                        
-                        
-                            
-                        
-                            img_container = ui.element('div').classes('relative rounded-xl shadow-2xl border-4 border-slate-800 cursor-crosshair shrink')
-                            img_container.style(f'max-width: {IMG_PIXEL_SIZE}px; max-height: 100%; aspect-ratio: 1/1;')
-                            with img_container:
-                             
-                                src_img = '/images/MKW.jpg' 
-                                
-                               
-                                feedback_label = ui.label(' ').classes('absolute top-4 left-4 z-10 bg-black/80 text-white px-4 py-2 rounded font-mono text-lg')
-                                
-                                def on_click(e: MouseEventArguments):
-                                 
-                                    click_x, click_y = e.image_x, e.image_y
-                                    
-                               
-                                    dx = click_x - CENTER_PX
-                                    dy = click_y - CENTER_PX
-                                    r_px = math.sqrt(dx**2 + dy**2)
-                                    r_kpc = r_px / KPC_TO_PX
-                                    dist_error = abs(r_kpc - SUN_DIST_KPC)
-                                    
-                                 
-                                    # Atan2 restituisce radianti tra -pi e pi.
-                                    # 0° = Destra, 90° = Giù (Sotto), 180° = Sinistra, -90° = Su
-                                    angle_rad = math.atan2(dy, dx)
-                                    angle_deg = math.degrees(angle_rad)
-                                    
-                                 
-                                    TARGET_ANGLE_MIN = 80   
-                                    TARGET_ANGLE_MAX = 125  
-                                    
-                                    angle_correct = TARGET_ANGLE_MIN <= angle_deg <= TARGET_ANGLE_MAX
-                                    
-                                   
-                                    if dist_error <= 1.5 and angle_correct:
-                                        status = "✅ ORBIT FOUND!"
-                                        color = "#4ade80" # Verde
-                                        msg = f"Distance: {r_kpc:.1f} kpc. Correct Location!"
-                                    elif dist_error <= 1.5 and not angle_correct:
-                                        status = "⚠️ RIGHT ORBIT, WRONG ARM"
-                                        color = "#facc15" # Giallo
-                                        msg = f"Distance correct ({r_kpc:.1f} kpc), but wrong position. We are in the Orion Arm!"
-                                    elif r_kpc < SUN_DIST_KPC:
-                                        status = "🔥 TOO CLOSE"
-                                        color = "#f87171" # Rosso
-                                        msg = f"Distance: {r_kpc:.1f} kpc. Too hot!"
-                                    else:
-                                        status = "❄️ TOO FAR"
-                                        color = "#60a5fa" # Blu
-                                        msg = f"Distance: {r_kpc:.1f} kpc. Too cold!"
-
-                                    feedback_label.text = status
-                                    feedback_label.style(f'color: {color}; border-left: 5px solid {color}')
-                                    
-                                  
-                                    svg_content = f'''
-                                        <line x1="{click_x-10}" y1="{click_y-10}" x2="{click_x+10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
-                                        <line x1="{click_x+10}" y1="{click_y-10}" x2="{click_x-10}" y2="{click_y+10}" stroke="{color}" stroke-width="4" />
-                                        <text x="{click_x+20}" y="{click_y}" fill="white" font-weight="bold" font-size="24" style="text-shadow: 2px 2px 4px black;">YOU</text>
-                                        
-                                        <circle cx="{CENTER_PX}" cy="{CENTER_PX}" r="{SUN_DIST_KPC * KPC_TO_PX}" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="10,10" opacity="0.5" />
-                                    '''
-                                    
-                                 
-                                    if dist_error <= 1.5:
-                                      
-                                        r_target_px = SUN_DIST_KPC * KPC_TO_PX
-                                        x1 = CENTER_PX + r_target_px * math.cos(math.radians(TARGET_ANGLE_MIN))
-                                        y1 = CENTER_PX + r_target_px * math.sin(math.radians(TARGET_ANGLE_MIN))
-                                        x2 = CENTER_PX + r_target_px * math.cos(math.radians(TARGET_ANGLE_MAX))
-                                        y2 = CENTER_PX + r_target_px * math.sin(math.radians(TARGET_ANGLE_MAX))
-                                        
-                                        svg_content += f'''
-                                            <path d="M {CENTER_PX} {CENTER_PX} L {x1} {y1} A {r_target_px} {r_target_px} 0 0 1 {x2} {y2} Z" fill="#4ade80" fill-opacity="0.2" stroke="none" />
-                                            <text x="{CENTER_PX}" y="{CENTER_PX + r_target_px + 30}" text-anchor="middle" fill="#4ade80" font-weight="bold" font-size="18">Correct Zone</text>
-                                        '''
-
-                                    interactive_img.content = svg_content
-                                    ui.notify(msg, type='positive' if "✅" in status else 'warning')
-
-                                interactive_img = ui.interactive_image(src_img, on_mouse=on_click, cross=True)
-                                interactive_img.classes('w-full h-full object-contain')
-
-                           
-                            
-
-                    dialog.open()
-                    
-                    
-                    
-                    
-                gif_marker = None 
-                
-                def move_marker_on_gif(ra, dec):
-                    if gif_marker is None: return
-                    margin_left_pct = 12.5   
-                    margin_bottom_pct = 11.0 
-                    plot_width_pct = 77.5    
-                    plot_height_pct = 77.0   
-                    norm_ra = (ra - RA_MIN) / RA_SPAN
-                    norm_dec = (dec - DEC_MIN) / DEC_SPAN
-                    left_pos = margin_left_pct + (norm_ra * plot_width_pct)
-                    margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
-                    top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
-                    gif_marker.classes(remove='hidden')
-                    gif_marker.style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
-                    gif_marker.update()
+               
 
                
                 with ui.dialog().props('role=dialog aria-modal="true" aria-labelledby="map_gif_title"') as map_gif_dialog:
             
                     
                     with ui.card().style('width: 850px; max-width: 95vw; max-height: 90vh; overflow-y: auto;').classes('p-6 bg-slate-900 flex flex-col items-center'):
-                        aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
+                        aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
                         
                     
                         ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-white').props('id="map_gif_title" tabindex=0')
@@ -5070,7 +5123,7 @@ namelength=-1,
                
                 with ui.dialog().props('role=dialog aria-modal=true aria-labelledby=morpho_gif_title') as morpho_gif_dialog:
                     with ui.element('div').classes('relative inline-block rounded-xl overflow-hidden shadow-2xl bg-white p-2'):
-                        aria_button('X', 'Close', on_click=morpho_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-red-500 hover:!bg-red-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
+                        aria_button('X', 'Close', on_click=morpho_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
                         
                         @ui.refreshable
                         def render_morpho_gif():
@@ -5082,34 +5135,31 @@ namelength=-1,
                     render_morpho_gif.refresh()
                     morpho_gif_dialog.open()
                 
-                with ui.row().classes('w-full items-center justify-center no-wrap ' ):
+                with ui.row().classes('w-full items-center justify-center ' ):
                     galaxy_map(GAL_SDSS_PATH,on_galaxy_select=move_marker_on_gif)
                     aria_button("Instructions",label="Read instruction",on_click=lambda:     [info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Dataset",label="Read dataset info",on_click=lambda:   [ data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Dataset Info",label="Read dataset info",on_click=lambda:   [ data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     aria_button( "Galaxy Info ", 'Galaxy Classification Info',             on_click=lambda:[ galaxy_class_dialog.open()     ,ui.run_javascript("MathJax.typesetPromise()")   ]    ).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded self-center") 
         
                     aria_button("Galaxy Morphology Classes",label="Read galaxy classification",on_click=lambda:    [info_morpho.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
 
                     aria_button("Galaxy Images","Show Galaxy Images",on_click=lambda: img.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_gal.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-               
-                    aria_button(
-                        "📍 Locate Earth", label="Find the Earth position in Milky Way galaxy",
-                        on_click=open_find_sun_game
-                    ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Map Animation", "Open Map GIF", on_click=open_map_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Morpho Animation", "Open Morpho GIF", on_click=open_morpho_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Galaxy Plot z","Show Galaxy plot",on_click=lambda: img2.open(),).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Galaxy Plot r-mag vs color","Plot r-mag vs u-r",on_click=lambda: img3.open(),).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                with ui.row().classes('w-full items-center justify-center ' ):
+                    aria_button(" Galaxy Map Animation", "Open Map GIF", on_click=open_map_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(" Morphology Animation", "Open Morpho GIF", on_click=open_morpho_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Galaxy Plot z","Show Galaxy plot",on_click=lambda: img2.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button("Galaxy Plot r-mag vs color","Plot r-mag vs u-r",on_click=lambda: img3.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
                     
+               
 
                
                 with ui.column().classes('w-full p-8 bg-slate-900 rounded-xl shadow-2xl border border-slate-600 flex flex-col items-center mt-8 mb-12'):
-                    
+                    ui.label("🎮 AstroMemory: Galaxy Morphology").classes("text-3xl md:text-4xl font-bold text-yellow-400 mb-4 text-center drop-shadow-md uppercase tracking-wider").props('role=heading aria-level=2 tabindex=0')
+
                     with ui.row().classes('w-full max-w-[800px] justify-between bg-slate-800 p-4 rounded-lg border border-slate-500 mb-6 shadow-inner items-center'):
                         lbl_time = ui.label('Time: 0s').classes('text-xl text-white font-bold w-24')
                         lbl_score = ui.label('Score: 0').classes('text-xl text-green-400 font-bold w-32 text-center').props('aria-live=polite')
-                        
                         def game_tick():
                             if mem_state['running']:
                                 mem_state['time'] += 1
@@ -5182,10 +5232,9 @@ namelength=-1,
                             render_memory_board.refresh()
 
                         with ui.row().classes('gap-4'):
-                            aria_button("Start", "start", on_click=start_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
-                            aria_button("Stop", "stop", on_click=stop_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
-                          
-                            aria_button("Reset", "reset", on_click=reset_memory).classes("!bg-red-500 hover:!bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg")
+                            aria_button("Start", "start", on_click=start_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105 animate-pulse")
+                            aria_button("Stop", "stop", on_click=stop_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
+                            aria_button("Reset", "reset", on_click=reset_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
                     @ui.refreshable
                     def render_memory_board():
                         if not mem_state['running'] and not mem_state['cards']:
@@ -5277,6 +5326,8 @@ namelength=-1,
                 cosmic_timeline(history_panel)
             with ui.tab_panel('instrument') as instrument_panel:
                 instrument_page(instrument_panel)
+            with ui.tab_panel('planets') as planets_panel:
+                planets_page(planets_panel)
             with ui.tab_panel('galaxy') as galaxy_panel:
                 galaxy_map_page(galaxy_panel)
             with ui.tab_panel('stars') as star_panel:

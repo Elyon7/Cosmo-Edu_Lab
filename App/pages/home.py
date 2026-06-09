@@ -13,6 +13,8 @@ import urllib.parse
 
 from core import *
 from layout import *
+
+MODULES_LOCKED = os.getenv("MODULES_LOCKED", "True") == "True"
 #inject_layout_tool()
 #<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 ui.add_head_html("""
@@ -80,33 +82,55 @@ def create_routes():
                         'shadow-[0_0_40px_rgba(255,223,0,0.6)] ' # Effetto Glow esterno
                         'hover:scale-110 hover:shadow-[0_0_60px_rgba(255,255,255,0.9)] hover:z-10' # Effetto hover
                     )
+                
                 for i, title in enumerate(module_titles, 1):
-                    with ui.card().classes(star_style).props(
-    f'role=button tabindex=0 aria-label="Go to module {i}: {title}"'
-).on('click', 
-                        lambda i=i: (
-                            ui.navigate.to(f'/module{i}'), 
-                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
-                        )
-                    ).on('keydown.enter', lambda i=i: (
-                            ui.navigate.to(f'/module{i}'), 
-                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
-                        )): 
-                        ui.label(f'{i}').classes('text-6xl font-black text-yellow-600/30 absolute top-4')
-                        
+               
+                    is_locked = (i in [3, 4]) and MODULES_LOCKED
                     
-                        #ui.label(f'Module {i}').classes('text-2xl font-bold text-slate-900 uppercase tracking-widest mb-1')
+                   
+                    current_style = star_style
+                    if is_locked:
+                        current_style = current_style.replace('cursor-pointer', 'cursor-not-allowed') + ' opacity-75 grayscale'
+                    
+                
+                    card = ui.card().classes(current_style).props(
+                        f'role=button tabindex=0 aria-label="{"Locked" if is_locked else "Go to"} module {i}: {title}"'
+                    )
+                    
+                   
+                    if is_locked:
+                       
+                        def show_coming_soon(e):
+                            accessible_notify('Module under development: coming soon', type_='warning')
                         
-                     
+                        card.on('click', show_coming_soon)
+                        card.on('keydown.enter', show_coming_soon)
+                    else:
+                   
+                        card.on('click', lambda i=i: (
+                            ui.navigate.to(f'/module{i}'), 
+                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
+                        ))
+                        card.on('keydown.enter', lambda i=i: (
+                            ui.navigate.to(f'/module{i}'), 
+                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
+                        ))
+                    
+                    with card: 
+                       
+                        if is_locked:
+                            ui.label('🔒').classes('text-6xl absolute top-4 opacity-50')
+                        else:
+                            ui.label(f'{i}').classes('text-6xl font-black text-yellow-600/30 absolute top-4')
+                        
                         ui.label(title).classes('text-2xl font-semibold text-slate-800 leading-tight')
-                       # aria_button(f'Explore Module {i}', "Go to module",        on_click=safe_click(lambda i=i: (ui.navigate.to(f'/module{i}'),  ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")))).classes('mt-4 w-full')
-
-        
+                
       
             
         ui.label    (
                 "Cosmo-Edu Lab is your interactive platform to explore the Universe.\n\n"
-                "Through an immersive journey, you will bridge the gap between classical physics and modern cosmology."
+                "Through an immersive journey, bridge the gap \n\n"
+                "between classical physics and modern cosmology."
                 
             ).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
             
@@ -221,13 +245,20 @@ def create_routes():
         with ui.row().classes('mt-12 gap-8 justify-center w-full flex-wrap'):
             for title, classical, cosmo, link in table_data:
                 module_num = title.split('.')[0] if '.' in title else "Link"
-             
                 display_num = str(table_data.index((title, classical, cosmo, link)) + 1)
                 
-                aria_button(f"Go to Module {display_num}", f"Go to {title}", 
-                    on_click=safe_click(lambda l=link: ui.navigate.to(l))
+               
+                is_locked = (link in ['/module3', '/module4']) and MODULES_LOCKED
+                btn_text = f"🔒 Module {display_num}" if is_locked else f"Go to Module {display_num}"
+                
+              
+                btn = aria_button(btn_text, f"Go to {title}", 
+                    on_click=safe_click(lambda l=link: accessible_notify('Module under development: coming soon', type_='warning') if l in ['/module3', '/module4'] else ui.navigate.to(l))
                 ).classes('!bg-cyan-600 hover:!bg-cyan-500 text-white text-xl font-bold py-4 px-10 rounded-full shadow-[0_4px_0_rgb(21,94,117)] transition-transform active:translate-y-1 active:shadow-none border-2 border-white/20')
-
+                
+                
+                if is_locked:
+                    btn.classes('opacity-60 grayscale cursor-not-allowed')
     @ui.page('/physics-program')
     def physics_program():
     
@@ -282,17 +313,25 @@ def create_routes():
                         with ui.column().classes('p-6 w-full !bg-white'):
                             for topic, link in topics:
                                 if link:
-                                    aria_button(
-                                        topic,
+                                   
+                                    is_locked = (link in ['/module3', '/module4']) and MODULES_LOCKED
+                                    btn_text = f"🔒 {topic}" if is_locked else topic
+
+                                   
+                                    btn = aria_button(
+                                        btn_text,
                                         f"Go to {topic}",
-                                        on_click=safe_click(lambda l=link: ui.navigate.to(l))
+                                        on_click=safe_click(lambda l=link: accessible_notify('Module under development: coming soon', type_='warning') if l in ['/module3', '/module4'] else ui.navigate.to(l))
                                     ).classes(
                                         'w-full text-left text-xl font-semibold !text-slate-800 '
                                         'hover:!text-blue-600 hover:bg-blue-50 py-4 px-6 rounded-xl '
                                         'transition-colors border-b border-gray-100 last:border-0 '
                                         '!shadow-none !bg-transparent' 
-                                        
                                     )
+                                    
+                                   
+                                    if is_locked:
+                                        btn.classes('opacity-60 cursor-not-allowed hover:!text-slate-800 hover:bg-transparent')
                                 else:
                                     ui.label(topic).classes('text-gray-500 ml-6 py-3 italic text-xl')
 
@@ -334,3 +373,19 @@ def create_routes():
                         ui.label("You haven't written any reflections yet.").classes('text-xl text-gray-500 italic mt-4')
                         ui.label("Go to a module and use the 'Write Reflection' tool in the menu.").classes('text-lg text-gray-400')
 
+'''
+for i, title in enumerate(module_titles, 1):
+                    with ui.card().classes(star_style).props(
+                        f'role=button tabindex=0 aria-label="Go to module {i}: {title}"'
+                    ).on('click', 
+                        lambda i=i: (
+                            ui.navigate.to(f'/module{i}'), 
+                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
+                        )
+                    ).on('keydown.enter', lambda i=i: (
+                            ui.navigate.to(f'/module{i}'), 
+                            ui.run_javascript("setTimeout(() => document.querySelector('h1, .title')?.focus(), 3600)")
+                        )): 
+                        ui.label(f'{i}').classes('text-6xl font-black text-yellow-600/30 absolute top-4')
+                        ui.label(title).classes('text-2xl font-semibold text-slate-800 leading-tight')
+                        '''

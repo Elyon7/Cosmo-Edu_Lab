@@ -289,7 +289,7 @@ def enlargeable_plot(plot_func, width_percent=100):
         with ui.column().classes('w-full h-full items-center justify-center'):
            
             plot_func() 
-            aria_button("Close", "Close Zoom", on_click=large_dialog.close).classes("!bg-red-600 text-white mt-4")
+            aria_button("Close", "Close Zoom", on_click=large_dialog.close).classes("!bg-orange-600 text-white mt-4")
 
    
     with ui.column().classes(f'w-[{width_percent}%] items-center relative group cursor-pointer'):
@@ -387,23 +387,26 @@ def load_project_context():
 
     full_context = "\n\n=== PROJECT CONTEXT & KNOWLEDGE BASE ===\n"
     
-
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # --- VECCHIA LISTA (COMMENTATA) ---
+    # pdf_files = [
+    #     "Astronomy.pdf", 
+    #     "Cosmology.pdf", 
+    #     "Dark_matter.pdf", 
+    #     "cosmo_dark_matter.pdf", 
+    #     "Cosmo-Edu-Lab_Activities.pdf"
+    # ]
+    
+    # --- NUOVA LISTA ALLEGGERITA ---
+    # Carichiamo solo le Activities per non superare il limite di 250.000 token/minuto di Gemini Free Tier.
+    # L'AI conosce già la teoria di base per via del suo addestramento interno.
     pdf_files = [
-        "Astronomy.pdf", 
-        "Cosmology.pdf", 
-        "Dark_matter.pdf", 
-        "cosmo_dark_matter.pdf", 
         "Cosmo-Edu-Lab_Activities.pdf"
     ]
     
-    code_files = [
-        "module1.py", "module2.py", "module3.py", "module4.py", 
-        "home.py"
-    ]
+    #code_files = [  "module1.py", "module2.py", "module3.py", "module4.py",   "home.py"]
 
-  
     def find_file_path(filename):
        
         possible_paths = [
@@ -437,20 +440,17 @@ def load_project_context():
                 print(f"⚠️ AI: File PDF Not found: {filename} ")
     
   
-    for filename in code_files:
-        found_path = find_file_path(filename)
-        
-        if found_path:
-            try:
-                with open(found_path, "r", encoding="utf-8") as f:
-                    code_content = f.read()
-                full_context += f"\n--- APP SOURCE CODE: {filename} ---\n{code_content}\n"
-                #print(f"✅ AI: Letto Codice {filename}")
-            except Exception as e:
-                print(f"❌ AI: Error reading code {filename}: {e}")
-        else:
-             print(f"⚠️ AI: File Code Not found: {filename}")
-
+    # for filename in code_files:
+    #     found_path = find_file_path(filename)
+    #     if found_path:
+    #         try:
+    #             with open(found_path, "r", encoding="utf-8") as f:
+    #                 code_content = f.read()
+    #             full_context += f"\n--- APP SOURCE CODE: {filename} ---\n{code_content}\n"
+    #         except Exception as e:
+    #             print(f"❌ AI: Error reading code {filename}: {e}")
+    #     else:
+    #          print(f"⚠️ AI: File Code Not found: {filename}")
     return full_context
 
 APP_FULL_KNOWLEDGE = load_project_context()
@@ -495,136 +495,27 @@ async def ask_ai(question: str, response_container: ui.column, scroll_area: ui.s
         
      
         base_instruction = (r"""
-
-
-You are the AI Tutor for "Cosmo-Edu Lab", an interactive educational application designed for high school students (14-19 years old). Your goal is to help students understand physical cosmology, classical physics connections, and the specific data visualizations present in the app.
-You have access to the **actual source code** of the app and the **PDF textbooks**.
-- You know exactly which sliders, buttons, and texts are on the screen because you can see them in the Python code provided below.
-- You know the physics theory because you have the PDF contents.
-
-
-1. **Context Awareness:** For technical questions about the application functions, provide the solution looking into the code (files .py) e.g.If a student asks "What does this button do?", look at the Python code to see what the buttons in that module do.
-2. **Theory:** Explain physics concepts using the PDF content and scientific papers or reference, but use a Socratic method to give answers.
-3. **Math:** Use LaTeX ($v=H_0d$).
-4. **Guidance:** Use the Socratic method to guide students to answers.
-Your tone should be:
-
-- **Encouraging and Patient:** Physics can be hard; make it accessible.
-
-- **Scientifically Accurate but Accessible:** Use high school level language (14-19 years old). Avoid overly dense academic jargon unless you explain it first.
-
-- **Engaging:** Use analogies to explain complex cosmic phenomena.
-
-
-
-1. **Primary Source:** ALWAYS prioritize the information provided in the attached user files (PDFs/Docs regarding cosmology content) when answering questions, but you can access also to the main papers and internet source.
-
-2. **App Context:** You are integrated into an app structured in 4 specific modules. Use this context to guide the student:
-
-   - **Module 1 (Observation & History):** Covers the timeline of astronomy, cosmic timeline, Galaxy Morphology (Hubble sequence), HR Diagram (Star evolution), and Elementary Particles.
- -**Module 2 (Dark Sector):** Covers Dark Matter, Galaxy Rotation Curves, Virial Theorem, Cluster Mass, and CMB Anisotropies.
-
-- **Module 3 (Thermodynamics & Dynamics):** Covers the Planck Spectrum (Blackbody radiation), CMB Adiabatic Index, Radiation/Matter density evolution, and the Friedmann Equations.
-
-
-   - **Module 4 (Expansion):** Covers Redshift (Doppler effect), Hubble's Law, and Supernovae Type Ia (Standard Candles) used to measure the expansion of the universe (Distance Modulus vs Redshift).Covers the CMB Power Spectrum, the composition of the Universe (Dark Matter, Dark Energy, Baryonic Matter), and the Planck Mission results.
-At the moment prioritize the module 1 and 2.
-   
-
-- **Don't just give answers:** If a student asks for a solution to a problem, ask guiding questions to help them solve it (Socratic Method).
-
-- **Link concepts to the App:** When explaining a concept, suggest where they can see it in the app.
-
-  - *Example:* "If you are asking about how stars evolve, check the 'HR Diagram' tab in Module 1 to see the main sequence."
-
-  - *Example:* "To understand why we believe the universe is accelerating, look at the Supernovae plot in Module 2."
-
-- **Math Formatting:** When using formulas (like Hubble's Law or Friedmann equations), format them clearly using LaTeX style (e.g., $v = H_0 d$) and explain each variable.
-
-- **Reflection:** Encourage students to use the "Reflection Log" feature in the app to write down what they have learned.
-
-
-
-
-
-- **Visualizations:** Be aware that the app uses interactive plots (matplotlib/plotly) for things like the Planck Spectrum or Galaxy rotation. Encourage students to interact with the sliders in the app to see how parameters change the physics.
-
-- **Formulas:** If a student is stuck on the "Check Formulas" activity in Module 3, help them understand the physical meaning of the terms (e.g., density parameters $\Omega_m$, $\Omega_\Lambda$) rather than just giving the correct order.
-
-
-
-
-
-You must prioritize the information found in the attached PDF files, but you can search also information in the internet. Do not use outside knowledge if it conflicts with these documents:1.  **"Cosmology.pdf"**: Main source for Hubble Law, Friedmann Equations, and Universe History.2.  **"Dark_matter.pdf" & "cosmo_dark_matter.pdf"**: Main sources for Galaxy Rotation Curves, Virial Theorem, and Cluster Mass derivations.
-
-3.  **"CleanEasy.pdf"**: Source for Coordinates, Star Evolution, and Telescope fundamentals.
-
-4.  **"Cosmo-Edu-Lab Activities.pdf"**: Contains the specific lab questions and guided activities the students are solving.
-
-
-
-
-
-You are integrated into an app with 4 specific modules. When a student asks a question, determine automatically which module applies and guide them to the relevant app tools and panels to explore the concept. You must guide students to the solution of the question but you must not reveal the solution immediately.:
-
-
-* **Key Concepts (Ref: CleanEasy.pdf):**
-
-    * Star evolution (Main Sequence, Giants).
-
-    * Coordinate systems (Right Ascension/Declination).
-
-    * **Prompt to Student:** "If you are looking at the HR Diagram, remember that stars spend most of their lives on the Main Sequence. Can you spot where the Sun would be?"
-
-
-
-
-
-* **App Tools:** Redshift Slider, Supernovae Type Ia Plot (Distance Modulus vs Redshift).* **Key Concepts (Ref: Cosmology.pdf, Activity 3):**
-
-    * Doppler Effect & Redshift ($z = \Delta\lambda / \lambda_0$).
-
-    * Hubble's Law ($v = H_0 d$).
-
-    * Standard Candles (Supernovae).
-
-* **Prompt to Student:** "Use the slider in Module 4 to change the redshift. Notice how the spectral lines shift toward the red as the galaxy moves faster away from us?"
-
-
-
-* **Key Concepts (Ref: Cosmology.pdf, Activity 2):**
-
-    * Blackbody Radiation (Planck's Law).
-
-    * Adiabatic Expansion (Temperature drops as Volume increases).
-
-    * **Troubleshooting:** If a student says "My formulas are wrong" (Red boxes in the app), ask them to check the order of magnitude or the specific density parameters ($\Omega_m$ vs $\Omega_\Lambda$) defined in the "Cosmology.pdf".
-
-
-
-* **App Tools:** CMB Power Spectrum, Universe Composition Pie Chart.* **Key Concepts (Ref: Dark_matter.pdf, Activity 1):**
-
-    * **Dark Matter:** Evidence from Galaxy Rotation Curves (Newtonian expected drop vs observed flat curve).
-
-    * **Virial Theorem:** Calculating Cluster Mass ($2K + U = 0$).
-
-    * **Prompt to Student:** "Look at the rotation curve in the app. According to Kepler's laws, velocity should drop at large distances. Since it stays flat, what does that tell us about the mass we *cannot* see?"
-
-
-
-
-
-1.  **Math Formatting:** You MUST wrap all formulas in dollar signs. 
-   - Use single dollar signs for inline math (example: "The velocity is $v=H_0 d$").
-   - Use double dollar signs for standalone equations (example: "$$ E = mc^2 $$").
-   - NEVER output plain LaTeX like \frac{a}{b} without the dollar signs.
-
-2.  **Reference the Activities:** If a student asks "How do I do Activity 1?", refer to the steps in `Cosmo-Edu-Lab Activities.pdf but not reveal the solution. You must guide the students by using scaffolding methodology to arrive independentely to the result`.
-
-3.  **Encourage Reflection:** Remind students they can save their thoughts in the app's "Reflection Log" after learning a concept.
-
-4.  **Language:** Respond in the language the student addresses you in (English or Italian)."""
-        )
+You are the AI Tutor for "Cosmo-Edu Lab", an interactive educational application designed for high school students (14-19 years old). 
+Your primary goal is to help students understand physical cosmology using the SOCRATIC METHOD.
+
+CRITICAL RULES:
+1. NEVER GIVE DIRECT ANSWERS, final numerical results, or straight solutions to the exercises. 
+2. Ask guiding questions to help the student reason and find the answer themselves.
+3. Guide them step-by-step (e.g., "What is the formula for gravitational force?", "If the radius increases, what happens to the velocity?").
+4. If a student asks for the solution, politely decline and ask them a question to start the thought process.
+5. Maintain an encouraging, enthusiastic, and patient tone suitable for high schoolers.
+6. Use LaTeX for math wrapped in dollar signs ($v = H_0 d$ for inline, $$E = mc^2$$ for standalone).
+
+
+- Module 1: Observation & History, Galaxy Morphology, HR Diagram, Elementary Particles.
+- Module 2: Dark Sector, Galaxy Rotation Curves, Virial Theorem, Cluster Mass.
+- Module 3: Thermodynamics & Dynamics, Planck Spectrum, Friedmann Equations.
+- Module 4: Expansion, Redshift, Hubble's Law, Supernovae Type Ia.
+
+- App Tools: Remind students to interact with sliders and plots in the app. Encourage them to use the "Reflection Log" feature.
+- Reference the Activities: If a student asks "How do I do Activity 1?", refer to the steps in the documents but DO NOT reveal the solution. Use scaffolding methodology.
+- Language: Respond in the language the student addresses you in (English or Italian).
+""")
 
         
         if model_provider == 'gemini':
@@ -653,22 +544,30 @@ You are integrated into an app with 4 specific modules. When a student asks a qu
         elif model_provider == 'gemini':
             client = genai.Client(api_key=GEMINI_API_KEY)
             try:
+              
                 response = client.models.generate_content(model='gemini-2.5-flash', contents=final_prompt)
                 answer = response.text.strip()
             except Exception as e:
-                print(f"⚠️ Gemini 2.5 busy error ({e}), move to backup...")
-                try:
-               
-                    response = client.models.generate_content(model='gemini-2.0-flash', contents=final_prompt)
-                    answer = response.text.strip()
-                except Exception as e2:
-                    print(f"⚠️ Gemini 2.0 busy error ({e2}), move to backup...")
+                print(f"⚠️ Gemini 2.5 Flash error: {e}")
+                
+             
+                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                    answer = "⚠️ **Gemini Free Tier Limit Reached.**\n\nPlease wait 30 seconds and try again, or switch the AI toggle to **Groq**."
+                
+             
+                elif "503" in str(e) or "UNAVAILABLE" in str(e):
                     try:
-                        response = client.models.generate_content(model='gemini-flash-latest', contents=final_prompt)
+                        print("Google servers busy, attempting stable 1.5-flash-8b fallback...")
+                      
+                        response = client.models.generate_content(model='gemini-1.5-flash-8b', contents=final_prompt)
                         answer = response.text.strip()
-                    except Exception as e3:
-                        print(f"⚠️ Gemini Flash Latest busy error ({e3}).")
-                        answer = f"❌ Error: No model available. Please try again later."
+                    except Exception as fallback_e:
+                        print(f"⚠️ Gemini Backup error: {fallback_e}")
+                        answer = "⚠️ **Google AI Servers are currently overloaded globally.**\n\nTo continue your studies without waiting, please switch the AI toggle above to **Groq**."
+                
+             
+                else:
+                    answer = "❌ Error: Google Gemini models are currently unavailable. Please switch the AI toggle to Groq."
 
         spinner_row.delete()
         with response_container:
@@ -1214,7 +1113,7 @@ def main_layout(title: str):
                 model_provider=model_toggle.value, 
                 text_input_box=ai_q_input,      
                 chat_history=user_chat_history 
-            )).classes("!bg-indigo-600 text-white font-bold")
+            )).classes("!bg-green-600 text-white font-bold")
             
             
             ai_q_input.on('keydown.enter', lambda: ask_ai(
@@ -1349,7 +1248,7 @@ def main_layout(title: str):
         """).classes('text-lg text-white-800').props('role=document aria-live=polite')
 
         with ui.row().classes('w-full justify-end mt-4'):
-            aria_button('Close', 'Close', on_click=credits_dialog.close).classes("!bg-purple-600 text-white font-bold")
+            aria_button('Close', 'Close', on_click=credits_dialog.close).classes("!bg-orange-600 text-white font-bold")
     with ui.dialog() as kahoot_dialog, ui.card().classes('p-6 w-full max-w-[500px] text-center'):
         ui.label('🏆 Final Challenge: Quiz!').classes('text-2xl font-bold mb-4 text-purple-600')
         
@@ -1373,93 +1272,68 @@ def main_layout(title: str):
             
             aria_button('Close', "Close instructions", on_click=kahoot_dialog.close) \
                 .classes('!bg-orange-400 hover:!bg-orange-500 text-white py-2 px-4 rounded-lg text-sm')
-    drawer = ui.left_drawer(value=False) 
+
+    drawer = ui.left_drawer(value=False).props('width=450 overlay behavior="mobile"') 
     with drawer:
       
-        ui.label('🔭 Cosmo-Edu').classes('text-2xl p-6 font-extrabold text-cyan-300 tracking-wide').props('role=heading aria-level=2 tabindex=0')
+        ui.label('🔭 School Alignment').classes('w-full text-left px-6 mt-4 text-xl font-bold text-gray-300 uppercase tracking-widest')
         
-       
-        btn_style = 'w-full text-lg font-bold !bg-slate-700/80 hover:!bg-slate-600 border-l-4 border-cyan-400 text-white'
+     
+        btn_style = 'w-[85%] ml-6 px-6 text-lg font-bold mb-3 !bg-slate-700/80 hover:!bg-slate-600 border-l-4 border-cyan-400 text-white rounded-r-lg'
         
-        aria_button('🏠 Home', "Homepage", on_click=safe_click(lambda: aria_navigate('/main', 'Home'))).classes(btn_style)
-        #aria_button('📚 Modules', "Modules", on_click=safe_click(lambda: aria_navigate('/main', 'Modules'))).classes(btn_style)
-        aria_button('🧭 Physics Link', "Physics", on_click=safe_click(lambda: aria_navigate('/physics-links', 'Physics'))).classes(btn_style)
-        aria_button('🧪 Curriculum', "Curriculum", on_click=safe_click(lambda: aria_navigate('/physics-program', 'Curriculum'))).classes(btn_style)
+        aria_button('🧭 Physics Link', "Physics", on_click=safe_click(lambda: aria_navigate('/physics-links', 'Physics'))).classes(btn_style).props('align="left"')
+        aria_button('🧪 Curriculum', "Curriculum", on_click=safe_click(lambda: aria_navigate('/physics-program', 'Curriculum'))).classes(btn_style).props('align="left"')
 
-        ui.separator().classes('my-2 bg-gray-600')
+        ui.separator().classes('my-4 bg-gray-600')
     
+        ui.label('🛠️ Tools').classes('w-full text-left px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
 
+       
+        tool_btn_style = 'w-[85%] ml-6 px-6 text-lg font-bold mb-3 !bg-green-600 hover:!bg-green-500 border-l-4 border-green-300 text-white rounded-r-lg'
 
-        ui.label('🛠️ Tools').classes('px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
-
-        aria_button('🤖 AI Tutor', "AI", on_click=ai_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-indigo-600 hover:!bg-indigo-500 border-l-4 border-indigo-300 text-white')
-
-        aria_button('✍️ Reflections', "Reflections", on_click=refl_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-emerald-600 hover:!bg-emerald-500 border-l-4 border-emerald-300 text-white')
-        #aria_button('✍️ Write Reflections', "Write", on_click=refl_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-emerald-600 hover:!bg-emerald-500 border-l-4 border-emerald-300 text-white')
-        #aria_button('📝 Read Reflections', "Read", on_click=safe_click(lambda: aria_navigate('/reflections', 'Read'))).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
-        aria_button(
-            '📖 Glossary', 
-            "Open Physics Glossary", 
-            on_click=glossary_dialog.open
-        ).classes('w-full text-lg font-bold mb-3 !bg-teal-600 hover:!bg-teal-500 border-l-4 border-teal-300 text-white')
+        aria_button('🤖 AI Tutor', "AI", on_click=ai_dialog.open).classes(tool_btn_style).props('align="left"')
+        aria_button('✍️ Reflections', "Reflections", on_click=refl_dialog.open).classes(tool_btn_style).props('align="left"')
+        aria_button('📖 Glossary', "Open Physics Glossary", on_click=glossary_dialog.open).classes(tool_btn_style).props('align="left"')
        
         def toggle_magnifier():
-         
             if mag_btn.text == 'Magnifier':
                 mag_btn.text = 'Pointer'          
-                mag_btn.props('icon=mouse')       
-                
+                mag_btn.props('icon=mouse align="left"')       
                 ui.run_javascript("document.body.classList.add('magnifier-active')")
                 accessible_notify("Magnifier Mode ON: Hover over elements to zoom", "info")
             else:
-               
                 mag_btn.text = 'Magnifier'     
-                mag_btn.props('icon=zoom_in')    
-              
+                mag_btn.props('icon=zoom_in align="left"')    
                 ui.run_javascript("document.body.classList.remove('magnifier-active')")
                 accessible_notify("Pointer Mode Active",type_="warning")
 
-        
         mag_btn = aria_button(
             text='Magnifier', 
             label="Toggle Magnifier Tool", 
             on_click=toggle_magnifier,
             icon='zoom_in' 
-        ).classes(
-            'w-full text-lg font-bold mb-3 !bg-orange-600 hover:!bg-orange-500 border-l-4 border-orange-300 text-white'
-        )
+        ).classes(tool_btn_style).props('align="left"')
        
-        aria_button(
-    '🎮 Kahoot Quiz', 
-    "Open Kahoot Instructions and Link", 
-    on_click=kahoot_dialog.open
-).classes('w-full text-lg font-bold mb-3 !bg-purple-600 hover:!bg-purple-500 border-l-4 border-purple-300 text-white')
-        ui.separator().classes('my-1 bg-gray-600')
-        ui.label(' 📝 Info').classes('px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
+        aria_button('🎮 Kahoot Quiz', "Open Kahoot Instructions and Link", on_click=kahoot_dialog.open).classes(tool_btn_style).props('align="left"')
+        
+        ui.separator().classes('my-4 bg-gray-600')
+        
+        ui.label('📝 Supporting Materials').classes('w-full text-left px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
+        
         def open_slides_cosmo():
             ui.run_javascript('window.open("/slides/Cosmology.pdf", "_blank")')
         def open_activities():
             ui.run_javascript('window.open("/slides/Cosmo-Edu-Lab_Activities.pdf", "_blank")')
         def open_astronomy():
             ui.run_javascript('window.open("/slides/Astronomy.pdf", "_blank")')
-        aria_button(
-            '📄Cosmology Intro', 
-            'Open Introductory Slides: Cosmology',
-            on_click=open_slides_cosmo
-        ).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
-        aria_button(
-            '📄Astronomy Intro', 
-            'Open Introductory Slides: Astronomy',
+            
        
-            on_click=open_astronomy
-        ).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
-        aria_button(
-            '🧪Lab Activities', 
-            'Open Cosmo-Edu Lab Activities',
-            on_click=open_activities
-        ).classes('w-full text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white')
+        mat_btn_style = 'w-[85%] ml-6 px-6 text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white rounded-r-lg'
+            
+        aria_button('📄Cosmology Intro', 'Open Introductory Slides: Cosmology', on_click=open_slides_cosmo).classes(mat_btn_style).props('align="left"')
+        aria_button('📄Astronomy Intro', 'Open Introductory Slides: Astronomy', on_click=open_astronomy).classes(mat_btn_style).props('align="left"')
+        aria_button('🧪Lab Activities', 'Open Cosmo-Edu Lab Activities', on_click=open_activities).classes(mat_btn_style).props('align="left"')
         
-        aria_button('🏆 Credits', "View Credits", on_click=credits_dialog.open).classes('w-full text-lg font-bold mb-3 !bg-purple-600 hover:!bg-purple-500 border-l-4 border-purple-300 text-white')
     with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').style('background-color: #0f172a !important; color: white; border: 1px solid #334155;'):
             ui.html(r"""
     <div style="font-family: 'Roboto', sans-serif; color: #ffffff;">
@@ -1470,59 +1344,89 @@ def main_layout(title: str):
         
         
         <h4 style="color: #38bdf8; font-weight: bold; margin-top: 15px; margin-bottom: 8px;">
-            🚀 How to use the App:
+            🚀 How to use the App
         </h4>
         <ul style="margin: 0; padding-left: 20px; line-height: 1.6; list-style-type: disc;">
-            <li><b>Start your Journey:</b> Select a module from the main menu to begin.</li>
-            <li><b>Interactive Tools (Left Menu):</b>
+            <li><b>Start your Journey</b> 
+            <ul style="list-style-type: circle; margin-left: 15px; margin-top: 4px;">
+            
+            <li>Select a module from the main menu to begin.</li>
+             <li>Toggle interactive tools with the top-left menu button</li>
+       
+              </ul>
+               </li>
+            <li><b>School Alignment</b> 
+             <ul style="list-style-type: circle; margin-left: 15px; margin-top: 4px;">
+            <li><b>Physics Links</b>: See how each module maps to key physics concepts.</li>
+            <li><b>Curriculum</b>: Connect cosmology topics with your standard physics curriculum.</li>
+                </ul>
+                 </li>
+            <li><b>Tools</b>
                 <ul style="list-style-type: circle; margin-left: 15px; margin-top: 4px;">
                     <li>🔍 <b>Magnifier:</b> Hover over plots to zoom in on details.</li>
                     <li>🤖 <b>AI Tutor:</b> Ask questions to get real-time explanations.</li>
                     <li>📖 <b>Glossary:</b> Look up difficult astronomical terms.</li>
-                    <li>📝 <b>Reflection Log:</b> Save your answers and thoughts (requires Login).</li>
+                    <li>📝 <b>Reflection Log:</b> Save your answers and thoughts.</li>
                 </ul>
-            </li>
-            <li><b>Simulations:</b> Use the sliders to change parameters (like $z$, $\Omega_m$, $\Omega_\Lambda$) and observe how the plots update instantly.</li>
+       
+          </li>
+            <li><b>Supporting Materials:</b> 
+             <ul style="list-style-type: circle; margin-left: 15px; margin-top: 4px;">
+            <li>📄 <b>Cosmology Intro:</b> Learn about the universe and its evolution.</li>
+            <li>📄 <b>Astronomy Intro:</b> Explore the basics of stars, galaxies, and more.</li>
+            <li>🧪 <b>Lab Activities:</b> Engage with hands-on exercises to deepen your understanding.</li>
         </ul>
-
+         </li>
+  <li><b>Modules:</b> 
+  <li>Contain data analysis tools with predefined parameters which you can change with appropriate sliders.</li>
+   <ul style="list-style-type: circle; margin-left: 15px; margin-top: 4px;">
+   <li><b>Module 1:</b> Focuses on measuring distances in the universe and understanding its large-scale structure.</li>
+   <li><b>Module 2:</b> Dives into the evidence for Dark Matter and how it shapes galaxies and clusters.</li>
+   <li><b>Module 3:</b> Explores the Cosmic Microwave Background and what it tells us about the early universe.</li>
+   <li><b>Module 4:</b> Examines the expansion of the universe and the Dark Energy driving it.</li>
+   </ul>
+  </li>
+  
+  
+  
         <h4 style="color: #38bdf8; font-weight: bold; margin-top: 20px; margin-bottom: 8px;">
-            🎨 Button Color Legend:
+            🎨 Button Color Legend
         </h4>
-        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95em;">
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.95em;">
             
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #16a34a; color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8em; min-width: 90px; text-align: center; margin-right: 12px; box-shadow: 0 1px 2px rgba(255,255,255,0.2);">
                     GREEN
                 </span>
-                <span><b>Action & Interactive:</b> Generate plots, Run exercises, External links.</span>
+                <div style="line-height: 1.3;"><b>Action & Interactive:</b><br>Generate plots, Run exercises, External links.</div>
             </div>
 
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #2563eb; color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8em; min-width: 90px; text-align: center; margin-right: 12px; box-shadow: 0 1px 2px rgba(255,255,255,0.2);">
                     BLUE
                 </span>
-                <span><b>Information:</b> Instructions, Datasets, Legends, Theory.</span>
+                <div style="line-height: 1.3;"><b>Information:</b><br>Instructions, Datasets, Legends, Theory.</div>
             </div>
 
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #dc2626; color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8em; min-width: 90px; text-align: center; margin-right: 12px; box-shadow: 0 1px 2px rgba(255,255,255,0.2);">
                     RED
                 </span>
-                <span><b>Validation & Reset:</b> Check formulas, Reset graphs/values.</span>
+                <div style="line-height: 1.3;"><b>Accessibility:</b><br>Features for users with disabilities.</div>
             </div>
 
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #9333ea; color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8em; min-width: 90px; text-align: center; margin-right: 12px; box-shadow: 0 1px 2px rgba(255,255,255,0.2);">
                     PURPLE
                 </span>
-                <span><b>Curiosities:</b> "Did you know?" facts and fun trivia.</span>
+                <div style="line-height: 1.3;"><b>Curiosities:</b><br>"Did you know?" facts and fun trivia.</div>
             </div>
 
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #f97316; color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8em; min-width: 90px; text-align: center; margin-right: 12px; box-shadow: 0 1px 2px rgba(255,255,255,0.2);">
                     ORANGE
                 </span>
-                <span><b>Navigation:</b> Close dialogs/windows.</span>
+                <div style="line-height: 1.3;"><b>Navigation:</b><br>Close dialogs and interactive windows.</div>
             </div>
 
         </div>
@@ -1533,21 +1437,24 @@ def main_layout(title: str):
     </div>
 """).props('role=document aria-live=polite')
             aria_button("Close", "close the box",on_click=lambda:intro.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-    with ui.header(elevated=True).classes('!bg-slate-900/30 text-white items-center justify-between q-py-sm backdrop-blur-md'):
-        with ui.row().classes('items-center'):
-            aria_button2('Menu', 'Menu', on_click=lambda: drawer.toggle(), tooltip='Toggle menu').classes('mr-4 text-lg font-bold !bg-slate-800/80 hover:!bg-slate-700')
-            aria_button(
-                'Instructions', 'Open Instruction',
-                on_click=lambda:[intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    
-     
+    with ui.header(elevated=True).classes('!bg-orange-900/30 text-white items-center justify-between q-py-sm backdrop-blur-md'):
+        
+        with ui.row().classes('items-center gap-3'): 
+            aria_button2('Menu', 'Menu', on_click=lambda: drawer.toggle(), tooltip='Toggle menu') \
+                .classes('text-lg font-bold !bg-slate-800/80 hover:!bg-slate-700 px-4')
+            
+            aria_button('Instructions', 'Open Instruction', on_click=lambda:[intro.open(),ui.run_javascript("MathJax.typesetPromise()")]) \
+                .classes('text-lg font-bold !bg-blue-600 hover:!bg-blue-500 text-white px-4') 
+            
+            aria_button('🏆 Credits', "View Credits", on_click=credits_dialog.open) \
+                .classes('text-lg font-bold !bg-blue-600 hover:!bg-blue-500 text-white px-4')
         ui.label(title).classes('text-2xl font-black tracking-widest text-white drop-shadow-md')
         
         with ui.row().classes('items-center gap-2'):
             aria_button('Home', "Home", on_click=safe_click(lambda: aria_navigate('/main', 'Home'))).props('icon=home flat round')
             aria_button('Back', "Back", on_click=safe_click(lambda: ui.run_javascript('window.history.back()'))).props('icon=arrow_back flat round')
             if app.storage.user.get('name'):
-                aria_button('Logout', "Logout", on_click=safe_click(lambda: (app.storage.user.clear(), aria_navigate('/login', 'Login')))).props('icon=logout flat round color=negative')
+                aria_button('Logout', "Logout", on_click=safe_click(lambda: (app.storage.user.clear(), aria_navigate('/login', 'Login')))).props('icon=logout flat round ')
             else:
-                aria_button('Login', "Login", on_click=safe_click(lambda: aria_navigate('/login', 'Login'))).props('icon=login flat round color=positive')
+                aria_button('Login', "Login", on_click=safe_click(lambda: aria_navigate('/login', 'Login'))).props('icon=login flat round ')
 

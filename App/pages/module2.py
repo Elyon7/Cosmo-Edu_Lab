@@ -912,7 +912,7 @@ def create_page():
      #panel kepler           
                 with ui.tab_panel('kepler').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg"):
-                    description_on_dark("Review the Kepler's Laws and planetary motion to derive the orbital velocity.").classes("title-on-dark")
+                    ui.label("Review the Kepler's Laws and planetary motion to derive the orbital velocity.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                     with ui.dialog() as info_kepler, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-label="Detailed information about Kepler Laws activity"'):
                         html_info_box(r"""
         <h3>Kepler's Laws Exploration</h3>
@@ -1016,7 +1016,7 @@ def create_page():
                                
                                 if current_step < len(kepler_exercises_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_kepler_phase1.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -1442,21 +1442,21 @@ def create_page():
                         aria_button("Instructions", "Instruction for Kepler panel",on_click=safe_click(lambda: [info_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Dataset", "Info Kepler planets dataset",on_click=safe_click(lambda: [data_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button('Open Introduction Presentation', 'Open Introduction Presentation',on_click=open_slides).classes(
+                        
+                        
+                        aria_button('Kepler III law plot  ', "Kepler III law plot (Period vs semi-major axis)",on_click=lambda:kepler_3_dialog.open()).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                            
+                        
+                        aria_button('Planets Mass plot ','Mass Plot (M vs a)', on_click=lambda:mass_plot_dialog.open()).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                        aria_button('Supplementary Materials', 'Open Introduction Presentation',on_click=open_slides).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_kep.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                        aria_button('Explore the Kepler Laws Phet Simulator',"Explore the interactive Kepler laws simulator",
+                        aria_button('External Resources',"Explore the interactive Kepler laws simulator",
         on_click=safe_click(lambda: ui.run_javascript("window.open('https://phet.colorado.edu/sims/html/keplers-laws/latest/keplers-laws_all.html', '_blank')"))).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                         
 
-                        
-                        aria_button('Kepler III law plot  ', "Kepler III law plot (Period vs semi-major axis)",on_click=lambda:kepler_3_dialog.open()).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                            
-                        
-                        aria_button('Planets Mass plot ','Mass Plot (M vs a)', on_click=lambda:mass_plot_dialog.open()).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                        
                         
                     with ui.row().classes('w-full items-center justify-center gap-8'): 
                         
@@ -1496,9 +1496,9 @@ def create_page():
 #panel galaxy rotation curve
                 with ui.tab_panel('gal').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg"):
-                    description_on_dark(
+                    ui.label(
     "Analyze the rotation speeds of spiral galaxies to solve the discrepancy between observations and predictions."
-)
+).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                     gal_state= {
             'r_ngc': np.array([]),
             'v_obs_ngc': np.array([]),
@@ -1853,7 +1853,7 @@ def create_page():
                               
                                 if current_step < len(galaxy_exercises_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step_galaxy(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_galaxy_phase2_3.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -1941,7 +1941,7 @@ def create_page():
                                 
                                 if current_step < len(slider_exercises_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step_slider(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_galaxy_slider.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -2031,7 +2031,7 @@ def create_page():
                         aria_button("Instructions","Instruction for galaxy panel",on_click=safe_click(lambda: [info_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Dataset ", "Info galaxy dataset",on_click=safe_click(lambda: [data_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [velocity_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
             )
@@ -2435,11 +2435,12 @@ def create_page():
                         with ui.column().classes('w-full justify-between items-center'):
                             chi2_plot_container = ui.column().classes('w-full')
                             with ui.row().classes("w-full justify-center mt-2"):
+                                aria_button("Info χ²", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
+                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                                 aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                 
-                                aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded ")
-                                aria_button("Info chi2", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                                aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
+                                
                                 aria_button("Tool", "Tool", on_click=lambda:[chi2_input_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                         
                 
@@ -2945,8 +2946,8 @@ def create_page():
         
                 with ui.tab_panel('galdm').props('role=tabpanel'):
                 # with ui.card().classes("p-4 !bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-lg"):
-                    description_on_dark( " Explore the influence of dark matter on galaxy rotation curves of different datasets.  ")
-                    
+                    ui.label(" Explore the influence of dark matter on galaxy rotation curves of different datasets.  ").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+
                     with ui.dialog() as info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Information about the galaxy rotation curve activity" role=dialog'):
                         html_info_box(r"""
         <h3>Analysis Overview</h3>
@@ -3048,11 +3049,11 @@ def create_page():
                         aria_button("Instructions", "Read instructions",on_click=safe_click(lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Dataset", "Read dataset info",on_click=safe_click(lambda: [data_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
+                        aria_button("Dataset Info", "Read dataset info",on_click=safe_click(lambda: [data_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
 
-                        aria_button("Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [baryonic_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
+                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [baryonic_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
                         aria_button("📘 Legend", "Read the legend of symbols and units",on_click=lambda:[legend1_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
@@ -3387,7 +3388,7 @@ def create_page():
 
                     with ui.row().classes('w-full justify-center gap-4 '):
                     
-                        aria_button("Run Analysis", "Run the analysis to reproduce the plots",on_click=lambda:check_and_run_galaxy()).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
+                        aria_button("Run Analysis", "Run the analysis to reproduce the plots",on_click=lambda:check_and_run_galaxy()).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
                      
                     
                         aria_button("Open Plots", "Open the two galaxy plots in a popup window",            on_click=lambda: [update_plots_popup(), plots_popup.open()]).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
@@ -3396,7 +3397,7 @@ def create_page():
 #panel cluster
                 with ui.tab_panel('cluster').props('role=tabpanel'):
                  
-                    description_on_dark("Analyze the velocity distribution to unveil the reason of larger mass in galaxy clusters.")
+                    ui.label("Analyze the velocity distribution to unveil the reason of larger mass in galaxy clusters.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                     plot_state = {'id': 0}  
                     cluster_state = {
                         "select": "coma_data.csv", 
@@ -3540,7 +3541,7 @@ def create_page():
                                 
                                 if current_step < len(cluster_exercises_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_cluster_virial.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -3612,7 +3613,7 @@ def create_page():
                               
                                 if current_step < len(cluster_mass_exercises_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_mass(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_cluster_mass.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -3678,7 +3679,7 @@ def create_page():
                              
                                 if current_step < len(cluster_slider_html) - 1:
                                     aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_slider(1)) \
-                                        .classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     aria_button("Close", "close the box", on_click=lambda: instr_cluster_slider.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
@@ -4143,7 +4144,7 @@ def create_page():
                         aria_button("Instructions", "Read the instructions",on_click=safe_click(lambda: [instruction_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
                         aria_button("Dataset", "Read the info about dataset",on_click=safe_click(lambda: [dataset_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
+                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")  
                         aria_button("Physics Info", "Read the detailed information about computational steps from data to plots",on_click=safe_click(lambda: [cluster_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
                     
@@ -4583,10 +4584,11 @@ def create_page():
                                 plot_cluster_chi2_curve() 
                                 
                                 with ui.row().classes("w-full justify-center mt-2"):
-                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
-                                    aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-red-600 text-white font-bold py-1 px-2 rounded ")
-                                    aria_button("How is χ²?", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
+                                    aria_button("Info χ²", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
                   
+                                    aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
+                                    aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
+                                    
                     def refresh_cluster_plots(full_anim=False):
                            
                         
@@ -5057,7 +5059,7 @@ def create_page():
 #panel cluster exercise
                 with ui.tab_panel('clusdm').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow-lg"):
-                    description_on_dark("Explore how virial theorem reveals dark matter in galaxy clusters. ")
+                    ui.label("Explore how virial theorem reveals dark matter in galaxy clusters. ").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                     with ui.dialog() as inst_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Instructions for cluster mass and density activities'):
                         html_info_box(r"""
         <h3>Cluster Mass Analysis</h3>
@@ -5263,10 +5265,10 @@ def create_page():
                         aria_button("Instructions", "Read instruction for cluster activities",on_click=safe_click(lambda: [inst_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Dataset", "Read dataset info",on_click=safe_click(lambda: [datac_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
+                        aria_button("Dataset Info", "Read dataset info",on_click=safe_click(lambda: [datac_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [formula_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
+                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [formula_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
                         aria_button("📘 Legend", "Read the legend of symbols and units",on_click=lambda:[legend_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
@@ -5275,10 +5277,11 @@ def create_page():
                         aria_button("📐 Units","Read units conversion", on_click=lambda:[units_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_el_gordo.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                        aria_button('Numerical Explanation',"Additional Information:Numerical Explanation", on_click=open_slides_DM).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                        aria_button('Supplementary Materials',"Additional Information:Numerical Explanation", on_click=open_slides_DM).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                         aria_button("More on DM","Learn more about Dark Matter evidence", on_click=lambda:[more_DM_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
                     
+                        aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_el_gordo.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                        
                         ui.add_head_html('''
     <style>
         .math-text { font-family: 'Times New Roman', serif; font-style: italic; font-size: 1.25rem; display: flex; align-items: center; flex-wrap: nowrap; }
@@ -5814,7 +5817,7 @@ def create_page():
                         with ui.row().classes('w-full justify-center'):
                             with ui.column().classes('flex-1 items-center '):
 
-                                aria_button("Run Analysis", "Ruon the analysis to make the plots",on_click=lambda:check_and_run_cluster()).classes("!bg-red-600 hover:!bg-red-800 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Run Analysis", "Ruon the analysis to make the plots",on_click=lambda:check_and_run_cluster()).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
                             with ui.column().classes('flex-1 items-center '):
                                 
                                 aria_button("Open Cluster Plots",             "Open cluster mass & density plots",    on_click=lambda: [update_cluster_popup_plots(), cluster_plots_popup.open()]).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")

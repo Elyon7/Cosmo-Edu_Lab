@@ -51,6 +51,7 @@ from pages import auth, home, module1, module2, module3, module4
 
 core.load_data()
 core.download_submissions_from_cloud()
+MODULES_LOCKED = os.getenv("MODULES_LOCKED", "True") == "True"
 #app.add_static_files('/cluster_gif', os.path.join(BASE_DIR, 'cluster_gif'))
 app.add_static_files('/images', os.path.join(BASE_DIR, 'images'))
 app.add_static_files('/dataset', os.path.join(BASE_DIR, 'dataset'))
@@ -66,9 +67,10 @@ app.add_static_files('/static', os.path.join(BASE_DIR, 'static'))
 auth.create_auth_routes()  
 home.create_routes()       
 module1.create_page()    
-module2.create_page()      
-module3.create_page()     
-module4.create_page()     
+module2.create_page()    
+if not MODULES_LOCKED:  
+    module3.create_page()     
+    module4.create_page()     
 
 async def keep_alive():
     while True:
