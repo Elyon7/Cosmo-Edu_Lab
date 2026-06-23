@@ -1437,6 +1437,73 @@ def main_layout(title: str):
     </div>
 """).props('role=document aria-live=polite')
             aria_button("Close", "close the box",on_click=lambda:intro.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+    
+    def show_constants_dialog():
+        with ui.dialog() as constants_dialog, ui.card().classes('p-6 w-full overflow-y-auto').props('role=dialog aria-label="Constants and Units"'):
+            ui.label("Constants and Units").classes("text-2xl font-bold mb-4")
+            
+            with ui.tabs().classes('w-full') as tabs:
+                t_const = ui.tab('Physical Constants')
+                t_astro = ui.tab('Astronomical Units')
+                t_cosmo = ui.tab('Cosmological Values')
+
+            with ui.tab_panels(tabs, value=t_const).classes('w-full'):
+                # TAB 1: PHYSICAL CONSTANTS
+                with ui.tab_panel(t_const):
+                    ui.html("""
+                    <table class="w-full text-sm text-left border-collapse">
+                    <tr class="bg-black text-white font-bold">
+                        <th class="p-2">Constant</th><th class="p-2">Symbol</th><th class="p-2">Value</th><th class="p-2">Unit</th>
+                    </tr>
+                    <tr class="border-b"><td>Speed of Light</td><td>c</td><td>2.9979 × 10^8</td><td>m/s</td></tr>
+                    <tr class="border-b"><td>Gravitational Constant (SI)</td><td>G</td><td>6.674 × 10^-11</td><td>m³/(kg·s²)</td></tr>
+                    <tr class="border-b"><td>Gravitational Constant (Galactic)</td><td>G</td><td>4.302 × 10^-6</td><td>kpc·(km/s)²·M☉⁻¹</td></tr>
+                    <tr class="border-b"><td>Planck Constant</td><td>h</td><td>6.626 × 10^-34</td><td>J·s</td></tr>
+                    <tr class="border-b"><td>Boltzmann Constant</td><td>k<sub>B</sub></td><td>1.380 × 10^-23</td><td>J/K</td></tr>
+                    <tr class="border-b"><td>Proton Mass</td><td>m<sub>p</sub></td><td>1.672 × 10^-27</td><td>kg</td></tr>
+                    <tr class="border-b"><td>Electron Mass</td><td>m<sub>e</sub></td><td>9.109 × 10^-31</td><td>kg</td></tr>
+                    <tr class="border-b"><td>Elementary Charge</td><td>e</td><td>1.602 × 10^-19</td><td>C</td></tr>
+                </table>
+                    """)
+                
+                # TAB 2: ASTRONOMICAL UNITS
+                with ui.tab_panel(t_astro):
+                    ui.html("""
+                   <table class="w-full text-sm text-left border-collapse">
+                    <tr class="bg-black text-white font-bold">
+                        <th class="p-2">Unit</th><th class="p-2">Symbol</th><th class="p-2">Conversion</th>
+                    </tr>
+                    <tr class="border-b"><td>Solar Mass</td><td>M☉</td><td>1.989 × 10^30 kg</td></tr>
+                    <tr class="border-b"><td>Solar Radius</td><td>R☉</td><td>6.957 × 10^5 km</td></tr>
+                    <tr class="border-b"><td>Solar Luminosity</td><td>L☉</td><td>3.828 × 10^26 W</td></tr>
+                    <tr class="border-b"><td>Earth Radius</td><td>R⊕</td><td>6,371 km</td></tr>
+                    <tr class="border-b"><td>Jupiter Radius</td><td>R<sub>J</sub></td><td>71,492 km</td></tr>
+                    <tr class="border-b"><td>Astronomical Unit</td><td>AU</td><td>1.496 × 10^8 km</td></tr>
+                    <tr class="border-b"><td>Parsec</td><td>pc</td><td>3.086 × 10^13 km</td></tr>
+                    <tr class="border-b"><td>Light-year</td><td>ly</td><td>9.461 × 10^12 km</td></tr>
+                </table>
+                    """)
+
+                # TAB 3: COSMOLOGICAL VALUES
+                with ui.tab_panel(t_cosmo):
+                    ui.html("""
+                    <table class="w-full text-sm text-left border-collapse">
+                    <tr class="bg-black text-white font-bold">
+                        <th class="p-2">Parameter</th><th class="p-2">Value (approx)</th><th class="p-2">Unit</th>
+                    </tr>
+                    <tr class="border-b"><td>Hubble Constant</td><td>H₀ ≈ 70</td><td>km/s/Mpc</td></tr>
+                    <tr class="border-b"><td>Matter Density Parameter</td><td>Ω<sub>m</sub> ≈ 0.3</td><td>-</td></tr>
+                    <tr class="border-b"><td>Dark Energy Density</td><td>Ω<sub>Λ</sub> ≈ 0.7</td><td>-</td></tr>
+                    <tr class="border-b"><td>Critical Density</td><td>ρ<sub>crit</sub></td><td>9.2 × 10^-27 kg/m³</td></tr>
+                    <tr class="border-b"><td>CMB Temperature</td><td>T<sub>CMB</sub></td><td>2.725 K</td></tr>
+                    <tr class="border-b"><td>Age of the Universe</td><td>t₀</td><td>~13.8 Gyr</td></tr>
+                    <tr class="border-b"><td>Mass-Energy Equiv.</td><td>1 kg</td><td>~5.61 × 10^35 eV</td></tr>
+                </table>
+                    """)
+            
+            aria_button("Close", "Close constants dialog", on_click=constants_dialog.close).classes("!bg-orange-500 mt-4")
+        
+        constants_dialog.open()
     with ui.header(elevated=True).classes('!bg-orange-900/30 text-white items-center justify-between q-py-sm backdrop-blur-md'):
         
         with ui.row().classes('items-center gap-3'): 
@@ -1445,7 +1512,12 @@ def main_layout(title: str):
             
             aria_button('Instructions', 'Open Instruction', on_click=lambda:[intro.open(),ui.run_javascript("MathJax.typesetPromise()")]) \
                 .classes('text-lg font-bold !bg-blue-600 hover:!bg-blue-500 text-white px-4') 
-            
+       
+            aria_button(
+        "Constants & Units", 
+        "Open reference sheet for constants and units", 
+        on_click=show_constants_dialog
+    ).classes('text-lg font-bold !bg-blue-600 hover:!bg-blue-500 text-white px-4')
             aria_button('🏆 Credits', "View Credits", on_click=credits_dialog.open) \
                 .classes('text-lg font-bold !bg-blue-600 hover:!bg-blue-500 text-white px-4')
         ui.label(title).classes('text-2xl font-black tracking-widest text-white drop-shadow-md')

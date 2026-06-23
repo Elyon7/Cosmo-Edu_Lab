@@ -944,7 +944,7 @@ def create_page():
                         </ul>
                         """,
                         r"""
-                        <h3>Part 2: Building Model 1 - Exercise 2.1</h3>
+                        <h3>Part 2: Building Model </h3>
                         <ul>
                             <li>On your spreadsheet, try to find the mathematical relationship between velocity and distance.</li>
                             <li>Create three new columns and calculate the following values for each planet: <i>v &middot; d</i>, <i>v<sup>2</sup> &middot; d</i>, and <i>v<sup>3</sup> &middot; d</i>. Observe which of these three operations returns an almost constant value.</li>
@@ -953,7 +953,7 @@ def create_page():
                         </ul>
                         """,
                         r"""
-                        <h3>Part 3: Building Model 1 - Exercise 2.2</h3>
+                        <h3>Part 3: Building Model </h3>
                         <ul>
                             <li>Considering the line passing through the origin, substitute the equation <i>y = mx</i> with velocity (y) and distance (x) for different values of the dataset and analyze the results.</li>
                             <li>How does the slope (angular coefficient) of the line behave for different values?</li>
@@ -961,7 +961,7 @@ def create_page():
                         </ul>
                         """,
                         r"""
-                        <h3>Part 4: Mathematical Derivation - Exercise 3.1</h3>
+                        <h3>Part 4: Mathematical Derivation </h3>
                         <ul>
                             <li>Consider the context of the planets rotating around the Sun, where the force of gravity and centripetal acceleration act. The goal is to find the rotation velocity to understand what the constant <i>c</i> equals.</li>
                             <li>Write the formula for the gravitational force and the centripetal force of circular motion.</li>
@@ -974,7 +974,7 @@ def create_page():
                         </ul>
                         """,
                         r"""
-                        <h3>Part 5: Mathematical Derivation - Exercise 3.2</h3>
+                        <h3>Part 5: Mathematical Derivation</h3>
                         <ul>
                             <li>To numerically verify the terms of the constant using the dataset data (velocity and distance), find the inverse formula deriving the mass <i>M</i>. Apply the formula by calculating the mass for each planet (the variables are velocity and distance) and calculate its average.</li>
                             <li>What does the obtained mass refer to?</li>
@@ -1419,42 +1419,75 @@ def create_page():
                 
                         ui.html(html).props('role=region tabindex=0 aria-label="Planet information panel"')
 
-                    def open_slides():
-                        ui.run_javascript('window.open("/slides/cosmo_dark_matter.pdf", "_blank")')
-                    kepler_3_plot_ref = None
-                    mass_plot_ref = None
-                
-                    with ui.dialog() as kepler_3_dialog, ui.card().classes('p-4 w-full max-w-[900px]'):
-                        ui.label("Kepler III: Period vs Semi-major axis").classes("text-lg font-bold").props('aria-label="Kepler III law plot" role=heading aria-level=3 tabindex=0')
-                        kepler_3_plot_ref = plot_kepler_III(None)
-                        kepler_3_plot_ref.classes('w-full')
-                        aria_button("Close","close", on_click=lambda:kepler_3_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as mass_plot_dialog, ui.card().classes('p-4 w-full max-w-[900px]').props('aria-label="Mass vs Semi-major axis plot dialog"'):
-                        ui.label("Mass vs Semi-major axis").classes("text-lg font-bold").props('aria-label="Kepler mass plot" role=heading aria-level=3 tabindex=0')
-                        mass_plot_ref = plot_mass(None)
-                        mass_plot_ref.classes('w-full') 
-                        aria_button("Close","close", on_click=lambda:mass_plot_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                        
+                    def open_kepler_info_dialog():
+                        with ui.dialog() as comp_kepler_dialog, ui.card().classes('p-0 w-full min-w-[1000px] max-w-[95vw] h-[85vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="kepler-title"'):
+                            
+                            with ui.column().classes('w-full h-full bg-white flex flex-col'):
+                                
+                                with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="kepler-title"'):
+                                    ui.label('Kepler Laws & Mass Analysis').classes('text-xl font-bold').props('id="kepler-title" role=heading aria-level=2 tabindex=0')
+                                    aria_button('Close', 'close', on_click=comp_kepler_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                
+                                with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                    t_kepler3 = ui.tab('Kepler III Plot')
+                                    t_mass = ui.tab('Planets Mass Plot')
+                                    t_resources = ui.tab('Resources & Materials')
+
+                                with ui.tab_panels(tabs, value=t_kepler3).classes('w-full flex-1 p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                    
+                                   
+                                    with ui.tab_panel(t_kepler3).classes('flex flex-col items-center justify-start gap-4'):
+                                       
+                                        kepler_3_plot_ref = plot_kepler_III(None)
+                                        kepler_3_plot_ref.classes('w-full max-w-[800px]')
+
+                                   
+                                    with ui.tab_panel(t_mass).classes('flex flex-col items-center justify-start gap-4'):
+                                      
+                                        mass_plot_ref = plot_mass(None)
+                                        mass_plot_ref.classes('w-full max-w-[800px]')
+
+                                    
+                                    with ui.tab_panel(t_resources).classes('flex flex-col items-center justify-start pt-10 gap-8'):
+                                       
+                                        
+                                      
+                                        with ui.column().classes('w-full items-center gap-6'):
+                                            
+                                            with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-green-500'):
+                                                ui.label("PhET Interactive Simulation").classes("text-xl font-bold text-green-700")
+                                                ui.label("Explore orbital mechanics with this interactive physics simulator from the University of Colorado.").classes("text-center text-gray-600")
+                                                aria_button(
+                                                    'Open PhET Simulator', 
+                                                    "Explore the interactive Kepler laws simulator",
+                                                    on_click=lambda: ui.run_javascript("window.open('https://phet.colorado.edu/sims/html/keplers-laws/latest/keplers-laws_all.html', '_blank')")
+                                                ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-3 px-6 rounded shadow")
+
+                                            with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-blue-500'):
+                                                ui.label("Supplementary Materials").classes("text-xl font-bold text-blue-700")
+                                                ui.label("View the introductory presentation slides on Cosmology and Dark Matter.").classes("text-center text-gray-600")
+                                                aria_button(
+                                                    'Open PDF Slides', 
+                                                    'Open Introduction Presentation',
+                                                    on_click=lambda: ui.run_javascript('window.open("/slides/cosmo_dark_matter.pdf", "_blank")')
+                                                ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-6 rounded shadow")
+
+                        comp_kepler_dialog.open()
                     with ui.row().classes('w-full gap-4 justify-center'):
 
                         
                        
                         aria_button("Instructions", "Instruction for Kepler panel",on_click=safe_click(lambda: [info_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Dataset", "Info Kepler planets dataset",on_click=safe_click(lambda: [data_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-        "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded"
-    )
+                       
                         
+                        aria_button(
+            'Scientific Info', 
+            'Open Comprehensive Kepler Information Dialog', 
+            on_click=lambda: [open_kepler_info_dialog(), ui.run_javascript("if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); }")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                         
-                        aria_button('Kepler III law plot  ', "Kepler III law plot (Period vs semi-major axis)",on_click=lambda:kepler_3_dialog.open()).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                            
-                        
-                        aria_button('Planets Mass plot ','Mass Plot (M vs a)', on_click=lambda:mass_plot_dialog.open()).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                        aria_button('Supplementary Materials', 'Open Introduction Presentation',on_click=open_slides).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_kep.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                        aria_button('External Resources',"Explore the interactive Kepler laws simulator",
-        on_click=safe_click(lambda: ui.run_javascript("window.open('https://phet.colorado.edu/sims/html/keplers-laws/latest/keplers-laws_all.html', '_blank')"))).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                         
 
                         
@@ -1480,10 +1513,19 @@ def create_page():
                         with ui.column().classes('w-full md:w-auto shrink-0'):
                         
                             plot_velocity(selector.value).classes('max-w-full')
-                            aria_button("Activity 1:Kepler", "Instructions for Kepler velocity plot", on_click=lambda:instr_kepler_phase1.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4")
-                            
-                            
-                    
+                            with ui.row().classes('w-full justify-center items-center gap-4 mt-4'):
+                                aria_button(
+                                    "Activity: Kepler", 
+                                    "Instructions for Kepler velocity plot", 
+                                    on_click=lambda: instr_kepler_phase1.open()
+                                ).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                                
+                                aria_button(
+                                    "Dataset", 
+                                    "Info Kepler planets dataset",
+                                    on_click=safe_click(lambda: [data_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])
+                                ).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                        
                     selector.on('update:model-value', lambda e: (
                         plot_velocity.refresh(selector.value),
                     
@@ -1648,73 +1690,8 @@ def create_page():
                     
                     
                     
-                    with ui.row().classes('w-full '):
-                        with ui.dialog() as velocity_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('id=velocity-info role=document aria-live=polite'):
-                            html_info_box(r"""
-        <h3>Computational Notes</h3>
-        
-        <ul>
-            <li>
-                <b>Step 1:</b> Baryonic velocity (from data)<br>
-                <span class="math">\( v_{\mathrm{bar}}^2(r) = v_{\mathrm{gas}}^2(r) + v_{\mathrm{disk}}^2(r) + v_{\mathrm{bulge}}^2(r) \)</span>
-            </li>
-            
-            <li>
-                <b>Step 2:</b> Baryonic mass<br>
-                <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, v_{\mathrm{bar}}^2(r)}{G} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 3:</b> Total observed mass from velocity data<br>
-                <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2(r)}{G} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 4:</b> Observed dark matter density (from data)<br>
-                <span class="math">\( \rho_{\mathrm{DM}}(r) = \frac{1}{4 \pi G r^2} \, \frac{d}{dr} \Bigg[ r^2 \Big( \frac{v_{\mathrm{obs}}^2(r)}{r} - \frac{v_{\mathrm{gas}}^2(r)}{r} - \frac{v_{\mathrm{disk}}^2(r)}{r} - \frac{v_{\mathrm{bulge}}^2(r)}{r} \Big) \Bigg] \)</span>
-            </li>
-            
-            <li>
-                <b>Step 5:</b> NFW dark matter profile<br>
-                <span class="math">\( \rho_{\mathrm{NFW}}(r) = \frac{\rho_s}{\left(\tfrac{r}{r_s}\right)\left(1 + \tfrac{r}{r_s}\right)^2} \)</span> <br>
-                with <span class="math">\( \alpha=1, \beta=3, \gamma=1 \)</span>, <span class="math">\( R_{200} = \left[\tfrac{3 M_{200}}{4\pi \cdot 200 \rho_{\mathrm{crit}}}\right]^{1/3}, \;\; r_s = \tfrac{R_{200}}{c} \)</span>, <br>
-                <span class="math">\( c = 0.3 \times 11.7 \left(\tfrac{M_{200}}{10^{11} M_\odot}\right)^{-0.075} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 6:</b> Match observed density with NFW<br>
-                <span class="math">\( \rho_{\mathrm{NFW}}(r_{\mathrm{match}}) = \rho_{\mathrm{DM}}(r_{\mathrm{match}}) \)</span> → Obtain <span class="math">\( M_{200}, \rho_s, r_s \)</span>
-            </li>
-            
-            <li>
-                <b>Step 7:</b> Enclosed dark matter mass (NFW)<br>
-                <span class="math">\( M_{\mathrm{DM}}(r) = 4 \pi \rho_s r_s^3 \left[\ln(1+x) - \frac{x}{1+x}\right], \;\; x = \tfrac{r}{r_s} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 8:</b> Dark matter rotational velocity<br>
-                <span class="math">\( v_{\mathrm{DM}}(r) = \sqrt{\frac{G M_{\mathrm{DM}}(r)}{r}} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 9:</b> Total simulated velocity curve (linked to DM slider)<br>
-                <span class="math">\( v_{\mathrm{tot,sim}}(r) = \sqrt{\tfrac{G \, (M_{\mathrm{bar}}(r) + f\,M_{\mathrm{DM}}(r))}{r}}, \;\; f \in [0,1] \)</span>
-            </li>
-            
-            <li>
-                <b>Step 10:</b> Fit quality (χ²/d.o.f)<br>
-                <span class="math">\( \chi^2 = \sum_i \left(\tfrac{v_{\mathrm{obs}}(r_i) - v_{\mathrm{tot,sim}}(r_i)}{\sigma_i}\right)^2, \;\; \chi^2_{\mathrm{dof}} = \tfrac{\chi^2}{N_{\mathrm{obs}} - N_{\mathrm{params}}} \)</span>
-            </li>
-        </ul>
-
-        <h4>Plot Legend</h4>
-        <ul>
-            <li><b>X-axis:</b> Radius (data)</li>
-            <li><b>Y-axis:</b> <span class="math">\( v_{\mathrm{bar}} \)</span> (red), <span class="math">\( v_{\mathrm{obs}} \)</span> (blue with grey error bars), <span class="math">\( v_{\mathrm{tot,sim}} \)</span> (green)</li>
-        </ul>
-    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the computational steps"')
-
-                            aria_button("Close", "close the box",on_click=lambda:velocity_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                   
+                        
                     @ui.refreshable
                     def update_image():
                         select = gal_state.get('selected_file') or default_galaxy
@@ -1782,183 +1759,99 @@ def create_page():
                         update_table()
                         aria_button("close",'close',on_click=lambda:table_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-                    with ui.dialog() as morpho, ui.card().classes('w-full max-w-xl mx-auto h-auto ').props('aria-label="Galaxy morphology animation" role=dialog'):
-                        morph_plot_container = ui.column().classes("w-full h-auto")
-                        aria_button('close','close', on_click=lambda:morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                  
-                    galaxy_exercise_state = {'step': 0}
-
-                  
-                    galaxy_exercises_html = [
-                        r"""
-                        <h3>Phase 2: Galaxy Panel – Predicting in a New Context (Galaxies)</h3>
-                        <p><b>Goal:</b> Use the Solar System Model you just created to make a prediction in the context of galaxies.</p>
-                        
-                        <h4>Formulate your prediction:</h4>
-                        <ul>
-                            <li>Before looking at the App's data, gather in your group and draw your prediction on a piece of paper: what do you expect the velocity graph of stars rotating around the center of a galaxy to look like as you move further from the center?</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Observation of Real Data:</h3>
-                        <ul>
-                            <li>In the App, module 2, "Galaxy Panel" section, select a real galaxy (dataset) from the dropdown menu.</li>
-                            <li>Observe the left graph representing the rotation velocity of stars as a function of distance from the galactic center: the blue points represent the "Observed Data" (real measurements with optical instruments), while the red line represents the theoretical Keplerian curve (what you would expect based on the formula found for the Solar System).</li>
-                            <li>Observing the App's graph, why are the two curves (red line and blue points) different? Which curve do you think is correct for galaxies and why?</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Phase 3: Galaxy Panel – Formulating a New Hypothesis</h3>
-                        <p><b>Goal:</b> Find a mathematical solution to the discrepancy that emerged in Phase 2.</p>
-                        
-                        <h4>Analysis of the Discrepancy:</h4>
-                        <ul>
-                            <li>Take back the Keplerian orbital velocity formula that you derived in Phase 1.</li>
-                            <li>Look at the observational data in the graph (blue points): the velocity does not drop, but remains almost constant even at very large distances. The Keplerian prediction (red curve) does not match the experimental data.</li>
-                            <li>Why do the peripheral stars of the galaxy travel so fast?</li>
-                            <li>How can the discrepancy between observations and prediction be resolved?</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Building Model 2:</h3>
-                        <ul>
-                            <li>Look at the equation: if the radius in the denominator grows (as we see in the graph), what must happen to the Mass in the numerator so that the velocity remains constant and the equation remains mathematically correct?</li>
-                            <li>If we had to add mass, is it luminous mass (visible stars, dust, gas) or is it something else?</li>
-                        </ul>
-                        """
-                    ]
-
-
-                    with ui.dialog() as instr_galaxy_phase2_3, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy exercises about rotation curves" role=dialog'):
-                        
-                        @ui.refreshable
-                        def galaxy_exercises_content():
-                            current_step = galaxy_exercise_state['step']
+                   
+                    with ui.dialog() as comp_physics_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="physics-title"'):
+                        with ui.column().classes('w-full h-full bg-white'):
                             
-                           
-                            html_info_box(galaxy_exercises_html[current_step])
+                        
+                            with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="physics-title"'):
+                                ui.label('Physics, Math & Morphology').classes('text-xl font-bold').props('id="physics-title" role=heading aria-level=2 tabindex=0')
+                                aria_button('Close', 'close', on_click=comp_physics_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                             
                           
-                            with ui.row().classes('w-full justify-between items-center mt-4'):
-                                
-                                if current_step > 0:
-                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_galaxy(-1)) \
-                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    ui.label()
-                                
-                               
-                                ui.label(f"Step {current_step + 1} of {len(galaxy_exercises_html)}").classes('text-gray-500 font-bold')
+                            with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                t_comp = ui.tab('Computational Notes')
+                                t_chi2 = ui.tab('χ² Minimization')
+                                t_morpho = ui.tab('Morphology Top-View')
+                                tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+                          
+                            with ui.tab_panels(tabs, value=t_comp).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
                                 
                               
-                                if current_step < len(galaxy_exercises_html) - 1:
-                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_galaxy(1)) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    aria_button("Close", "close the box", on_click=lambda: instr_galaxy_phase2_3.close()) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                with ui.tab_panel(t_comp):
+                                    html_info_box(r"""
+                                                  <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+        <h3>Computational Notes</h3>
+        
+        <ul>
+            <li>
+                <b>Step 1:</b> Baryonic velocity (from data)<br>
+                <span class="math">\( v_{\mathrm{bar}}^2(r) = v_{\mathrm{gas}}^2(r) + v_{\mathrm{disk}}^2(r) + v_{\mathrm{bulge}}^2(r) \)</span>
+            </li>
+            
+            <li>
+                <b>Step 2:</b> Baryonic mass<br>
+                <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, v_{\mathrm{bar}}^2(r)}{G} \)</span>
+            </li>
+            
+            <li>
+                <b>Step 3:</b> Total observed mass from velocity data<br>
+                <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2(r)}{G} \)</span>
+            </li>
+            
+            <li>
+                <b>Step 4:</b> Observed dark matter density (from data)<br>
+                <span class="math">\( \rho_{\mathrm{DM}}(r) = \frac{1}{4 \pi G r^2} \, \frac{d}{dr} \Bigg[ r^2 \Big( \frac{v_{\mathrm{obs}}^2(r)}{r} - \frac{v_{\mathrm{gas}}^2(r)}{r} - \frac{v_{\mathrm{disk}}^2(r)}{r} - \frac{v_{\mathrm{bulge}}^2(r)}{r} \Big) \Bigg] \)</span>
+            </li>
+            
+            <li>
+                <b>Step 5:</b> NFW dark matter profile<br>
+                <span class="math">\( \rho_{\mathrm{NFW}}(r) = \frac{\rho_s}{\left(\tfrac{r}{r_s}\right)\left(1 + \tfrac{r}{r_s}\right)^2} \)</span> <br>
+                with <span class="math">\( \alpha=1, \beta=3, \gamma=1 \)</span>, <span class="math">\( R_{200} = \left[\tfrac{3 M_{200}}{4\pi \cdot 200 \rho_{\mathrm{crit}}}\right]^{1/3}, \;\; r_s = \tfrac{R_{200}}{c} \)</span>, <br>
+                <span class="math">\( c = 0.3 \times 11.7 \left(\tfrac{M_{200}}{10^{11} M_\odot}\right)^{-0.075} \)</span>
+            </li>
+            
+            <li>
+                <b>Step 6:</b> Match observed density with NFW<br>
+                <span class="math">\( \rho_{\mathrm{NFW}}(r_{\mathrm{match}}) = \rho_{\mathrm{DM}}(r_{\mathrm{match}}) \)</span> → Obtain <span class="math">\( M_{200}, \rho_s, r_s \)</span>
+            </li>
+            
+            <li>
+                <b>Step 7:</b> Enclosed dark matter mass (NFW)<br>
+                <span class="math">\( M_{\mathrm{DM}}(r) = 4 \pi \rho_s r_s^3 \left[\ln(1+x) - \frac{x}{1+x}\right], \;\; x = \tfrac{r}{r_s} \)</span>
+            </li>
+            
+            <li>
+                <b>Step 8:</b> Dark matter rotational velocity<br>
+                <span class="math">\( v_{\mathrm{DM}}(r) = \sqrt{\frac{G M_{\mathrm{DM}}(r)}{r}} \)</span>
+            </li>
+            
+            <li>
+                <b>Step 9:</b> Total simulated velocity curve (linked to DM slider)<br>
+                <span class="math">\( v_{\mathrm{tot,sim}}(r) = \sqrt{\tfrac{G \, (M_{\mathrm{bar}}(r) + f\,M_{\mathrm{DM}}(r))}{r}}, \;\; f \in [0,1] \)</span>
+            </li>
+            
+            <li>
+                <b>Step 10:</b> Fit quality (χ²/d.o.f)<br>
+                <span class="math">\( \chi^2 = \sum_i \left(\tfrac{v_{\mathrm{obs}}(r_i) - v_{\mathrm{tot,sim}}(r_i)}{\sigma_i}\right)^2, \;\; \chi^2_{\mathrm{dof}} = \tfrac{\chi^2}{N_{\mathrm{obs}} - N_{\mathrm{params}}} \)</span>
+            </li>
+        </ul>
 
-                        def change_step_galaxy(delta):
-                            galaxy_exercise_state['step'] += delta
-                            galaxy_exercises_content.refresh()
+        <h4>Plot Legend</h4>
+        <ul>
+            <li><b>X-axis:</b> Radius (data)</li>
+            <li><b>Y-axis:</b> <span class="math">\( v_{\mathrm{bar}} \)</span> (red), <span class="math">\( v_{\mathrm{obs}} \)</span> (blue with grey error bars), <span class="math">\( v_{\mathrm{tot,sim}} \)</span> (green)</li>
+        </ul>
+    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the computational steps"')
 
-                       
-                        instr_galaxy_phase2_3.on('open', lambda: galaxy_exercise_state.update({'step': 0}) or galaxy_exercises_content.refresh())
-
-                       
-                        galaxy_exercises_content()
-                  
-                    slider_exercise_state = {'step': 0}
-
-                
-                    slider_exercises_html = [
-                        r"""
-                        <h3>Phase 4: Galaxy Panel – Quantifying Model 2</h3>
-                        <p><b>Goal:</b> Verify if Model 2 fits the real data using multisensorial and statistical analysis.</p>
-                        
-                        <h4>Roles Distribution:</h4>
-                        <p>Divide the following roles within the group (you can rotate during the activity):</p>
-                        <ul>
-                            <li><b>Navigator:</b> Moves the slider in the App to add dark matter; the green simulated curve moves and must reach the observations.</li>
-                            <li><b>Listener:</b> Wears headphones to listen to the "Sonification" (data converted into sound) and find the sound match between the data and the simulated curve.</li>
-                            <li><b>Data Analyst:</b> Monitors the mathematical values and the "Chi-Squared" generated by the App to quantify the additional mass and reduce the discrepancy between data and theory.</li>
-                        </ul>
-
-                        <hr style="margin: 15px 0;">
-
-                        <h4>Exercise 1: Slider Exercise</h4>
-                        <ul>
-                            <li>The Navigator selects a galaxy from the dropdown menu (module 2 – Galaxy panel) and starts adding mass by moving the slider. Observe the green curve (simulated) moving. Try different mass values until you get a good match between the simulated curve and the data.</li>
-                            <li>When you have reached the match between the simulated curve and the data, what dark matter value do you read on the graph? The Data Analyst checks the dark matter value and also takes care of the following statistical exercise.</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Exercise 2: Multisensory Exercise</h3>
-                        <ul>
-                            <li>The data is converted into sound frequencies (high pitch = high velocity values, low pitch = low values) to perceive the velocity values in a multisensory way.</li>
-                            <li>The Listener clicks the 'activate audio' button and listens to the sound of the data by selecting (one at a time) 'observed velocity', 'baryonic velocity', and 'simulated velocity'. Listen to both the sound of the entire curve and the average.</li>
-                            <li>Try different simulated velocity values by moving the slider, and each time listen to the sound and compare it with the observed data. Look for the audio match between the observed and simulated curves.</li>
-                            <li>When the simulation sound matches the real data sound perfectly, say "Stop!" so the Navigator can select the correct mass value with the slider.</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Exercise 3: Statistical Exercise (Chi-Squared Minimization)</h3>
-                        <ul>
-                            <li>Let's call <b>O</b> the Observed value (blue point) and <b>E</b> the Expected value from the model. The distance/error is (O - E). If we sum all these distances (some positive above the curve, others negative below), what happens mathematically?</li>
-                            <li>How do we solve the problem of negative numbers in statistics if we only want to sum positive error quantities?</li>
-                            <li>Does a 10 km/s error on a very slow star weigh the same as a 10 km/s error on a very fast one? How is the formula modified to account for this?</li>
-                            <li>The Chi-Squared calculates the difference between the blue points (observations) and the green line (simulated model based on a mass density distribution).</li>
-                            <li>By moving the slider we can add points, how do we know we have found the absolute minimum error value? What geometric shape has a minimum value?</li>
-                            <li>The Data Analyst and the Navigator must collaborate to try 3 completely different Dark Matter values on the slider and check their respective 3 Chi-Squared values.</li>
-                            <li>Insert 3 points into the center graph by moving the slider and clicking 'add point' after selecting each value. What geometric shape did you get? What (minimum) value does the vertex correspond to? Find the smallest vertex value by trying different combinations of 3 values.</li>
-                            <li>Why do we need to calculate exactly a parabola and need exactly 3 points to find the minimum error?</li>
-                        </ul>
-                        """
-                    ]
-
-
-                    with ui.dialog() as instr_galaxy_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy slider exercises" role=dialog'):
-                        
-                        @ui.refreshable
-                        def slider_exercises_content():
-                            current_step = slider_exercise_state['step']
-                            
-                            
-                            html_info_box(slider_exercises_html[current_step])
-                            
-                           
-                            with ui.row().classes('w-full justify-between items-center mt-4'):
                                
-                                if current_step > 0:
-                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_slider(-1)) \
-                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    ui.label() 
-                                
-                              
-                                ui.label(f"Step {current_step + 1} of {len(slider_exercises_html)}").classes('text-gray-500 font-bold')
-                                
-                                
-                                if current_step < len(slider_exercises_html) - 1:
-                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_slider(1)) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    aria_button("Close", "close the box", on_click=lambda: instr_galaxy_slider.close()) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                        def change_step_slider(delta):
-                            slider_exercise_state['step'] += delta
-                            slider_exercises_content.refresh()
-
-                       
-                        instr_galaxy_slider.on('open', lambda: slider_exercise_state.update({'step': 0}) or slider_exercises_content.refresh())
-
-                       
-                        slider_exercises_content()
-
-                   
-                    with ui.dialog() as chi2_info_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-label="Information about chi-squared minimization"'):
-                        html_info_box(r"""
+                                with ui.tab_panel(t_chi2):
+                                    html_info_box(r"""
         <style>
             .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
             .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
@@ -2011,7 +1904,181 @@ def create_page():
             </div>
         </div>
     """).props('aria-label="Parabolic interpolation formula for chi-squared minimization"')
-                        aria_button("close",'close',on_click=lambda:chi2_info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+                               
+                                with ui.tab_panel(t_morpho).classes('flex flex-col items-center justify-start w-full'):
+                                    
+                                   
+                                   
+                                    morph_plot_container = ui.column().classes("w-full items-center justify-center")
+                                    
+                                    
+                    combined_exercise_state = {'step': 0}
+
+                    combined_exercises_html = [
+                        r"""
+                        <h3>Phase 1: Galaxy Panel – Predicting in a New Context (Galaxies)</h3>
+                        <p><b>Goal:</b> Use the Solar System Model you just created to make a prediction in the context of galaxies.</p>
+                        
+                        <h4>Formulate your prediction:</h4>
+                        <ul>
+                            <li>Before looking at the App's data, gather in your group and draw your prediction on a piece of paper: what do you expect the velocity graph of stars rotating around the center of a galaxy to look like as you move further from the center?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Observation of Real Data:</h3>
+                        <ul>
+                            <li>In the App, module 2, "Galaxy Panel" section, select a real galaxy (dataset) from the dropdown menu.</li>
+                            <li>Observe the left graph representing the rotation velocity of stars as a function of distance from the galactic center: the blue points represent the "Observed Data" (real measurements with optical instruments), while the red line represents the theoretical Keplerian curve (what you would expect based on the formula found for the Solar System).</li>
+                            <li>Observing the App's graph, why are the two curves (red line and blue points) different? Which curve do you think is correct for galaxies and why?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Phase 2: Galaxy Panel – Formulating a New Hypothesis</h3>
+                        <p><b>Goal:</b> Find a mathematical solution to the discrepancy that emerged in Phase 2.</p>
+                        
+                        <h4>Analysis of the Discrepancy:</h4>
+                        <ul>
+                            <li>Take back the Keplerian orbital velocity formula that you derived in Phase 1.</li>
+                            <li>Look at the observational data in the graph (blue points): the velocity does not drop, but remains almost constant even at very large distances. The Keplerian prediction (red curve) does not match the experimental data.</li>
+                            <li>Why do the peripheral stars of the galaxy travel so fast?</li>
+                            <li>How can the discrepancy between observations and prediction be resolved?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Building Model :</h3>
+                        <ul>
+                            <li>Look at the equation: if the radius in the denominator grows (as we see in the graph), what must happen to the Mass in the numerator so that the velocity remains constant and the equation remains mathematically correct?</li>
+                            <li>If we had to add mass, is it luminous mass (visible stars, dust, gas) or is it something else?</li>
+                        </ul>
+                        """
+                    ,
+
+
+                    
+                        
+                        r"""
+                        <h3>Phase 3: Galaxy Panel – Predicting in a New Context (Galaxies)</h3>
+                        <p><b>Goal:</b> Use the Solar System Model you just created to make a prediction in the context of galaxies.</p>
+                        
+                        <h4>Formulate your prediction:</h4>
+                        <ul>
+                            <li>Before looking at the App's data, gather in your group and draw your prediction on a piece of paper: what do you expect the velocity graph of stars rotating around the center of a galaxy to look like as you move further from the center?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Observation of Real Data:</h3>
+                        <ul>
+                            <li>In the App, module 2, "Galaxy Panel" section, select a real galaxy (dataset) from the dropdown menu.</li>
+                            <li>Observe the left graph representing the rotation velocity of stars as a function of distance from the galactic center: the blue points represent the "Observed Data" (real measurements with optical instruments), while the red line represents the theoretical Keplerian curve (what you would expect based on the formula found for the Solar System).</li>
+                            <li>Observing the App's graph, why are the two curves (red line and blue points) different? Which curve do you think is correct for galaxies and why?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Phase 4: Galaxy Panel – Formulating a New Hypothesis</h3>
+                        <p><b>Goal:</b> Find a mathematical solution to the discrepancy that emerged in Phase 2.</p>
+                        
+                        <h4>Analysis of the Discrepancy:</h4>
+                        <ul>
+                            <li>Take back the Keplerian orbital velocity formula that you derived in Phase 1.</li>
+                            <li>Look at the observational data in the graph (blue points): the velocity does not drop, but remains almost constant even at very large distances. The Keplerian prediction (red curve) does not match the experimental data.</li>
+                            <li>Why do the peripheral stars of the galaxy travel so fast?</li>
+                            <li>How can the discrepancy between observations and prediction be resolved?</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Building Model :</h3>
+                        <ul>
+                            <li>Look at the equation: if the radius in the denominator grows (as we see in the graph), what must happen to the Mass in the numerator so that the velocity remains constant and the equation remains mathematically correct?</li>
+                            <li>If we had to add mass, is it luminous mass (visible stars, dust, gas) or is it something else?</li>
+                        </ul>
+                        """,
+                        
+                    
+                        r"""
+                        <h3>Phase 5: Galaxy Panel – Quantifying Model </h3>
+                        <p><b>Goal:</b> Verify if Model 2 fits the real data using multisensorial and statistical analysis.</p>
+                        
+                        <h4>Roles Distribution:</h4>
+                        <p>Divide the following roles within the group (you can rotate during the activity):</p>
+                        <ul>
+                            <li><b>Navigator:</b> Moves the slider in the App to add dark matter; the green simulated curve moves and must reach the observations.</li>
+                            <li><b>Listener:</b> Wears headphones to listen to the "Sonification" (data converted into sound) and find the sound match between the data and the simulated curve.</li>
+                            <li><b>Data Analyst:</b> Monitors the mathematical values and the "Chi-Squared" generated by the App to quantify the additional mass and reduce the discrepancy between data and theory.</li>
+                        </ul>
+
+                        <hr style="margin: 15px 0;">
+
+                        <h4>Exercise : Slider Exercise</h4>
+                        <ul>
+                            <li>The Navigator selects a galaxy from the dropdown menu (module 2 – Galaxy panel) and starts adding mass by moving the slider. Observe the green curve (simulated) moving. Try different mass values until you get a good match between the simulated curve and the data.</li>
+                            <li>When you have reached the match between the simulated curve and the data, what dark matter value do you read on the graph? The Data Analyst checks the dark matter value and also takes care of the following statistical exercise.</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Exercise : Multisensory Exercise</h3>
+                        <ul>
+                            <li>The data is converted into sound frequencies (high pitch = high velocity values, low pitch = low values) to perceive the velocity values in a multisensory way.</li>
+                            <li>The Listener clicks the 'activate audio' button and listens to the sound of the data by selecting (one at a time) 'observed velocity', 'baryonic velocity', and 'simulated velocity'. Listen to both the sound of the entire curve and the average.</li>
+                            <li>Try different simulated velocity values by moving the slider, and each time listen to the sound and compare it with the observed data. Look for the audio match between the observed and simulated curves.</li>
+                            <li>When the simulation sound matches the real data sound perfectly, say "Stop!" so the Navigator can select the correct mass value with the slider.</li>
+                        </ul>
+                        """,
+                        r"""
+                        <h3>Exercise : Statistical Exercise (Chi-Squared Minimization)</h3>
+                        <ul>
+                            <li>Let's call <b>O</b> the Observed value (blue point) and <b>E</b> the Expected value from the model. The distance/error is (O - E). If we sum all these distances (some positive above the curve, others negative below), what happens mathematically?</li>
+                            <li>How do we solve the problem of negative numbers in statistics if we only want to sum positive error quantities?</li>
+                            <li>Does a 10 km/s error on a very slow star weigh the same as a 10 km/s error on a very fast one? How is the formula modified to account for this?</li>
+                            <li>The Chi-Squared calculates the difference between the blue points (observations) and the green line (simulated model based on a mass density distribution).</li>
+                            <li>By moving the slider we can add points, how do we know we have found the absolute minimum error value? What geometric shape has a minimum value?</li>
+                            <li>The Data Analyst and the Navigator must collaborate to try 3 completely different Dark Matter values on the slider and check their respective 3 Chi-Squared values.</li>
+                            <li>Insert 3 points into the center graph by moving the slider and clicking 'add point' after selecting each value. What geometric shape did you get? What (minimum) value does the vertex correspond to? Find the smallest vertex value by trying different combinations of 3 values.</li>
+                            <li>Why do we need to calculate exactly a parabola and need exactly 3 points to find the minimum error?</li>
+                        </ul>
+                        """
+                    ]
+
+                    with ui.dialog() as instr_combined_galaxy, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy exercises" role=dialog'):
+                        
+                        @ui.refreshable
+                        def combined_exercises_content():
+                            current_step = combined_exercise_state['step']
+                            
+                            html_info_box(combined_exercises_html[current_step])
+                            
+                            with ui.row().classes('w-full justify-between items-center mt-4'):
+                                
+                                if current_step > 0:
+                                 
+                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_galaxy_combined(-1)) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    ui.label()
+                                
+                                ui.label(f"Step {current_step + 1} of {len(combined_exercises_html)}").classes('text-gray-500 font-bold')
+                                
+                                if current_step < len(combined_exercises_html) - 1:
+                                   
+                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_galaxy_combined(1)) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                else:
+                                    aria_button("Close", "close the box", on_click=lambda: instr_combined_galaxy.close()) \
+                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+
+                       
+                        def change_step_galaxy_combined(delta):
+                            new_step = combined_exercise_state['step'] + delta
+                            if 0 <= new_step < len(combined_exercises_html):
+                                combined_exercise_state['step'] = new_step
+                                combined_exercises_content.refresh()
+
+                        instr_combined_galaxy.on('open', lambda: combined_exercise_state.update({'step': 0}) or combined_exercises_content.refresh())
+
+                        combined_exercises_content()
+
+                   
+                    
                     with ui.row().classes('w-full items-center justify-center gap-4'):
                         galaxy_files = [f for f in os.listdir(GALAXY_DATA_PATH) if f.endswith(('.txt', '.dat', '.csv'))]
 
@@ -2027,51 +2094,91 @@ def create_page():
                             value=default_galaxy,
                             label='Select a Galaxy Dataset'
                         ).classes('w-1/2 max-w-md').props('id=galaxy_selector aria-label="Galaxy dataset selector" role=listbox tabindex=0')
-                        velocity_dialog.on('open', lambda: ui.run_javascript("MathJax.typesetPromise()"))
+                        
                         aria_button("Instructions","Instruction for galaxy panel",on_click=safe_click(lambda: [info_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Dataset ", "Info galaxy dataset",on_click=safe_click(lambda: [data_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded" )
-                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [velocity_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            )
-                        #aria_button("Image", "Show galaxy image",on_click=lambda: image_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
-                        #aria_button("Table", "Show galaxy data table",on_click=lambda: table_dialog2.open()).classes(                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
                         
-                        aria_button("Galaxy morphology ", "Plot galaxy ", 
-                                            on_click=lambda: morpho.open()).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                        aria_button(
+                            "Scientific Info", 
+                            "Read detailed information about computational steps and morphology",
+                            on_click=lambda: [comp_physics_dialog.open(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")
+            ]
+                        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
+                       
+                        
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_rot.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                        
-                    
-                    with ui.row().classes('w-full items-center justify-center gap-4'):
-                    
                         ui.html('''
-<div class="flex space-x-2">
-<button id="audio-button" role="button" aria-label=" activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
-            class="!bg-green-500 hover:!bg-green-700 text-black font-bold py-1 px-2 rounded">
-        Activate Audio
-    </button>''')
-                        ui.label("").props(
-            'id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0'
-        )
-                        ui.html('''
-        <div class="flex space-x-2">
-        <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Observed Vel (mean)</button>
-        <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Observed Vel (curve)</button>
-        <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Baryonic Vel (mean)</button>
-        <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Baryonic Vel (curve)</button>
-        <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Simulated Vel (mean)</button>
-        <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Simulated Vel (curve)</button>
-        <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-2 py-1 rounded">▶ Difference (mean)</button>
-        <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-2 py-1 rounded">▶ Difference (curve)</button>
+        <style>
+            /* Regole CSS per forzare il menu a tendina sull'hover */
+            .audio-menu-wrapper {
+                position: relative;
+                display: inline-block;
+                z-index: 99999; /* Z-index altissimo per sovrapporsi a tutto */
+            }
+            .audio-dropdown-content {
+                display: none; /* Nascosto di default */
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 100%;
+                margin-top: 0.5rem;
+                width: 480px;
+                background-color: #1e293b; /* bg-slate-800 */
+                border: 1px solid #475569; /* border-slate-600 */
+                border-radius: 0.5rem;
+                padding: 1rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                flex-direction: column;
+                gap: 1rem;
+            }
+            /* Appare magicamente in hover! */
+            .audio-menu-wrapper:hover .audio-dropdown-content {
+                display: flex;
+            }
+        </style>
+
+        <div class="audio-menu-wrapper">
+            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" 
+                onmouseover="this.style.backgroundColor='#15803d'" 
+                onmouseout="this.style.backgroundColor='#16a34a'">
+                🔊 Audio Tools
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            
+            <div class="audio-dropdown-content">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
+                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sonification Controls</span>
+                    <button id="audio-button" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
+                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
+                        Activate Audio
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (mean)</button>
+                    <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (mean)</button>
+                    <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (mean)</button>
+                    <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (mean)</button>
+                    <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (curve)</button>
+                </div>
+                
+            </div>
         </div>
         ''')
-                        ui.label("").props(
-            'id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0'
-        )
-                    
-
+                        
+                        ui.label("").props('id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0').classes('text-sm text-gray-700 font-bold')
                 
+                    
+                    
+                        
+                        
 
 
                     ui.label("Move the slider to add the dark matter to the simulated velocity curve").props('id=alpha_slider_label aria-live=polite tabindex=0')
@@ -2423,20 +2530,19 @@ def create_page():
                         with ui.column().classes('w-full justify-between items-center'):
                             plot_container = ui.column().classes('w-full')
                             with ui.row().classes('w-full justify-center mt-2'):
-                                aria_button("Activity 2-3: build model", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_galaxy_phase2_3.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
-
+                                
+                                aria_button("Activity: Galaxy", "Instruction for plot galaxy panel", on_click=safe_click(lambda: [instr_combined_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                                aria_button("Dataset ", "Info galaxy dataset",on_click=safe_click(lambda: [data_galaxy.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
+                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded" )
+                                
                     
                         with ui.column().classes('w-full justify-between items-center'):
                             mass_plot_container = ui.column().classes("w-full")
-                            with ui.row().classes('w-full justify-center mt-2'):
-                                aria_button("Activity 4: quantify model", "Instruction for galaxy panel", on_click=safe_click(lambda: [instr_galaxy_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-1 px-4 rounded mt-2")
-
-                    
+                           
                         with ui.column().classes('w-full justify-between items-center'):
                             chi2_plot_container = ui.column().classes('w-full')
                             with ui.row().classes("w-full justify-center mt-2"):
-                                aria_button("Info χ²", "Read detailed information about chi2 ", on_click=lambda:[chi2_info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" )
+                                
                                 aria_button("Add point", "Add point", on_click=lambda: add_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                 
                                 aria_button("Reset", "Reset", on_click=lambda: refresh_chi2_plot()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
@@ -2958,74 +3064,6 @@ def create_page():
         </ul>
     """).props('aria-label="Descriptive text about galaxy velocity and mass activities"')
                         aria_button("Close", "close the box",on_click=lambda:info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as data_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto ').props('aria-label="Dataset description and references" role=dialog'):
-                        info_box( "**Dataset variables**: Rad (radius), Vobs (observed velocity),  errV (velocity error), Vgas (gas velocity), Vdisk (disk velocity), Vbul (bulge velocity),SBdisk (surface brightness disk),SBbul (surface brightness bulge)")
-                        
-                
-                        reference_box(
-        """**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
-                        aria_button("Close", "close the box",on_click=lambda:info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    
-                    with ui.dialog() as baryonic_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Baryonic calculation steps" role=dialog  '):
-                        html_info_box(r"""
-        <h3>Baryonic Calculation Steps</h3>
-        
-        <ul>
-            <li>
-                <b>Step 1:</b> Compute the baryonic velocity as the sum of each component from data:<br>
-                <span class="math">\( v_{\mathrm{bar}}^2 = v_{\mathrm{gas}}^2 + v_{\mathrm{disk}}^2 + v_{\mathrm{bulge}}^2 \)</span>
-            </li>
-            
-            <li>
-                <b>Step 2:</b> Derive the baryonic mass:<br>
-                <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, v_{\mathrm{bar}}^2}{G} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 3:</b> Compute the total mass from observations:<br>
-                <span class="math">\( M(r) = \frac{r \, v_{\mathrm{obs}}^2}{G} \)</span>
-            </li>
-            
-            <li>
-                <b>Step 5 (Plotting):</b>
-                <ul style="margin-top:5px; list-style-type: circle;">
-                    <li><b>X-axis:</b> radius (data)</li>
-                    <li><b>Y-axis:</b> <span class="math">\( v_{\mathrm{bar}} \)</span> (red), <span class="math">\( v_{\mathrm{obs}} \)</span> (blue)</li>
-                    <li><b>Masses:</b> <span class="math">\( M_{\mathrm{bar}} \)</span> (red), <span class="math">\( M_{\mathrm{tot}} \)</span> (blue)</li>
-                </ul>
-            </li>
-        </ul>
-    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the steps to compute baryonic velocity and mass"')
-                        aria_button("Close", "close the box",on_click=lambda:baryonic_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog().props('role="dialog" aria-label="legend-title" aria-describedby="legend-desc"') as legend1_dialog, ui.card().classes("p-4 w-full max-w-2xl overflow-x-auto"):
-                        html_info_box(r"""
-        <h3 class="text-xl font-bold mb-2">Legend of Symbols and Units</h3>
-        <ul class="list-disc pl-5 space-y-1">
-            <li><b>Rad</b> = Radius [kpc]</li>
-            <li><b>V_obs</b> = Observed rotation velocity [km/s]</li>
-            <li><b>V_gas, V_disk, V_bul</b> = Velocity contributions from gas, stellar disk, bulge [km/s]</li>
-            <li><b>G</b> = 4.30091 &times; 10<sup>-6</sup> kpc&middot;(km/s)&sup2;&middot;M<sub>&odot;</sub><sup>-1</sup></li>
-            <li><b>M_baryonic</b> = Baryonic mass [M<sub>&odot;</sub>]</li>
-            <li><b>M_total</b> = Total mass (from observations) [M<sub>&odot;</sub>]</li>
-            <li><b>V_baryonic</b> = Baryonic velocity (Keplerian-like prediction) [km/s]</li>
-        </ul>
-    """).props('id="legend-desc"')
-                        aria_button("Close", "close the box",on_click=lambda:legend1_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                
-                    with ui.dialog().props('role="dialog" aria-label="units-title" aria-describedby="units-desc"') as units1_dialog, ui.card().classes("p-4 w-full max-w-2xl overflow-x-auto"):
-                        html_info_box(r"""
-        <h3 class="text-xl font-bold mb-2">Units Conversion</h3>
-        <ul class="list-disc pl-5 space-y-1">
-            <li><b>1 kpc</b> = 3.086 &times; 10<sup>16</sup> m = 3.26 &times; 10<sup>3</sup> light-years</li>
-            <li><b>1 pc</b> = 3.086 &times; 10<sup>13</sup> km = 3.26 light-years</li>
-            <li><b>1 Mpc</b> = 10<sup>6</sup> pc = 3.086 &times; 10<sup>19</sup> km</li>
-            <li><b>1 km/s</b> = 3.6 &times; 10<sup>3</sup> km/h = 10<sup>3</sup> m/s</li>
-            <li><b>1 M<sub>&odot;</sub></b> = 1.989 &times; 10<sup>30</sup> kg (solar mass)</li>
-            <li><b>1 L<sub>&odot;</sub></b> = 3.828 &times; 10<sup>26</sup> W (solar luminosity)</li>
-        </ul>
-    """).props('id="units-desc"')
-                        aria_button("Close","close the box", on_click=lambda:units1_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                     with ui.dialog() as cur_mass, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Curiosity about ghost galaxies" role=dialog'):
                         html_info_box(r"""
@@ -3036,7 +3074,124 @@ def create_page():
                         reference_box("**Source:** [Space](https://www.space.com/33850-weird-galaxy-is-mostly-dark-matter.html)")
                         aria_button("Close", "close", on_click=lambda:cur_mass.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
-                    
+                    def open_baryonic_analysis_dialog():
+                        global plots_popup_container
+                        
+                     
+                        with ui.dialog() as comp_baryonic_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="baryonic-title"'):
+                            
+                            with ui.column().classes('w-full h-full bg-white flex flex-col'):
+                                
+                                with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="baryonic-title"'):
+                                    ui.label('Baryonic Analysis & Galaxy Plots').classes('text-xl font-bold').props('id="baryonic-title" role=heading aria-level=2 tabindex=0')
+                                    aria_button('Close', 'close', on_click=comp_baryonic_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                
+                                with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                    
+                              
+                                    t_math = ui.tab('Baryonic Math')
+                                    t_legend = ui.tab('Legend and Units')
+                                   
+                                    t_plots = ui.tab('Galaxy Plots')
+                                   
+                                    tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+
+                                with ui.tab_panels(tabs, value=t_math).classes('w-full flex-1 overflow-y-auto bg-gray-50 text-slate-900 p-6'):
+                                    
+                                 
+                                    with ui.tab_panel(t_plots).classes('flex flex-col items-center justify-start'):
+                                        ui.label("Galaxy Velocity and Mass Profiles").classes("text-2xl font-bold mb-4 text-slate-800")
+                                        ui.select(options=galaxy_select.options, label='Select a Galaxy Dataset') \
+                                            .bind_value(galaxy_select, 'value') \
+                                            .classes('w-64 mb-6 bg-slate-800 text-white rounded shadow-sm') \
+                                            .props('behavior="menu" outlined popup-content-class="bg-slate-800 text-white"') \
+                                            .on_value_change(lambda e: update_plots_popup.refresh())
+                                        plots_popup_container = ui.column().classes("w-full items-center justify-center")
+                                        update_plots_popup()
+                                        
+                                      
+                                        update_plots_popup()
+                                        info_box("**Dataset variables**: Rad (radius), Vobs (observed velocity), errV (velocity error), Vgas (gas velocity), Vdisk (disk velocity), Vbul (bulge velocity), SBdisk (surface brightness disk), SBbul (surface brightness bulge)")
+                                        reference_box("""**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
+
+                                        
+                                    
+                                  
+                                 
+                                    with ui.tab_panel(t_math):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+                                        <h3>Baryonic Calculation Steps</h3>
+                                        
+                                        <ul>
+                                            <li>
+                                                <b>Step 1:</b> Compute the baryonic velocity as the sum of each component from data:<br>
+                                                <span class="math">\( v_{\mathrm{bar}}^2 = v_{\mathrm{gas}}^2 + v_{\mathrm{disk}}^2 + v_{\mathrm{bulge}}^2 \)</span>
+                                            </li>
+                                            
+                                            <li style="margin-top: 10px;">
+                                                <b>Step 2:</b> Derive the baryonic mass:<br>
+                                                <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, v_{\mathrm{bar}}^2}{G} \)</span>
+                                            </li>
+                                            
+                                            <li style="margin-top: 10px;">
+                                                <b>Step 3:</b> Compute the total mass from observations:<br>
+                                                <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2}{G} \)</span>
+                                            </li>
+                                            
+                                            <li style="margin-top: 10px;">
+                                                <b>Step 4 (Plotting):</b>
+                                                <ul style="margin-top:5px; list-style-type: circle;">
+                                                    <li><b>X-axis:</b> radius (data)</li>
+                                                    <li><b>Y-axis Velocities:</b> \( v_{\mathrm{bar}} \) (red), \( v_{\mathrm{obs}} \) (blue)</li>
+                                                    <li><b>Y-axis Masses:</b> \( M_{\mathrm{bar}} \) (red), \( M_{\mathrm{tot}} \) (blue)</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                        """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the steps to compute baryonic velocity and mass"')
+
+                                  
+                                    with ui.tab_panel(t_legend):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+                                        <h3 class="text-xl font-bold mb-2">Legend of Symbols and Units</h3>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li><b>Rad</b> = Radius [\(\mathrm{kpc}\)]</li>
+                                            <li><b>V_obs</b> = Observed rotation velocity [\(\mathrm{km/s}\)]</li>
+                                            <li><b>V_gas, V_disk, V_bul</b> = Velocity contributions from gas, stellar disk, bulge [\(\mathrm{km/s}\)]</li>
+                                            <li><b>G</b> = \( 4.30091 \times 10^{-6} \, \mathrm{kpc \cdot (km/s)^2 \cdot M_\odot^{-1}} \)</li>
+                                            <li><b>M_baryonic</b> = Baryonic mass [\(\mathrm{M_\odot}\)]</li>
+                                            <li><b>M_total</b> = Total mass (from observations) [\(\mathrm{M_\odot}\)]</li>
+                                            <li><b>V_baryonic</b> = Baryonic velocity (Keplerian-like prediction) [\(\mathrm{km/s}\)]</li>
+                                        </ul>
+                                      
+                                                      
+                                        <h3 class="text-xl font-bold mb-2">Units Conversion</h3>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li><b>1 kpc</b> = \( 3.086 \times 10^{16} \, \mathrm{m} \) = \( 3.26 \times 10^3 \, \mathrm{light\text{-}years} \)</li>
+                                            <li><b>1 pc</b> = \( 3.086 \times 10^{13} \, \mathrm{km} \) = \( 3.26 \, \mathrm{light\text{-}years} \)</li>
+                                            <li><b>1 Mpc</b> = \( 10^6 \, \mathrm{pc} \) = \( 3.086 \times 10^{19} \, \mathrm{km} \)</li>
+                                            <li><b>1 km/s</b> = \( 3.6 \times 10^3 \, \mathrm{km/h} \) = \( 10^3 \, \mathrm{m/s} \)</li>
+                                            <li><b>1 \( \mathrm{M_\odot} \)</b> = \( 1.989 \times 10^{30} \, \mathrm{kg} \) (solar mass)</li>
+                                            <li><b>1 \( \mathrm{L_\odot} \)</b> = \( 3.828 \times 10^{26} \, \mathrm{W} \) (solar luminosity)</li>
+                                        </ul>
+                                       
+                                        """)
+
+                                   
+                                   
+
+                        comp_baryonic_dialog.open()
                     with ui.row().classes('w-full gap-8 justify-center'):
                         galaxy_files = [f for f in os.listdir(GALAXY_DATA_PATH) if f.endswith(('.txt', '.dat', '.csv'))]
                         galaxy_file_map = get_data_and_images(GALAXY_DATA_PATH, GALAXY_IMG_PATH)
@@ -3046,22 +3201,19 @@ def create_page():
                         else:
                         
                             galaxy_select = ui.select(galaxy_files, label='Select a Galaxy Dataset').classes('flex-1 max-w-md items-start text-lg')
+                        
+                        
                         aria_button("Instructions", "Read instructions",on_click=safe_click(lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Dataset Info", "Read dataset info",on_click=safe_click(lambda: [data_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-
-                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [baryonic_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button("📘 Legend", "Read the legend of symbols and units",on_click=lambda:[legend1_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-    "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button("📐 Units","Read the units conversion", on_click=lambda:[units1_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-    "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
+                        aria_button(
+    "Scientific Info", 
+    "Open comprehensive dialog for galaxy plots, data, and physics", 
+    on_click=lambda: [
+        open_baryonic_analysis_dialog(), 
+        ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")
+    ]
+).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_mass.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
 
 
@@ -3287,12 +3439,14 @@ def create_page():
                     
                     @ui.refreshable
                     def update_plots_popup():
-                        popup_plot_container.clear()
+                        
+                        global plots_popup_container 
+                        plots_popup_container.clear()
+                        
                         selected_file = galaxy_select.value
                         if not selected_file:
                             return
                         
-                      
                         data_ngc = get_galaxy_data_cached(selected_file)
                        
                         r = pd.to_numeric(data_ngc['Rad'], errors='coerce').values
@@ -3306,25 +3460,29 @@ def create_page():
                         mbar = (vbar**2 * r) / G_grav
                         mtot = (vobs**2 * r) / G_grav
 
-                        with popup_plot_container:
-                        
-                            with ui.pyplot(figsize=(8, 6)):
-                                plt.errorbar(r, vobs, yerr=verr, fmt='o', color='blue', ms=4,
-                                            ecolor='lightblue', capsize=2, label='Observed')
-                                plt.plot(r, vbar, color='red', lw=2, label='Baryonic')
-                                plt.xlabel("Radius (kpc)"); plt.ylabel("Velocity (km/s)")
-                                plt.title("Rotation Curve",fontweight='bold')
-                                plt.grid(True); plt.legend()
+                        with plots_popup_container:
+                          
+                            with ui.row().classes('w-full justify-center gap-8 flex-wrap'):
+                                
+                                
+                                with ui.pyplot(figsize=(6, 5)):
+                                    plt.errorbar(r, vobs, yerr=verr, fmt='o', color='blue', ms=4,
+                                                ecolor='lightblue', capsize=2, label='Observed')
+                                    plt.plot(r, vbar, color='red', lw=2, label='Baryonic')
+                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Velocity (km/s)")
+                                    plt.title("Rotation Curve", fontweight='bold')
+                                    plt.grid(True); plt.legend()
 
-                            
-                            with ui.pyplot(figsize=(8, 6)):
-                                plt.plot(r, mbar/1e9, color='red', lw=2, label='Baryonic Mass')
-                                plt.plot(r, mtot/1e9, color='blue', lw=2, label='Total Mass')
-                                plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
-                                plt.title("Enclosed Mass",fontweight='bold')
-                                plt.grid(True); plt.legend()
+                                
+                                with ui.pyplot(figsize=(6, 5)):
+                                    plt.plot(r, mbar/1e9, color='red', lw=2, label='Baryonic Mass')
+                                    plt.plot(r, mtot/1e9, color='blue', lw=2, label='Total Mass')
+                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Mass ($10^9$ $M_\odot$)")
+                                    plt.title("Enclosed Mass", fontweight='bold')
+                                    plt.grid(True); plt.legend()
+                    
+                 
                     galaxy_select.on('update:model-value', lambda e: [update_plots_popup.refresh(), update_galaxy_mass_analysis.refresh()])
-
 
                     def check_and_run_galaxy():
 
@@ -3391,8 +3549,7 @@ def create_page():
                         aria_button("Run Analysis", "Run the analysis to reproduce the plots",on_click=lambda:check_and_run_galaxy()).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
                      
                     
-                        aria_button("Open Plots", "Open the two galaxy plots in a popup window",            on_click=lambda: [update_plots_popup(), plots_popup.open()]).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-
+                        
 
 #panel cluster
                 with ui.tab_panel('cluster').props('role=tabpanel'):
@@ -3489,210 +3646,183 @@ def create_page():
 """).props('aria-label="Descriptive text about galaxy cluster activity"')
                         aria_button("Close","Close the box", on_click=lambda:instruction_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                   
-                    cluster_exercise_state = {'step': 0}
+                    combined_cluster_state = {'step': 0}
 
-             
-                    cluster_exercises_html = [
+                    combined_cluster_html = [
+                        
                         r"""
-                        <h3>Phase 5: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
+                        <h3>Phase 1: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
+
                         <p><b>Goal:</b> Verify if Dark Matter is also present in galaxy clusters, using different mathematical tools.</p>
-                        
-                        <h4>1. Formulation of Predictions:</h4>
-                        <ul>
-                            <li>Considering a Cluster, formed by many galaxies rotating around the center of mass of the cluster, is Model 2 valid in this context as well?</li>
-                            <li>Is the presence of dark matter an isolated case concerning individual galaxies or is it a general rule of the Universe? Justify your answer.</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Phase 5: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
-                        <p><b>Goal:</b> Verify if Dark Matter is also present in galaxy clusters, using different mathematical tools.</p>
-                        
-                        <h4>2. Derivation of the Virial Theorem:</h4>
-                        <ul>
-                            <li>Consider a satellite of mass <i>m</i> in a circular orbit of radius <i>r</i> around a mass <i>M</i> (planet). On your notebook or in the 'Reflection' section in the App's side menu, write the formulas for Kinetic Energy (<i>K</i>) and Gravitational Potential Energy (<i>U</i>).</li>
-                            <li>Write Newton's equation of dynamics (<i>F = ma</i>) by inserting the relationship between Gravitational Force and Centripetal Force (replace <i>F</i> with the gravitational force and '<i>m*a</i>' with the centripetal force).</li>
-                            <li>Multiply both sides of the force equation by <i>r</i>.</li>
-                            <li>Use the result obtained to manipulate the formula for Kinetic Energy and compare it with the formula for Gravitational Potential to find the mathematical relationship that links them (Virial Theorem).</li>
-                        </ul>
-                        """
-                    ]
-
-                    with ui.dialog() as instr_cluster_virial, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster exercises about the Virial Theorem"'):
-                        
-                        @ui.refreshable
-                        def cluster_exercises_content():
-                            current_step = cluster_exercise_state['step']
-                            
-                           
-                            html_info_box(cluster_exercises_html[current_step])
-                            
-                           
-                            with ui.row().classes('w-full justify-between items-center mt-4'):
-                                
-                                if current_step > 0:
-                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster(-1)) \
-                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    ui.label() 
-                                
-                              
-                                ui.label(f"Step {current_step + 1} of {len(cluster_exercises_html)}").classes('text-gray-500 font-bold')
-                                
-                                
-                                if current_step < len(cluster_exercises_html) - 1:
-                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster(1)) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_virial.close()) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                        def change_step_cluster(delta):
-                            cluster_exercise_state['step'] += delta
-                            cluster_exercises_content.refresh()
-
-                        
-                        instr_cluster_virial.on('open', lambda: cluster_exercise_state.update({'step': 0}) or cluster_exercises_content.refresh())
-
-                  
-                        cluster_exercises_content()
-
-                   
-                    cluster_mass_exercise_state = {'step': 0}
-
-                 
-                    cluster_mass_exercises_html = [
-                        r"""
-                        <h3>Phase 5: Calculating Cluster Mass</h3>
-                        <h4>Exercise 2.1:</h4>
-                        <ul>
-                            <li>Open the App, module 2 in the "Cluster Panel" section, and select a Galaxy Cluster (dataset) from the dropdown menu.</li>
-                            <li>From the Virial formula just found, replace <i>K</i> with the kinetic energy formula and <i>U</i> with the potential energy formula, and perform the appropriate simplifications.</li>
-                            <li>Derive the inverse formula to find the Total Mass.</li>
-                            <li><b>Note:</b> The cluster is made up of many galaxies, each with a different velocity. Therefore, we have a velocity distribution, and usually, the velocity dispersion (standard deviation) is considered instead of the sum of the velocities.</li>
-                        </ul>
-                        """,
-                        r"""
-                        <h3>Phase 5: Calculating Cluster Mass</h3>
-                        <h4>Exercise 2.2:</h4>
-                        <ul>
-                            <li>Use the data from the dataset downloadable from the App (radius and average velocities of the galaxies) to calculate the total mass of the cluster and the luminous mass (only stars, dust, gas).</li>
-                            <li>Download the cluster dataset from the App (module 2 - Cluster panel - dataset). Analyze the data (velocity RV and radius of each galaxy in the cluster) by selecting a cluster dataset from the Excel spreadsheet.</li>
-                            <li>To calculate the Total Mass using the formula <i>M=(r*&sigma;<sup>2</sup>)/G</i>, first perform the following steps. Find the maximum radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
-                            <li>Calculate the standard deviation of the velocity using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
-                            <li>To obtain the total mass of the cluster, multiply the mean radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
-                            <li>Calculate the total stellar mass of the cluster by summing the values of each galaxy in the Stellar Mass column of the dataset <code>=SUM(G2:G108)</code>.</li>
-                            <li>Calculate the gas mass of the cluster using the pre-defined formula in Excel column <code>=(0.7*L2) * 0.093 * (((0.7*L2) / (200000000000000 / 0.7)) ^ 0.21)</code>, where <code>L2</code> is the total mass of the cluster calculated in the previous step.</li>
-                            <li>Calculate the Luminous Mass (stars, gas) by summing the total stellar mass and the gas mass. </li>
-                            <li>Compare the results of the luminous mass and total mass. Calculate the ratio: Total Mass / Luminous Mass. What value do you get? Which of the two masses is larger and why?</li>
-                            <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
-                        </ul>
-                        """
-                    ]
-
-                    with ui.dialog() as instr_cluster_mass, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster mass calculation exercises" role=dialog'):
-                        
-                        @ui.refreshable
-                        def cluster_mass_exercises_content():
-                            current_step = cluster_mass_exercise_state['step']
-                            
-                          
-                            html_info_box(cluster_mass_exercises_html[current_step])
-                            
-                         
-                            with ui.row().classes('w-full justify-between items-center mt-4'):
-                               
-                                if current_step > 0:
-                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster_mass(-1)) \
-                                        .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    ui.label() 
-                                
-                               
-                                ui.label(f"Step {current_step + 1} of {len(cluster_mass_exercises_html)}").classes('text-gray-500 font-bold')
-                                
-                              
-                                if current_step < len(cluster_mass_exercises_html) - 1:
-                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_mass(1)) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                                else:
-                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_mass.close()) \
-                                        .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                        def change_step_cluster_mass(delta):
-                            cluster_mass_exercise_state['step'] += delta
-                            cluster_mass_exercises_content.refresh()
-
-                        instr_cluster_mass.on('open', lambda: cluster_mass_exercise_state.update({'step': 0}) or cluster_mass_exercises_content.refresh())
 
                        
-                        cluster_mass_exercises_content()
 
-                 
-                    cluster_slider_state = {'step': 0}
+                        <h4>1. Formulation of Predictions:</h4>
 
-                  
-                    cluster_slider_html = [
-                        r"""
-                        <h3>Phase 5: Slider exercise</h3>
-                        <h4>Exercise 3.1:</h4>
                         <ul>
-                            <li>Look at the histogram generated by the App (velocity vs number of galaxies) and the scatter plot (velocity vs distance). Compare the plots representing the observed data (blue) with those of the predicted velocities using only the visible mass (red).</li>
-                            <li>Looking at the red and blue histograms on the App, are the real galaxies in the cluster moving slower or faster than they should be, and why?</li>
-                            <li>Use the slider to add mass; the simulated graph (green) will move. The goal is to find the amount of mass to add to make the simulated graph match the observations. Check the dark matter value (plot label) needed to obtain the match with the data.</li>
-                            <li>In conclusion, is dark matter present in clusters? Why?</li>
+
+                            <li>Considering a Cluster, formed by many galaxies rotating around the center of mass of the cluster, is Model 2 valid in this context as well?</li>
+
+                            <li>Is the presence of dark matter an isolated case concerning individual galaxies or is it a general rule of the Universe? Justify your answer.</li>
+
                         </ul>
+
                         """,
+
                         r"""
-                        <h3>Phase 5: Minimization exercise</h3>
-                        <h4>Exercise 3.2:</h4>
+
+                        <h3>Phase 2: Cluster Panel – The Virial Theorem in Galaxy Clusters</h3>
+
+                        <p><b>Goal:</b> Verify if Dark Matter is also present in galaxy clusters, using different mathematical tools.</p>
+
+                       
+
+                        <h4>Derivation of the Virial Theorem:</h4>
+
                         <ul>
-                        <li>This exercise use the chi2 minimization method to find the best fit of the simulated distribution (green) to the observed distribution (blue).  </li>
-                        <li>The chi2 value is calculated using the difference squared bewtween the mean observed velocity and the mean simulated velocity, divided by the experimental error.  </li>
-                        <li>Select a DM mass value using the slider and click 'Add point' (button below the central plot), repeat three times changing the value.</li>
-                        <li>A parabola appears with the minimum value. Check the chi2 value obtained as minimum and find the best value to reduce the distance between observations (blue)and predictions(green).</li>
-                            <li>Compare the dark matter values obtained in the context of galaxies and the cluster by analyzing the plot labels (Galaxy Panel and Cluster Panel). Verify in which context there is more dark matter and justify your answer.</li>
+
+                            <li>Consider a satellite of mass <i>m</i> in a circular orbit of radius <i>r</i> around a mass <i>M</i> (planet). On your notebook or in the 'Reflection' section in the App's side menu, write the formulas for Kinetic Energy (<i>K</i>) and Gravitational Potential Energy (<i>U</i>).</li>
+
+                            <li>Write Newton's equation of dynamics (<i>F = ma</i>) by inserting the relationship between Gravitational Force and Centripetal Force (replace <i>F</i> with the gravitational force and '<i>m*a</i>' with the centripetal force).</li>
+
+                            <li>Multiply both sides of the force equation by <i>r</i>.</li>
+
+                            <li>Use the result obtained to manipulate the formula for Kinetic Energy and compare it with the formula for Gravitational Potential to find the mathematical relationship that links them (Virial Theorem).</li>
+
                         </ul>
+
+
+                        """,
+                         r"""
+
+                        <h3>Phase 3: Calculating Cluster Mass</h3>
+
+                        <h4>Exercise:</h4>
+
+                        <ul>
+
+                            <li>Open the App, module 2 in the "Cluster Panel" section, and select a Galaxy Cluster (dataset) from the dropdown menu.</li>
+
+                            <li>From the Virial formula just found, replace <i>K</i> with the kinetic energy formula and <i>U</i> with the potential energy formula, and perform the appropriate simplifications.</li>
+
+                            <li>Derive the inverse formula to find the Total Mass.</li>
+
+                            <li><b>Note:</b> The cluster is made up of many galaxies, each with a different velocity. Therefore, we have a velocity distribution, and usually, the velocity dispersion (standard deviation) is considered instead of the sum of the velocities.</li>
+
+                        </ul>
+
+                        """,
+
+                       r"""
+                        <h3>Phase 4: Calculating Cluster Mass</h3>
+
+                        <h4>Exercise :</h4>
+
+                        <ul>
+
+                            <li>Use the data from the dataset downloadable from the App (radius and average velocities of the galaxies) to calculate the total mass of the cluster and the luminous mass (only stars, dust, gas).</li>
+
+                            <li>Download the cluster dataset from the App (module 2 - Cluster panel - dataset). Analyze the data (velocity RV and radius of each galaxy in the cluster) by selecting a cluster dataset from the Excel spreadsheet.</li>
+
+                            <li>To calculate the Total Mass using the formula <span class="math">\( M = \frac{r \cdot \sigma^2}{G} \)</span>, first perform the following steps. Find the maximum radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
+
+                            <li>Calculate the standard deviation of the velocity using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
+
+                            <li>To obtain the total mass of the cluster, multiply the mean radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
+
+                            <li>Calculate the total stellar mass of the cluster by summing the values of each galaxy in the Stellar Mass column of the dataset <code>=SUM(G2:G108)</code>.</li>
+
+                            <li>Calculate the gas mass of the cluster using the pre-defined formula in Excel column <code>=(0.7*L2) * 0.093 * (((0.7*L2) / (200000000000000 / 0.7)) ^ 0.21)</code>, where <code>L2</code> is the total mass of the cluster calculated in the previous step.</li>
+
+                            <li>Calculate the Luminous Mass (stars, gas) by summing the total stellar mass and the gas mass. </li>
+
+                            <li>Compare the results of the luminous mass and total mass. Calculate the ratio: Total Mass / Luminous Mass. What value do you get? Which of the two masses is larger and why?</li>
+
+                            <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
+
+                        </ul>
+
+                        
+
+                        """,
+                         r"""
+
+                        <h3>Phase 5: Slider exercise</h3>
+
+                        <h4>Exercise :</h4>
+
+                        <ul>
+
+                            <li>Look at the histogram generated by the App (velocity vs number of galaxies) and the scatter plot (velocity vs distance). Compare the plots representing the observed data (blue) with those of the predicted velocities using only the visible mass (red).</li>
+
+                            <li>Looking at the red and blue histograms on the App, are the real galaxies in the cluster moving slower or faster than they should be, and why?</li>
+
+                            <li>Use the slider to add mass; the simulated graph (green) will move. The goal is to find the amount of mass to add to make the simulated graph match the observations. Check the dark matter value (plot label) needed to obtain the match with the data.</li>
+
+                            <li>In conclusion, is dark matter present in clusters? Why?</li>
+
+                        </ul>
+
+                        """,
+
+                        r"""
+
+                        <h3>Phase 6: Minimization exercise</h3>
+
+                        <h4>Exercise :</h4>
+
+                        <ul>
+
+                        <li>This exercise use the chi2 minimization method to find the best fit of the simulated distribution (green) to the observed distribution (blue).  </li>
+
+                        <li>The chi2 value is calculated using the difference squared bewtween the mean observed velocity and the mean simulated velocity, divided by the experimental error.  </li>
+
+                        <li>Select a DM mass value using the slider and click 'Add point' (button below the central plot), repeat three times changing the value.</li>
+
+                        <li>A parabola appears with the minimum value. Check the chi2 value obtained as minimum and find the best value to reduce the distance between observations (blue)and predictions(green).</li>
+
+                            <li>Compare the dark matter values obtained in the context of galaxies and the cluster by analyzing the plot labels (Galaxy Panel and Cluster Panel). Verify in which context there is more dark matter and justify your answer.</li>
+
+                        </ul>
+
                         """
                     ]
 
-                    with ui.dialog() as instr_cluster_slider, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster slider exercise instructions" role=dialog'):
+              
+                    with ui.dialog() as instr_cluster_combined, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster activity" role=dialog'):
                         
                         @ui.refreshable
-                        def cluster_slider_content():
-                            current_step = cluster_slider_state['step']
+                        def cluster_combined_content():
+                            current_step = combined_cluster_state['step']
                             
-                          
-                            html_info_box(cluster_slider_html[current_step])
+                            html_info_box(combined_cluster_html[current_step])
                             
-                          
                             with ui.row().classes('w-full justify-between items-center mt-4'):
-                           
+                             
                                 if current_step > 0:
-                                    aria_button("Previous", "Go to previous exercise", on_click=lambda: change_step_cluster_slider(-1)) \
+                                    aria_button("Previous", "Go to previous step", on_click=lambda: change_step_combined(-1)) \
                                         .classes("!bg-gray-500 hover:!bg-gray-700 text-white font-bold py-2 px-4 rounded")
                                 else:
                                     ui.label() 
                                 
-                               
-                                ui.label(f"Step {current_step + 1} of {len(cluster_slider_html)}").classes('text-gray-500 font-bold')
+                                ui.label(f"Step {current_step + 1} of {len(combined_cluster_html)}").classes('text-gray-500 font-bold')
                                 
-                             
-                                if current_step < len(cluster_slider_html) - 1:
-                                    aria_button("Next", "Go to next exercise", on_click=lambda: change_step_cluster_slider(1)) \
+                               
+                                if current_step < len(combined_cluster_html) - 1:
+                                    aria_button("Next", "Go to next step", on_click=lambda: change_step_combined(1)) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 else:
-                                    aria_button("Close", "close the box", on_click=lambda: instr_cluster_slider.close()) \
+                                    aria_button("Close", "Close the activity", on_click=lambda: instr_cluster_combined.close()) \
                                         .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
 
-                        def change_step_cluster_slider(delta):
-                            cluster_slider_state['step'] += delta
-                            cluster_slider_content.refresh()
+                        def change_step_combined(delta):
+                            new_step = combined_cluster_state['step'] + delta
+                            if 0 <= new_step < len(combined_cluster_html):
+                                combined_cluster_state['step'] = new_step
+                                cluster_combined_content.refresh()
 
-                 
-                        instr_cluster_slider.on('open', lambda: cluster_slider_state.update({'step': 0}) or cluster_slider_content.refresh())
-
-                     
-                        cluster_slider_content()
+                        instr_cluster_combined.on('open', lambda: combined_cluster_state.update({'step': 0}) or cluster_combined_content.refresh())
+                        cluster_combined_content()
                     with ui.dialog() as dataset_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto ').props('aria-label="Dataset info" role=dialog'):
                 
                 
@@ -3723,88 +3853,7 @@ def create_page():
                     
                         aria_button("Close","Close the box", on_click=lambda:dataset_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                                 
-                    with ui.row().classes('w-full justify-center '):
-                        with ui.dialog() as cluster_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Cluster analysis info" role=dialog'):
-                            html_info_box(r"""
-        <h3>Computational Notes</h3>
-        
-        <ul>
-            <li><b>Step 1:</b> Velocity of each galaxy from redshift data:<br>
-            <span class="math">\( v_i = c \cdot z_i \)</span></li>
-
-            <li><b>Step 2:</b> Number of observed galaxies: <span class="math">\( N \)</span></li>
-
-            <li><b>Step 3:</b> Compute the mean velocity:<br>
-            <span class="math">\( \bar{v} = \frac{1}{N} \sum_i v_i \)</span></li>
-
-            <li><b>Step 4:</b> Observed velocity dispersion:<br>
-            <span class="math">\( \sigma_{\mathrm{obs}} = \sqrt{ \frac{1}{N} \sum_i (v_i - \bar{v})^2 } \)</span></li>
-
-            <li><b>Step 5:</b> Comoving distance:<br>
-            <span class="math">\( \chi(z) = \frac{c}{H_0} \int_0^z \frac{dz'}{\sqrt{\Omega_m (1+z')^3 + (1-\Omega_m)}} \)</span></li>
-
-            <li><b>Step 6:</b> Angular diameter distance:<br>
-            <span class="math">\( D_A(z) = \frac{\chi(z)}{1+z} \)</span></li>
-
-            <li><b>Step 7:</b> Define cluster center from BCG or median RA/DEC:<br>
-            <span class="math">\( (\mathrm{center\_ra}, \mathrm{center\_dec}) = (ra[idx_{bcg}], dec[idx_{bcg}]) \;\; \mathrm{or} \;\; (\mathrm{median}(ra), \mathrm{median}(dec)) \)</span></li>
-
-            <li><b>Step 8:</b> Angular separation between galaxies:<br>
-            <span class="math">\( \theta = \arccos(\sin \delta_1 \sin \delta_2 + \cos \delta_1 \cos \delta_2 \cos(\alpha_1 - \alpha_2)) \)</span></li>
-
-            <li><b>Step 9:</b> Critical density:<br>
-            <span class="math">\( \rho_{\mathrm{crit}} = \frac{3 H_0^2}{8 \pi G} \)</span></li>
-
-            <li><b>Step 10:</b> Projected radius:<br>
-            <span class="math">\( r_{\mathrm{proj},i} = \max(\theta_i \cdot D_A) \)</span></li>
-
-            <li><b>Step 11:</b> Virial theorem and <span class="math">\( M_{200} \)</span>:<br>
-            <span class="math">\( \sigma_{\mathrm{obs}}^2 = \frac{G M_{200}}{3 R_{200}}, \;\; M_{200} = \frac{4}{3} \pi 200 \rho_{\mathrm{crit}} R_{200}^3 \)</span></li>
-
-            <li><b>Step 12:</b> Concentration parameter:<br>
-            <span class="math">\( c = A \left(\frac{M_{200}}{M_{\mathrm{pivot}}}\right)^B (1+z)^C \)</span></li>
-
-            <li><b>Step 13:</b> NFW density factor:<br>
-            <span class="math">\( \delta_c(c) = \frac{200}{3} \frac{c^3}{\ln(1+c) - c/(1+c)} \)</span></li>
-
-            <li><b>Step 14:</b> Characteristic radius and density:<br>
-            <span class="math">\( r_{200} = \left(\frac{3M_{200}}{4 \pi 200 \rho_{\mathrm{crit}}}\right)^{1/3}, \;\; r_s = \frac{r_{200}}{c}, \;\; \rho_s = \delta_c(c)\,\rho_{\mathrm{crit}} \)</span></li>
-
-            <li><b>Step 15:</b> Dark matter mass (NFW):<br>
-            <span class="math">\( M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) = M_{200} \cdot \frac{\ln(1+x_i) - x_i/(1+x_i)}{\ln(1+c) - c/(1+c)}, \;\; x_i = \frac{r_{\mathrm{proj},i}}{r_s} \)</span></li>
-
-            <li><b>Step 16:</b> Luminosity distance and distance modulus:<br>
-            <span class="math">\( D_L \approx \frac{c \cdot z_{\mathrm{cluster}}}{H_0}, \;\; \mathrm{distmod} = 5 \log_{10}(D_L) - 5 \)</span></li>
-
-            <li><b>Step 17:</b> Magnitude and luminosity:<br>
-            <span class="math">\( M_r = m_r - A_r - (5 \log_{10}(D_L/10\,pc)), \;\; L_r = 10^{0.4(M_{r,\odot} - M_r)} \)</span></li>
-
-            <li><b>Step 18:</b> Stellar/baryonic mass:<br>
-            <span class="math">\( M_{\mathrm{bar}} = (M/L)\,L_r, \;\; (M/L = 2) \)</span></li>
-            <li><b>Step 19:</b> Gas mass (Giodini 2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
-    <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
-
-
-            <li><b>Step 21:</b> Total mass (DM + baryonic, linked to slider):<br>
-            <span class="math">\( M_{\mathrm{tot}}(i) = M_{\mathrm{bar}}(i) + f \cdot M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) \)</span></li>
-
-            <li><b>Step 22:</b> Velocity dispersions:
-                <ul style="margin-top:5px; list-style-type:circle;">
-                    <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{bar}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
-                    <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
-                </ul>
-            </li>
-
-            <li><b>Step 21:</b> Plot histograms:
-                <ul style="margin-top:5px; list-style-type:circle;">
-                    <li>Observed histogram: <span class="math">\( \mathrm{plt.hist}(v_{\mathrm{obs}}, bins) \)</span> (blue)</li>
-                    <li>Simulated histogram: <span class="math">\( \mathrm{plt.hist}(\sigma_{\mathrm{tot}}, bins) \)</span> (green)</li>
-                </ul>
-            </li>
-        </ul>
-    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the steps to compute cluster properties"')
-                            aria_button("Close","Close the box", on_click=lambda:cluster_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                            
+                   
                             
                     with ui.dialog() as cur_clust, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Information about a galaxy without dark matter" role=dialog'):
                         html_info_box(r"""
@@ -3817,40 +3866,529 @@ def create_page():
                  
                         
 
-                    with ui.dialog() as chi2_explanation_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Chi-Square calculation explanation" role=dialog'):
-                        html_info_box(r"""
-                        <h3>Chi-Square (χ²) Minimization for Histograms</h3>
-                        <p>In the cluster panel, the goodness-of-fit between the observed and simulated velocity distributions is calculated using <b>Pearson's Chi-Square Test for binned data</b>.</p>
+                 
+                    
+                    
                         
+                    
+              
+                    def open_cluster_analysis_dialog2():
+                      
+                        with ui.dialog() as comp_cluster_dialog2, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="cluster-title"'):
+                            
+                            with ui.column().classes('w-full h-full bg-white'):
+                              
+                                with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0'):
+                                    ui.label('Cluster Analysis: Physics & Simulation').classes('text-xl font-bold').props('id="cluster-title" role=heading aria-level=2 tabindex=0')
+                                    aria_button('Close', 'close', on_click=comp_cluster_dialog2.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                
+                               
+                                with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                    t_comp = ui.tab('Computational Notes')
+                                    t_chi2 = ui.tab('χ² Minimization')
+                                    t_sim = ui.tab('Velocity Simulation')
+                                    tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+
+                              
+                                with ui.tab_panels(tabs, value=t_comp).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                    
+                                 
+                                    with ui.tab_panel(t_comp):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+                                        <h3>Computational Notes</h3>
+
+       
+
+        <ul>
+
+            <li><b>Step 1:</b> Velocity of each galaxy from redshift data:<br>
+
+            <span class="math">\( v_i = c \cdot z_i \)</span></li>
+
+
+
+            <li><b>Step 2:</b> Number of observed galaxies: <span class="math">\( N \)</span></li>
+
+
+
+            <li><b>Step 3:</b> Compute the mean velocity:<br>
+
+            <span class="math">\( \bar{v} = \frac{1}{N} \sum_i v_i \)</span></li>
+
+
+
+            <li><b>Step 4:</b> Observed velocity dispersion:<br>
+
+            <span class="math">\( \sigma_{\mathrm{obs}} = \sqrt{ \frac{1}{N} \sum_i (v_i - \bar{v})^2 } \)</span></li>
+
+
+
+            <li><b>Step 5:</b> Comoving distance:<br>
+
+            <span class="math">\( \chi(z) = \frac{c}{H_0} \int_0^z \frac{dz'}{\sqrt{\Omega_m (1+z')^3 + (1-\Omega_m)}} \)</span></li>
+
+
+
+            <li><b>Step 6:</b> Angular diameter distance:<br>
+
+            <span class="math">\( D_A(z) = \frac{\chi(z)}{1+z} \)</span></li>
+
+
+
+            <li><b>Step 7:</b> Define cluster center from BCG or median RA/DEC:<br>
+
+            <span class="math">\( (\mathrm{center\_ra}, \mathrm{center\_dec}) = (ra[idx_{bcg}], dec[idx_{bcg}]) \;\; \mathrm{or} \;\; (\mathrm{median}(ra), \mathrm{median}(dec)) \)</span></li>
+
+
+
+            <li><b>Step 8:</b> Angular separation between galaxies:<br>
+
+            <span class="math">\( \theta = \arccos(\sin \delta_1 \sin \delta_2 + \cos \delta_1 \cos \delta_2 \cos(\alpha_1 - \alpha_2)) \)</span></li>
+
+
+
+            <li><b>Step 9:</b> Critical density:<br>
+
+            <span class="math">\( \rho_{\mathrm{crit}} = \frac{3 H_0^2}{8 \pi G} \)</span></li>
+
+
+
+            <li><b>Step 10:</b> Projected radius:<br>
+
+            <span class="math">\( r_{\mathrm{proj},i} = \max(\theta_i \cdot D_A) \)</span></li>
+
+
+
+            <li><b>Step 11:</b> Virial theorem and <span class="math">\( M_{200} \)</span>:<br>
+
+            <span class="math">\( \sigma_{\mathrm{obs}}^2 = \frac{G M_{200}}{3 R_{200}}, \;\; M_{200} = \frac{4}{3} \pi 200 \rho_{\mathrm{crit}} R_{200}^3 \)</span></li>
+
+
+
+            <li><b>Step 12:</b> Concentration parameter:<br>
+
+            <span class="math">\( c = A \left(\frac{M_{200}}{M_{\mathrm{pivot}}}\right)^B (1+z)^C \)</span></li>
+
+
+
+            <li><b>Step 13:</b> NFW density factor:<br>
+
+            <span class="math">\( \delta_c(c) = \frac{200}{3} \frac{c^3}{\ln(1+c) - c/(1+c)} \)</span></li>
+
+
+
+            <li><b>Step 14:</b> Characteristic radius and density:<br>
+
+            <span class="math">\( r_{200} = \left(\frac{3M_{200}}{4 \pi 200 \rho_{\mathrm{crit}}}\right)^{1/3}, \;\; r_s = \frac{r_{200}}{c}, \;\; \rho_s = \delta_c(c)\,\rho_{\mathrm{crit}} \)</span></li>
+
+
+
+            <li><b>Step 15:</b> Dark matter mass (NFW):<br>
+
+            <span class="math">\( M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) = M_{200} \cdot \frac{\ln(1+x_i) - x_i/(1+x_i)}{\ln(1+c) - c/(1+c)}, \;\; x_i = \frac{r_{\mathrm{proj},i}}{r_s} \)</span></li>
+
+
+
+            <li><b>Step 16:</b> Luminosity distance and distance modulus:<br>
+
+            <span class="math">\( D_L \approx \frac{c \cdot z_{\mathrm{cluster}}}{H_0}, \;\; \mathrm{distmod} = 5 \log_{10}(D_L) - 5 \)</span></li>
+
+
+
+            <li><b>Step 17:</b> Magnitude and luminosity:<br>
+
+            <span class="math">\( M_r = m_r - A_r - (5 \log_{10}(D_L/10\,pc)), \;\; L_r = 10^{0.4(M_{r,\odot} - M_r)} \)</span></li>
+
+
+
+            <li><b>Step 18:</b> Stellar/baryonic mass:<br>
+
+            <span class="math">\( M_{\mathrm{bar}} = (M/L)\,L_r, \;\; (M/L = 2) \)</span></li>
+
+            <li><b>Step 19:</b> Gas mass (Giodini 2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+
+    <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
+
+
+
+
+
+            <li><b>Step 21:</b> Total mass (DM + baryonic, linked to slider):<br>
+
+            <span class="math">\( M_{\mathrm{tot}}(i) = M_{\mathrm{bar}}(i) + f \cdot M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) \)</span></li>
+
+
+
+            <li><b>Step 22:</b> Velocity dispersions:
+
+                <ul style="margin-top:5px; list-style-type:circle;">
+
+                    <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{bar}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
+
+                    <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
+
+                </ul>
+
+            </li>
+
+
+
+            <li><b>Step 21:</b> Plot histograms:
+
+                <ul style="margin-top:5px; list-style-type:circle;">
+
+                    <li>Observed histogram: <span class="math">\( \mathrm{plt.hist}(v_{\mathrm{obs}}, bins) \)</span> (blue)</li>
+
+                    <li>Simulated histogram: <span class="math">\( \mathrm{plt.hist}(\sigma_{\mathrm{tot}}, bins) \)</span> (green)</li>
+
+                </ul>
+
+            </li>
+
+        </ul>
+
+    """).props('role=dialog aria-modal=true aria-label="Computational notes"')
+
+                                   
+                                    with ui.tab_panel(t_chi2):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+                                         <h3>Chi-Square (χ²) Minimization for Histograms</h3>
+
+                        <p>In the cluster panel, the goodness-of-fit between the observed and simulated velocity distributions is calculated using <b>Pearson's Chi-Square Test for binned data</b>.</p>
+
+                       
+
                         <ul>
+
                             <li><b>Step 1: Binning the data</b><br>
+
                             Instead of comparing individual galaxy velocities point-by-point, we group them into velocity intervals (bins) to form a Gaussian bell curve. We then count how many galaxies fall into each bin.</li>
 
+
+
                             <li><b>Step 2: Pearson's Formula</b><br>
+
                             <span class="math">\( \chi^2 = \sum_{i=1}^{N_{\mathrm{bins}}} \frac{(O_i - E_i)^2}{\max(E_i, 1.0)} \)</span><br><br>
+
                             Where:<br>
+
                             - <span class="math">\( O_i \)</span> = <b>Observed counts</b> (number of real galaxies in bin <i>i</i>).<br>
+
                             - <span class="math">\( E_i \)</span> = <b>Expected counts</b> (number of simulated galaxies in bin <i>i</i>).
+
                             </li>
 
+
+
                             <li><b>Why divide by Expected Counts (\( E_i \))? (Poisson Statistics)</b><br>
+
                             Counting discrete random events (like how many galaxies end up in a specific velocity bin) follows a <b>Poisson distribution</b>. A fundamental property of Poisson statistics is that the variance (the statistical error squared) is equal to the expected value: <span class="math">\( \sigma_{\mathrm{counts}}^2 \approx E_i \)</span>. Therefore, dividing the squared difference by \( E_i \) correctly weights the statistical significance of the error.</li>
 
+
+
                             <li><b>Why don't we use the telescope's measurement error?</b><br>
+
                             The instrumental error of the telescope (e.g., ±30 km/s) tells us the uncertainty of a single galaxy's speed. However, galaxies inside a massive cluster move with an enormous intrinsic velocity dispersion (often > 1000 km/s). This massive statistical spread completely "swallows" the small instrumental error, making it negligible when comparing the shapes of the overall distributions.</li>
 
+
+
                             <li><b>Step 3: Division by zero protection</b><br>
+
                             Because our simulated distribution is generated using a random number generator, some bins in the extremes (the tails of the bell curve) might contain exactly 0 galaxies (\( E_i = 0 \)). To prevent the software from crashing due to a division by zero, we enforce a mathematical floor: <span class="math">\( \max(E_i, 1.0) \)</span>.</li>
 
+
+
                             <li><b>Step 4: Reduced Chi-Square</b><br>
+
                             <span class="math">\( \chi^2_{\mathrm{red}} = \frac{\chi^2}{\mathrm{dof}} \)</span><br>
+
                             Finally, we divide the total sum by the Degrees of Freedom (dof), which relates to the number of bins. By tracking this reduced value, you can find the exact Dark Matter mass where the simulated curve best matches the real universe!</li>
+
                         </ul>
-                        """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the Chi-Square calculation"')
+
+                        """).props('role=dialog aria-modal=true aria-label="Chi-Square explanation"')
+
+                                
+                                    with ui.tab_panel(t_sim).classes('flex flex-col items-center justify-start'):
+                                        ui.label("Velocity Simulation").classes("text-2xl font-bold mb-4 text-slate-800")
+                                   
+                                        aria_button('Galaxies velocities', 'show cluster galaxies velocity',on_click=on_galaxies_click, icon='visibility').classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                                    
+                        comp_cluster_dialog2.open()
+                    @ui.refreshable
+                    def update_cluster_image():
                         
-                        aria_button("Close", "Close the box", on_click=lambda: chi2_explanation_dialog.close()) \
-                            .classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
                     
+                        select = cluster_state["select"]
+
+                        if select.lower() == "coma_data.csv":
+                            img_path = os.path.join(CLUSTER_IMG_PATH, "coma_img.jpg")
+                        else:
+                            img_path = os.path.join(CLUSTER_IMG_PATH, os.path.splitext(select)[0] + ".jpg")
+                        if os.path.exists(img_path):
+                            filename = os.path.basename(img_path)
+                            web = f"/cluster_img/{filename}"
+                            
+                            ui.html(f"""
+    <div style="text-align:center; width:100%">
+        
+        <img src="{web}" style="width:100%; max-width:450px; border-radius:12px;">
+
+        <p><em>
+            Image references:<br>
+            - <a href='https://esahubble.org/' target='_blank'>ESA Hubble</a><br>
+            - Bonnarel, F. et al. (2000). <i>The ALADIN interactive sky atlas</i>, Astronomy & Astrophysics Supplement Series<br>
+            - Digitized Sky Survey 2 (DSS2), via CDS HiPS  
+            (<a href='https://alasky.cds.unistra.fr' target='_blank'>Aladin HiPS</a>)
+        </em></p>
+
+    </div>
+    """)
+
+                        else:
+                            ui.label("Image not found").classes('text-red-500 text-center')
+
+            
+            
+                    
+                    
+                    @ui.refreshable
+                    def update_cluster_table():
+                        
+                    
+                        select = cluster_state["select"]
+                        ui.html("<h5>Cluster Information</h5>")
+                        if select.lower() == "coma_data.csv":
+                            table_path = os.path.join(CLUSTER_TABLES_PATH, "coma_table.csv")
+                        else:
+                            table_path = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(select)[0] + ".csv")
+                        if os.path.exists(table_path):
+                            df = pd.read_csv(table_path, header=None,names=["Property", "Value"])
+                            
+                            ui.table.from_pandas(df).classes("w-full max-w-xl")
+                            #html_table = df.to_html(index=False, classes="nice-table", border=0)
+
+                            ui.html(f"""
+    <div style="text-align:center; width:100%">
+
+        <p><em>
+            Cluster data references:<br>
+            - <a href='https://en.wikipedia.org/wiki/List_of_galaxy_groups_and_clusters' target='_blank'>Wikipedia: List of galaxy clusters</a><br>
+            - Wenger, M., Ochsenbein, F. et al. (2000). <i>The SIMBAD astronomical database</i>. Astronomy & Astrophysics Supplement Series. 
+            <a href='https://simbad.u-strasbg.fr' target='_blank'>SIMBAD</a><br>
+            - Helou, G., Madore, B. F. (1988). <i>The NASA/IPAC Extragalactic Database (NED)</i>. 
+            <a href='https://ned.ipac.caltech.edu' target='_blank'>NED</a><br>
+            - Abell, G. O. et al. (1989). <i>A catalog of rich clusters of galaxies</i>. Astrophysical Journal Supplement Series<br>
+            - VizieR Online Data Catalog: VII/110A. 
+            <a href='https://vizier.u-strasbg.fr' target='_blank'>VizieR</a>
+        </em></p>
+
+    </div>
+    """)
+
+                        else:
+                            ui.label("Table not found").classes('text-red-500 text-center')
+                    with ui.dialog() as image_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster image" role=dialog aria-modal=true'):
+                        ui.html("<h5>Cluster Image</h5>")
+                        update_cluster_image()
+                        aria_button("close",'close',on_click=lambda:image_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    
+                    with ui.dialog() as table_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster information table" role=dialog'):
+                        update_cluster_table()
+                        aria_button("close",'close',on_click=lambda:table_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    chart_obs = None
+                    chart_model = None
+                    sim_timer = ui.timer(0.05, lambda: None, active=False)
+                    def reset_simulation_data():
+                        observed_vel = cluster_state.get('observed_vel', [])
+                        if len(observed_vel) == 0: return
+
+                    
+                        r_proj_kpc = cluster_state['r_proj_kpc']
+                        m_bary_at_gal = cluster_state['m_bary_at_gal']
+                        M200 = cluster_state['M200']
+                        c = cluster_state['c']
+                        rho_crit = cluster_state['rho_crit']
+                        
+                        N_gal = min(80, len(observed_vel))
+                        cluster_radius = 1.0
+                        rng = np.random.default_rng() 
+
+                    
+                        x_init_obs = rng.uniform(-cluster_radius, cluster_radius, N_gal)
+                        y_init_obs = rng.uniform(-cluster_radius, cluster_radius, N_gal)
+                        x_init_mod = rng.uniform(-cluster_radius, cluster_radius, N_gal)
+                        y_init_mod = rng.uniform(-cluster_radius, cluster_radius, N_gal)
+
+                        
+                        indices = rng.choice(len(observed_vel), size=N_gal, replace=False)
+                        observed_vel_sub = observed_vel[indices]
+                        sigma_obs_val = np.std(observed_vel_sub)
+                        
+                        
+                        scale_factor = 0.0005
+                        vx_obs = rng.normal(0.0, sigma_obs_val, N_gal) * scale_factor
+                        vy_obs = rng.normal(0.0, sigma_obs_val, N_gal) * scale_factor
+
+                        
+                        r_safe = np.maximum(r_proj_kpc, 1.0)
+                        
+                        M_dm_base = Mc_nfw_enclosed(r_safe, M200, c, rho_crit)
+                        M_bary_base = np.maximum(m_bary_at_gal, 1e-6)
+                        
+                        
+                        dir_x_model = rng.normal(0.0, 1.0, N_gal)
+                        dir_y_model = rng.normal(0.0, 1.0, N_gal)
+
+                        cluster_state['sim_state'] = {
+                            "x_obs": x_init_obs, "y_obs": y_init_obs,
+                            "x_model": x_init_mod, "y_model": y_init_mod,
+                            "vx_obs": vx_obs, "vy_obs": vy_obs,
+                            "dir_x_model": dir_x_model, "dir_y_model": dir_y_model, 
+                            "M_dm_base": M_dm_base, "M_bary_base": M_bary_base,    
+                            "r_safe": r_safe,
+                            "rng": rng, "indices": indices,
+                            "current_dataset": cluster_state.get("select", "")
+                        }
+
+                    async def update_cluster_points():
+                        try:
+                            sim_state = cluster_state.get('sim_state')
+                            
+                            if not sim_state or sim_state.get("current_dataset") != cluster_state.get("select"):
+                                reset_simulation_data()
+                                sim_state = cluster_state.get('sim_state')
+                                if not sim_state: return
+
+                            
+                            cluster_radius = 1.0
+                            dt = 0.05
+                            VELOCITY_SCALE = 0.0005
+                            L = 2 * cluster_radius
+                            #TARGET_SLIDER_VALUE = 20.0
+                            
+                            #raw_slider_value = float(dm_slider.value)
+                            #f = raw_slider_value / TARGET_SLIDER_VALUE
+                            f= float(dm_slider.value)
+                            M_bary = sim_state["M_bary_base"]
+                            M_dm = sim_state["M_dm_base"]
+                            r_safe = sim_state["r_safe"]
+                            indices = sim_state["indices"]
+                            
+                            
+                            M_total_withDM = np.maximum(M_bary + f * M_dm, 1e-6)
+                            
+                            
+                            # sigma^2 ~ G * M / R
+                            sigma_sq = (G_grav * M_total_withDM) / (3.0 * r_safe)
+                            sigma_local = np.sqrt(np.maximum(0.0, sigma_sq))
+                            
+                            
+                            sigma_model_current = sigma_local[indices].mean()
+
+                            
+                            # v = direzione * magnitudine(sigma) * fattore_scala
+                            vx_model = sim_state["dir_x_model"] * sigma_model_current * VELOCITY_SCALE
+                            vy_model = sim_state["dir_y_model"] * sigma_model_current * VELOCITY_SCALE
+
+                            
+                            sim_state["x_obs"] += sim_state["vx_obs"] * dt
+                            sim_state["y_obs"] += sim_state["vy_obs"] * dt
+                            
+                        
+                            sim_state["x_model"] += vx_model * dt
+                            sim_state["y_model"] += vy_model * dt
+
+                        
+                            sim_state["x_obs"] = (sim_state["x_obs"] + cluster_radius) % L - cluster_radius
+                            sim_state["y_obs"] = (sim_state["y_obs"] + cluster_radius) % L - cluster_radius
+                            sim_state["x_model"] = (sim_state["x_model"] + cluster_radius) % L - cluster_radius
+                            sim_state["y_model"] = (sim_state["y_model"] + cluster_radius) % L - cluster_radius
+
+                            
+                            data_obs = np.stack((sim_state["x_obs"], sim_state["y_obs"]), axis=1).tolist()
+                            data_model = np.stack((sim_state["x_model"], sim_state["y_model"]), axis=1).tolist()
+
+                            chart_obs.options['series'][0]['data'] = data_obs
+                            chart_model.options['series'][0]['data'] = data_model
+                            
+                            chart_obs.update()
+                            chart_model.update()
+
+                            
+                            observed_vel = cluster_state['observed_vel']
+                            sigma_obs_display = np.std(observed_vel[indices])
+                            
+                    
+                            sigma_model_display = sigma_model_current 
+                            
+                            label_stats_obs.set_text(f"σ_obs: {sigma_obs_display:.0f} km/s")
+                            label_stats_model.set_text(f"Simulated σ: {sigma_model_display:.0f} km/s | DM: {f:.2f}")
+
+                        except Exception as e:
+                            print(f"Update Error: {e}")
+
+                
+                    sim_timer.callback = update_cluster_points
+
+                    async def start_simulation_logic():
+                        
+                        reset_simulation_data()
+                        
+                        
+                        await asyncio.sleep(0.5)
+                        
+                        
+                        if chart_obs: chart_obs.run_chart_method(':resize')
+                        if chart_model: chart_model.run_chart_method(':resize')
+                        
+                        
+                        sim_timer.activate()
+                    with ui.dialog() as sim_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('aria-label="Cluster galaxies velocity simulation" role=dialog aria-modal=true'):
+                        ui.label('Cluster Galaxies Velocities View').classes('text-xl font-bold').props('role=heading aria-level=2 tabindex=0 aria-label=Galaxy Simulation View')
+                        
+                        with ui.row().classes('w-full justify-center gap-4 p-4'):
+                            
+                            with ui.column().classes('flex-1 items-center'):
+                                chart_obs = ui.echart({
+                                    'title': {'text': 'Observed Galaxies', 'left': 'center', 'textStyle': {'fontWeight': 'bold'}},
+                                    'grid': {'left': '5%', 'right': '5%', 'top': '10%', 'bottom': '10%'},
+                                    'xAxis': {'min': -1.0, 'max': 1.0, 'show': False},
+                                    'yAxis': {'min': -1.0, 'max': 1.0, 'show': False},
+                                    'series': [{'type': 'scatter', 'symbolSize': 8, 'itemStyle': {'color': 'blue', 'opacity': 0.8}, 'data': [], 'animation': False}]
+                                }).classes('w-full h-64')
+                                label_stats_obs = ui.label('').classes('text-sm font-bold text-blue-700')
+
+                            
+                            with ui.column().classes('flex-1 items-center'):
+                                chart_model = ui.echart({
+                                    'title': {'text': 'Simulated Galaxies', 'left': 'center', 'textStyle': {'fontWeight': 'bold'}},
+                                    'grid': {'left': '5%', 'right': '5%', 'top': '10%', 'bottom': '10%'},
+                                    'xAxis': {'min': -1.0, 'max': 1.0, 'show': False},
+                                    'yAxis': {'min': -1.0, 'max': 1.0, 'show': False},
+                                    'series': [{'type': 'scatter', 'symbolSize': 8, 'itemStyle': {'color': 'green', 'opacity': 0.8}, 'data': [], 'animation': False}]
+                                }).classes('w-full h-64')
+                                label_stats_model = ui.label('').classes('text-sm font-bold text-green-700')
+                        
+                        aria_button("close",'close',on_click=lambda:[sim_dialog.close(), sim_timer.deactivate()]).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                
+                    async def on_galaxies_click():
+                        sim_dialog.open()          
+                        await start_simulation_logic() 
+                        
+                        
                     with ui.row().classes('w-full justify-center gap-8'):
                         DEFAULT_CLUSTER = "coma_data.csv" 
                         #DEFAULT_CLUSTER = "Abell0080.txt"
@@ -3880,306 +4418,89 @@ def create_page():
 
                     
                         cluster_file_map = get_data_and_images(CLUSTER_DATA_PATH, CLUSTER_IMG_PATH)
-                        
-                    
-                        
-                        @ui.refreshable
-                        def update_cluster_image():
-                            
-                        
-                            select = cluster_state["select"]
-
-                            if select.lower() == "coma_data.csv":
-                                img_path = os.path.join(CLUSTER_IMG_PATH, "coma_img.jpg")
-                            else:
-                                img_path = os.path.join(CLUSTER_IMG_PATH, os.path.splitext(select)[0] + ".jpg")
-                            if os.path.exists(img_path):
-                                filename = os.path.basename(img_path)
-                                web = f"/cluster_img/{filename}"
-                             
-                                ui.html(f"""
-        <div style="text-align:center; width:100%">
-            
-            <img src="{web}" style="width:100%; max-width:450px; border-radius:12px;">
-
-            <p><em>
-                Image references:<br>
-                - <a href='https://esahubble.org/' target='_blank'>ESA Hubble</a><br>
-                - Bonnarel, F. et al. (2000). <i>The ALADIN interactive sky atlas</i>, Astronomy & Astrophysics Supplement Series<br>
-                - Digitized Sky Survey 2 (DSS2), via CDS HiPS  
-                (<a href='https://alasky.cds.unistra.fr' target='_blank'>Aladin HiPS</a>)
-            </em></p>
-
-        </div>
-        """)
-
-                            else:
-                                ui.label("Image not found").classes('text-red-500 text-center')
-
-                
-                
-                        
-                        
-                        @ui.refreshable
-                        def update_cluster_table():
-                            
-                        
-                            select = cluster_state["select"]
-                            ui.html("<h5>Cluster Information</h5>")
-                            if select.lower() == "coma_data.csv":
-                                table_path = os.path.join(CLUSTER_TABLES_PATH, "coma_table.csv")
-                            else:
-                                table_path = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(select)[0] + ".csv")
-                            if os.path.exists(table_path):
-                                df = pd.read_csv(table_path, header=None,names=["Property", "Value"])
-                              
-                                ui.table.from_pandas(df).classes("w-full max-w-xl")
-                                #html_table = df.to_html(index=False, classes="nice-table", border=0)
-
-                                ui.html(f"""
-        <div style="text-align:center; width:100%">
-
-            <p><em>
-                Cluster data references:<br>
-                - <a href='https://en.wikipedia.org/wiki/List_of_galaxy_groups_and_clusters' target='_blank'>Wikipedia: List of galaxy clusters</a><br>
-                - Wenger, M., Ochsenbein, F. et al. (2000). <i>The SIMBAD astronomical database</i>. Astronomy & Astrophysics Supplement Series. 
-                <a href='https://simbad.u-strasbg.fr' target='_blank'>SIMBAD</a><br>
-                - Helou, G., Madore, B. F. (1988). <i>The NASA/IPAC Extragalactic Database (NED)</i>. 
-                <a href='https://ned.ipac.caltech.edu' target='_blank'>NED</a><br>
-                - Abell, G. O. et al. (1989). <i>A catalog of rich clusters of galaxies</i>. Astrophysical Journal Supplement Series<br>
-                - VizieR Online Data Catalog: VII/110A. 
-                <a href='https://vizier.u-strasbg.fr' target='_blank'>VizieR</a>
-            </em></p>
-
-        </div>
-        """)
-
-                            else:
-                                ui.label("Table not found").classes('text-red-500 text-center')
-                        with ui.dialog() as image_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster image" role=dialog aria-modal=true'):
-                            ui.html("<h5>Cluster Image</h5>")
-                            update_cluster_image()
-                            aria_button("close",'close',on_click=lambda:image_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                        
-                        with ui.dialog() as table_dialog, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Cluster information table" role=dialog'):
-                            update_cluster_table()
-                            aria_button("close",'close',on_click=lambda:table_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                        chart_obs = None
-                        chart_model = None
-                        sim_timer = ui.timer(0.05, lambda: None, active=False)
-                        def reset_simulation_data():
-                            observed_vel = cluster_state.get('observed_vel', [])
-                            if len(observed_vel) == 0: return
-
-                        
-                            r_proj_kpc = cluster_state['r_proj_kpc']
-                            m_bary_at_gal = cluster_state['m_bary_at_gal']
-                            M200 = cluster_state['M200']
-                            c = cluster_state['c']
-                            rho_crit = cluster_state['rho_crit']
-                            
-                            N_gal = min(80, len(observed_vel))
-                            cluster_radius = 1.0
-                            rng = np.random.default_rng() 
-
-                        
-                            x_init_obs = rng.uniform(-cluster_radius, cluster_radius, N_gal)
-                            y_init_obs = rng.uniform(-cluster_radius, cluster_radius, N_gal)
-                            x_init_mod = rng.uniform(-cluster_radius, cluster_radius, N_gal)
-                            y_init_mod = rng.uniform(-cluster_radius, cluster_radius, N_gal)
-
-                          
-                            indices = rng.choice(len(observed_vel), size=N_gal, replace=False)
-                            observed_vel_sub = observed_vel[indices]
-                            sigma_obs_val = np.std(observed_vel_sub)
-                            
-                          
-                            scale_factor = 0.0005
-                            vx_obs = rng.normal(0.0, sigma_obs_val, N_gal) * scale_factor
-                            vy_obs = rng.normal(0.0, sigma_obs_val, N_gal) * scale_factor
-
-                          
-                            r_safe = np.maximum(r_proj_kpc, 1.0)
-                         
-                            M_dm_base = Mc_nfw_enclosed(r_safe, M200, c, rho_crit)
-                            M_bary_base = np.maximum(m_bary_at_gal, 1e-6)
-                            
-                          
-                            dir_x_model = rng.normal(0.0, 1.0, N_gal)
-                            dir_y_model = rng.normal(0.0, 1.0, N_gal)
-
-                            cluster_state['sim_state'] = {
-                                "x_obs": x_init_obs, "y_obs": y_init_obs,
-                                "x_model": x_init_mod, "y_model": y_init_mod,
-                                "vx_obs": vx_obs, "vy_obs": vy_obs,
-                                "dir_x_model": dir_x_model, "dir_y_model": dir_y_model, 
-                                "M_dm_base": M_dm_base, "M_bary_base": M_bary_base,    
-                                "r_safe": r_safe,
-                                "rng": rng, "indices": indices,
-                                "current_dataset": cluster_state.get("select", "")
-                            }
-
-                        async def update_cluster_points():
-                            try:
-                                sim_state = cluster_state.get('sim_state')
-                             
-                                if not sim_state or sim_state.get("current_dataset") != cluster_state.get("select"):
-                                    reset_simulation_data()
-                                    sim_state = cluster_state.get('sim_state')
-                                    if not sim_state: return
-
-                               
-                                cluster_radius = 1.0
-                                dt = 0.05
-                                VELOCITY_SCALE = 0.0005
-                                L = 2 * cluster_radius
-                                #TARGET_SLIDER_VALUE = 20.0
-                              
-                                #raw_slider_value = float(dm_slider.value)
-                                #f = raw_slider_value / TARGET_SLIDER_VALUE
-                                f= float(dm_slider.value)
-                                M_bary = sim_state["M_bary_base"]
-                                M_dm = sim_state["M_dm_base"]
-                                r_safe = sim_state["r_safe"]
-                                indices = sim_state["indices"]
-                                
-                              
-                                M_total_withDM = np.maximum(M_bary + f * M_dm, 1e-6)
-                                
-                               
-                                # sigma^2 ~ G * M / R
-                                sigma_sq = (G_grav * M_total_withDM) / (3.0 * r_safe)
-                                sigma_local = np.sqrt(np.maximum(0.0, sigma_sq))
-                                
-                             
-                                sigma_model_current = sigma_local[indices].mean()
-
-                              
-                                # v = direzione * magnitudine(sigma) * fattore_scala
-                                vx_model = sim_state["dir_x_model"] * sigma_model_current * VELOCITY_SCALE
-                                vy_model = sim_state["dir_y_model"] * sigma_model_current * VELOCITY_SCALE
-
-                               
-                                sim_state["x_obs"] += sim_state["vx_obs"] * dt
-                                sim_state["y_obs"] += sim_state["vy_obs"] * dt
-                                
-                           
-                                sim_state["x_model"] += vx_model * dt
-                                sim_state["y_model"] += vy_model * dt
-
-                            
-                                sim_state["x_obs"] = (sim_state["x_obs"] + cluster_radius) % L - cluster_radius
-                                sim_state["y_obs"] = (sim_state["y_obs"] + cluster_radius) % L - cluster_radius
-                                sim_state["x_model"] = (sim_state["x_model"] + cluster_radius) % L - cluster_radius
-                                sim_state["y_model"] = (sim_state["y_model"] + cluster_radius) % L - cluster_radius
-
-                               
-                                data_obs = np.stack((sim_state["x_obs"], sim_state["y_obs"]), axis=1).tolist()
-                                data_model = np.stack((sim_state["x_model"], sim_state["y_model"]), axis=1).tolist()
-
-                                chart_obs.options['series'][0]['data'] = data_obs
-                                chart_model.options['series'][0]['data'] = data_model
-                                
-                                chart_obs.update()
-                                chart_model.update()
-
-                             
-                                observed_vel = cluster_state['observed_vel']
-                                sigma_obs_display = np.std(observed_vel[indices])
-                                
-                     
-                                sigma_model_display = sigma_model_current 
-                                
-                                label_stats_obs.set_text(f"σ_obs: {sigma_obs_display:.0f} km/s")
-                                label_stats_model.set_text(f"Simulated σ: {sigma_model_display:.0f} km/s | DM: {f:.2f}")
-
-                            except Exception as e:
-                                print(f"Update Error: {e}")
-
-                 
-                        sim_timer.callback = update_cluster_points
-
-                        async def start_simulation_logic():
-                         
-                            reset_simulation_data()
-                            
-                           
-                            await asyncio.sleep(0.5)
-                            
-                           
-                            if chart_obs: chart_obs.run_chart_method(':resize')
-                            if chart_model: chart_model.run_chart_method(':resize')
-                            
-                            
-                            sim_timer.activate()
-                        with ui.dialog() as sim_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('aria-label="Cluster galaxies velocity simulation" role=dialog aria-modal=true'):
-                            ui.label('Cluster Galaxies Velocities View').classes('text-xl font-bold').props('role=heading aria-level=2 tabindex=0 aria-label=Galaxy Simulation View')
-                            
-                            with ui.row().classes('w-full justify-center gap-4 p-4'):
-                                
-                                with ui.column().classes('flex-1 items-center'):
-                                    chart_obs = ui.echart({
-                                        'title': {'text': 'Observed Galaxies', 'left': 'center', 'textStyle': {'fontWeight': 'bold'}},
-                                        'grid': {'left': '5%', 'right': '5%', 'top': '10%', 'bottom': '10%'},
-                                        'xAxis': {'min': -1.0, 'max': 1.0, 'show': False},
-                                        'yAxis': {'min': -1.0, 'max': 1.0, 'show': False},
-                                        'series': [{'type': 'scatter', 'symbolSize': 8, 'itemStyle': {'color': 'blue', 'opacity': 0.8}, 'data': [], 'animation': False}]
-                                    }).classes('w-full h-64')
-                                    label_stats_obs = ui.label('').classes('text-sm font-bold text-blue-700')
-
-                              
-                                with ui.column().classes('flex-1 items-center'):
-                                    chart_model = ui.echart({
-                                        'title': {'text': 'Simulated Galaxies', 'left': 'center', 'textStyle': {'fontWeight': 'bold'}},
-                                        'grid': {'left': '5%', 'right': '5%', 'top': '10%', 'bottom': '10%'},
-                                        'xAxis': {'min': -1.0, 'max': 1.0, 'show': False},
-                                        'yAxis': {'min': -1.0, 'max': 1.0, 'show': False},
-                                        'series': [{'type': 'scatter', 'symbolSize': 8, 'itemStyle': {'color': 'green', 'opacity': 0.8}, 'data': [], 'animation': False}]
-                                    }).classes('w-full h-64')
-                                    label_stats_model = ui.label('').classes('text-sm font-bold text-green-700')
-                            
-                            aria_button("close",'close',on_click=lambda:[sim_dialog.close(), sim_timer.deactivate()]).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    
-
                         aria_button("Instructions", "Read the instructions",on_click=safe_click(lambda: [instruction_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
-                        aria_button("Dataset", "Read the info about dataset",on_click=safe_click(lambda: [dataset_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")  
-                        aria_button("Physics Info", "Read the detailed information about computational steps from data to plots",on_click=safe_click(lambda: [cluster_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-                "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")  
-                    
-                        #aria_button("Image", "Show the cluster image corresponding to the selected dataset", on_click=safe_click(lambda: [ update_cluster_image.refresh(),  image_dialog.open() ])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                            
+                        aria_button(
+    "Scientific Info", 
+    "Open the full cluster analysis including notes, Chi2, and simulations", 
+    on_click=lambda: [open_cluster_analysis_dialog2(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")]
+    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
+                        
 
-                        #aria_button("Table", "Show the data table corresponding to the selected dataset", on_click=safe_click(lambda: [                            update_cluster_table.refresh(),                             table_dialog.open()])).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                        async def on_galaxies_click():
-                            sim_dialog.open()          
-                            await start_simulation_logic() 
-
-                        aria_button('Galaxies velocities', 'show cluster galaxies velocity',on_click=on_galaxies_click, icon='visibility').classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                        
+                        
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_clust.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded") 
-                    
-                    with ui.row().classes('w-full justify-center items-center gap-2'):
                         ui.html('''
-        <div class="flex space-x-2">
-        <button id="audio-button" role="button" aria-label="Activate or deactivate audio" aria-pressed="false"
-                    onclick="initAudio()" 
-                    class="!bg-green-500 hover:!bg-green-700 text-black font-bold py-2 px-4 rounded">
-                Activate Audio
+        <style>
+            /* Contenitore principale */
+            .sigma-audio-menu-wrapper { 
+                position: relative; 
+                display: inline-block; 
+                /* Assicura che resti sempre sopra gli altri elementi dell'interfaccia */
+                z-index: 2147483647; 
+            }
+            
+            /* Il contenuto del menu a tendina */
+            .sigma-audio-dropdown-content {
+                display: none; 
+                position: absolute; 
+                left: 50%; 
+                transform: translateX(-50%);
+                top: 100%; /* Si apre verso il basso */
+                margin-top: 0.5rem; 
+                width: 480px; 
+                background-color: #1e293b; /* slate-800 */
+                border: 1px solid #475569; /* slate-600 */
+                border-radius: 0.5rem; 
+                padding: 1rem;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); 
+                flex-direction: column; 
+                gap: 1rem;
+            }
+            
+            /* Appare in hover! (Importante: il display flex sostituisce il none) */
+            .sigma-audio-menu-wrapper:hover .sigma-audio-dropdown-content { 
+                display: flex !important; 
+            }
+        </style>
+        
+        <div class="sigma-audio-menu-wrapper">
+            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); cursor: pointer;" 
+                onmouseover="this.style.backgroundColor='#15803d'" 
+                onmouseout="this.style.backgroundColor='#16a34a'">
+                🔊 Sigma Audio Tools
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-        <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Observed σ (mean)</button>
-        <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Observed σ (curve)</button>
-        <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Baryonic σ (mean)</button>
-        <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Baryonic σ (curve)</button>
-        <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Simulated σ (mean)</button>
-        <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" class="!bg-green-300 hover:!bg-green-500 text-black px-3 py-1 rounded">▶ Simulated σ (curve)</button>
-        <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" class="!bg-green-700 hover:!bg-green-900 text-black px-3 py-1 rounded">▶ Difference σ (mean)</button>
-        <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" class="!bg-green-500 hover:!bg-green-700 text-black px-3 py-1 rounded">▶ Difference σ (curve)</button>
-
+            
+            <div class="sigma-audio-dropdown-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
+                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sigma Sonification</span>
+                    <button id="audio-button-cluster" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
+                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
+                        Activate Audio
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (mean)</button>
+                    <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (mean)</button>
+                    <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (mean)</button>
+                    <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (mean)</button>
+                    <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (curve)</button>
+                </div>
+            </div>
         </div>
         ''')
-                        ui.label("").props(
-            'id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0'
-        )
+
+                        ui.label("").props('id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0').classes('text-sm text-gray-700 font-bold mt-2 w-full text-center')
+                        
                     
                             
                             
@@ -4565,18 +4886,23 @@ def create_page():
                             with ui.column().classes('w-full items-center justify-between'):
                                 plot_container_histo = ui.column().classes('w-full')
                                 with ui.row().classes('w-full justify-center mt-2'):
-                                    aria_button("Activity 5.1", "virial", on_click=lambda: instr_cluster_virial.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
-                                    aria_button("Activity 5.2", "mass", on_click=lambda: instr_cluster_mass.open()).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
-
-                               
-                          
+                                    aria_button(
+        "Activity: Cluster ", 
+        "Start the cluster analysis activity", 
+        on_click=lambda: [instr_cluster_combined.open(), ui.run_javascript("MathJax.typesetPromise()")]
+    ).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-6 rounded shadow-md")
+                                    aria_button("Dataset", "Read the info about dataset",on_click=safe_click(lambda: [dataset_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
+                "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded") 
+                                  
+    
+                                    
+                                    
+                                    
                             with ui.column().classes('w-full items-center justify-between'):
                                 plot_container_scatter = ui.column().classes('w-full')
-                                with ui.row().classes('w-full justify-center mt-2'):
+                              
                                 
-                                    aria_button("Activity 5.3", "verify model", on_click=safe_click(lambda: [instr_cluster_slider.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
-
-                      
+                                  
                             with ui.column().classes('w-full justify-between items-center'):
                                 cluster_chi2_plot_container = ui.column().classes('w-full')
                                 
@@ -4584,8 +4910,7 @@ def create_page():
                                 plot_cluster_chi2_curve() 
                                 
                                 with ui.row().classes("w-full justify-center mt-2"):
-                                    aria_button("Info χ²", "Read Chi-Square method", on_click=safe_click(lambda: [chi2_explanation_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
-                  
+                                    
                                     aria_button("Add point", "Add point", on_click=lambda: add_cluster_chi2_point()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                     aria_button("Reset", "Reset", on_click=lambda: refresh_cluster_chi2_plot()).classes("!bg-green-600 text-white font-bold py-1 px-2 rounded ")
                                     
@@ -4598,7 +4923,7 @@ def create_page():
                             plot_container_histo.clear()      
                             plot_container_scatter.clear()
                         
-                        
+                        #asyncio.create_task(update_coma_histogram_v2(plot_state['id'], full_anim))
                         ui.timer(0, lambda: update_coma_histogram_v2(plot_state['id'], full_anim), once=True)
                     
                 
@@ -4616,7 +4941,8 @@ def create_page():
 
                    
                     
-                    #ui.timer(0.5, lambda: refresh_cluster_plots(full_anim=True), once=True)
+                    
+                    ui.timer(0.5, lambda: refresh_cluster_plots(full_anim=True), once=True)
 
                 
                     def on_dataset_change(new_value):
@@ -5071,116 +5397,7 @@ def create_page():
         </ul>
     """).props('aria-label="Descriptive text about galaxy cluster mass and density activities"')
                         aria_button("Close", "Close the box",on_click=lambda:inst_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    with ui.dialog() as datac_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Info about cluster dataset'):
-                        info_box("**Dataset variables**: Cluster (name), ID (galaxy ID), RAdeg (right ascension in degrees), DEdeg (declination in degrees), RV (radial velocity in km/s), e_RV (velocity error in km/s), q_RV (quality flag),Nint (n.emission/absorbed lines), bmag (apparent magnitude in B band).")
-                                            
-                        reference_box("""**Dataset reference**: Way M.J. et al., *Redshifts in the Southern Abell Redshift Survey Clusters*. I. The Data'""").classes('text-base italic')
-                        aria_button("Close", "Close the box",on_click=lambda:datac_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                    with ui.dialog() as formula_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Formulas used in cluster mass and density calculations'):
-                        html_info_box(r"""
-        <h3>Computational Notes</h3>
-
-        <ul>
-            <li><b>Step 1:</b> Compute angular separation (radians):<br> <span class="math">\( \Delta \theta \)</span></li>
-            <li><b>Step 2:</b> Compute radius (<span class="math">\( D = 100 \,\mathrm{Mpc} \)</span>):<br> <span class="math">\( r = D \cdot \Delta \theta \)</span> (kpc)</li>
-            <li><b>Step 3:</b> Compute observed velocity:<br> <span class="math">\( v_i = c \, z_i \)</span></li>
-            <li><b>Step 4:</b> Distance modulus:<br> <span class="math">\( \text{distmod} = 5 \log_{10}(D_{\mathrm{pc}}) - 5 \)</span></li>
-            <li><b>Step 5:</b> Absolute magnitude:<br> <span class="math">\( M_{\mathrm{abs}} = b_{\mathrm{mag}} - \text{distmod} \)</span></li>
-            <li><b>Step 6:</b> Luminosity (<span class="math">\( M_{\odot,B} = 5.48 \)</span>):<br> <span class="math">\( L_B = 10^{-0.4 (M_{\mathrm{abs}} - M_{\odot,B})} \)</span></li>
-            <li><b>Step 7:</b> Total cluster luminosity:<br> <span class="math">\( L_r = \sum_i L_{B,i} \)</span></li>
-            <li><b>Step 8:</b> Stars mass (<span class="math">\( M/L = 5 \)</span>):<br> <span class="math">\( M_{\mathrm{stars}} = (M/L) \cdot L_r \)</span></li>
-           
-<li><b>Step 9:</b> Gas mass (Giodini,2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
-    <li><b>Step 10:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
- </ul>
-
-        <h4>Virial Theorem Setup</h4>
-        
-        <ul>
-            <li><b>Step 9:</b> Gravitational potential energy: <span class="math">\( U(r) = - \frac{G M m}{r} \)</span></li>
-            <li><b>Step 10:</b> Gravitational force: <span class="math">\( F_{\mathrm{grav}} = \frac{G M m}{r^2} \)</span></li>
-            <li><b>Step 11:</b> Centripetal force: <span class="math">\( F_{\mathrm{cent}} = \frac{m v^2}{r} \)</span></li>
-            <li><b>Step 12:</b> Equating forces: <span class="math">\( v^2(r) = \frac{G M}{r} \)</span></li>
-            <li><b>Step 13:</b> Kinetic energy: <span class="math">\( K = \tfrac{1}{2} m v^2 = \tfrac{1}{2} \frac{G M m}{r} \)</span></li>
-            <li><b>Step 14:</b> Relation K vs U: <span class="math">\( K = -\tfrac{1}{2} U \)</span></li>
-            <li><b>Step 15:</b> Virial theorem: <span class="math">\( 2K + U = 0 \)</span></li>
-            <li><b>Step 16:</b> System treated as <span class="math">\( N \)</span> light particles orbiting a heavy center of mass.</li>
-        </ul>
-
-        <h4>Cluster Mass & Density</h4>
-        <ul>
-            <li><b>Step 17:</b> 1-D velocity dispersion: <span class="math">\( \sigma_v = \sqrt{\tfrac{1}{N} \sum_{i=0}^N (v_i - \bar{v})^2} \)</span></li>
-            <li><b>Step 18:</b> 3-D velocity dispersion (isotropic): <span class="math">\( \sigma_{3D} = \sqrt{3} \, \sigma_v \)</span></li>
-            <li><b>Step 19:</b> Total cluster mass: <span class="math">\( M_{\mathrm{tot}} = \frac{3 \, \sigma_v^2 \, r}{G} \)</span></li>
-            <li><b>Step 20:</b> Cluster volume: <span class="math">\( V = \tfrac{4}{3} \pi r^3 \)</span></li>
-            <li><b>Step 21:</b> Luminous density: <span class="math">\( \rho_{\mathrm{lum}} = \frac{M_{\mathrm{lum}}}{V} \)</span></li>
-            <li><b>Step 22:</b> Total density: <span class="math">\( \rho_{\mathrm{tot}} = \frac{M_{\mathrm{tot}}}{V} \)</span></li>
-            <li><b>Step 23 (Plot):</b> X-axis: radius. Y-axis: <span class="math">\( M_{\mathrm{lum}}, M_{\mathrm{tot}}, \rho_{\mathrm{lum}}, \rho_{\mathrm{tot}} \)</span></li>
-        </ul>
-    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of virial theorem"')
-                        aria_button("Close", "Close the box",on_click=lambda:formula_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                    with ui.dialog().props('role="dialog" aria-label="legend-title" aria-describedby="legend-desc"') as legend_dialog, ui.card().classes("p-4 w-full max-w-2xl overflow-x-auto"):
-                        html_info_box(r"""
-        <h3 class="text-xl font-bold mb-2">Legend of Symbols and Units</h3>
-        <ul class="list-disc pl-5 space-y-1">
-            <li><b>RV</b> = Radial velocity of cluster galaxies [km/s] (dataset)</li>
-            <li><b>&sigma;<sub>v</sub></b> = Velocity dispersion of cluster galaxies [km/s]</li>
-            <li><b>N</b> = Number of galaxies in the cluster</li>
-            <li><b>D</b> = Distance to the cluster [Mpc] (fixed or from redshift <i>D = z &middot; c / H<sub>0</sub></i>)</li>
-            <li><b>z</b> = redshift</li>
-            <li><b>r</b> = Cluster radius [kpc] (computed from angular separation in dataset and distance)</li>
-            <li><b>M<sub>total</sub>(r)</b> = Total mass (Virial theorem) [M<sub>&odot;</sub>]</li>
-            <li><b>M<sub>lum</sub>(r)</b> = Luminous mass (B-band luminosity &times; M/L) [M<sub>&odot;</sub>]</li>
-            <li><b>M/L</b> = 5 (Mass-to-light ratio in B-band) [M<sub>&odot;</sub>/L<sub>&odot;</sub>]</li>
-            <li><b>L(r)</b> = Cumulative B-band luminosity within radius r [L<sub>&odot;</sub>]</li>
-            <li><b>M<sub>sun,B</sub></b> = 5.48 (absolute magnitude of the Sun in B-band)</li>
-            <li><b>H<sub>0</sub></b> = 70 km/s/Mpc (Hubble constant)</li>
-            <li><b>G</b> = 4.302 &times; 10<sup>-6</sup> kpc&middot;(km/s)&sup2;&middot;M<sub>&odot;</sub><sup>-1</sup></li>
-            <li><b>c</b> = 299792 km/s (Speed of light)</li>
-            <li><b>U</b> = Gravitational potential energy of a particle [km&sup2;/s&sup2;]</li>
-            <li><b>F<sub>grav</sub></b> = Gravitational force [M<sub>&odot;</sub>&middot;kpc/s&sup2;]</li>
-            <li><b>F<sub>cent</sub></b> = Centripetal force [M<sub>&odot;</sub>&middot;kpc/s&sup2;]</li>
-            <li><b>v&sup2;(R)</b> = Squared orbital velocity for circular orbit [km&sup2;/s&sup2;]</li>
-            <li><b>K</b> = Kinetic energy of a particle [km&sup2;/s&sup2;]</li>
-            <li><b>2K + U = 0</b> = Virial theorem for bound system</li>
-            <li><b>M<sub>circ</sub></b> = Mass corresponding to circular orbit of one particle [M<sub>&odot;</sub>]</li>
-            <li><b>M<sub>tot</sub>(r)</b> = Total virial mass of the cluster [M<sub>&odot;</sub>]</li>
-            <li><b>L<sub>B</sub></b> = Luminosity of a single galaxy in B-band [L<sub>&odot;</sub>]</li>
-            <li><b>L(r)</b> = Cumulative luminosity up to radius r [L<sub>&odot;</sub>]</li>
-            <li><b>M<sub>lum</sub>(r)</b> = Luminous mass within radius r [M<sub>&odot;</sub>]</li>
-            <li><b>D<sub>pc</sub></b> = Cluster distance in parsecs [pc]</li>
-            <li><b>dist<sub>mod</sub></b> = Distance modulus</li>
-            <li><b>M<sub>abs</sub></b> = Absolute magnitude of a galaxy [mag]</li>
-            <li><b>m</b> = Mass of a light single particle or galaxy [M<sub>&odot;</sub>]</li>
-            <li><b>M</b> = Mass inside radius r of heavy particle or total enclosed mass [M<sub>&odot;</sub>]</li>
-            <li><b>M<sub>circ</sub></b> = Mass of a particle in circular orbit [M<sub>&odot;</sub>]</li>
-            <li><b>v&sup2;</b> = Squared orbital velocity [km&sup2;/s&sup2;]</li>
-            <li><b>L<sub>B,i</sub></b> = Luminosity of a single galaxy [L<sub>&odot;</sub>]</li>
-            <li><b>bmag</b> = Apparent magnitude in B band [mag] (dataset)</li>
-        </ul>
-    """).props('id="legend-desc"')
-                        aria_button("Close","Close the box", on_click=lambda:legend_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                
-                    with ui.dialog().props('role="dialog" aria-label="units-title" aria-describedby="units-desc"') as units_dialog, ui.card().classes("p-4 w-full max-w-2xl overflow-x-auto"):
-                        html_info_box(r"""
-        <h3 class="text-xl font-bold mb-2">Units Conversion</h3>
-        <ul class="list-disc pl-5 space-y-1">
-            <li><b>1 kpc</b> = 3.086 &times; 10<sup>16</sup> m = 3.26 &times; 10&sup3; light-years</li>
-            <li><b>1 pc</b> = 3.086 &times; 10<sup>13</sup> km = 3.26 light-years</li>
-            <li><b>1 Mpc</b> = 10<sup>6</sup> pc = 3.086 &times; 10<sup>19</sup> km</li>
-            <li><b>1 km/s</b> = 3.6 &times; 10&sup3; km/h = 10&sup3; m/s</li>
-            <li><b>1 M<sub>&odot;</sub></b> = 1.989 &times; 10<sup>30</sup> kg (solar mass)</li>
-            <li><b>1 L<sub>&odot;</sub></b> = 3.828 &times; 10<sup>26</sup> W (solar luminosity)</li>
-            <li><b>Distance modulus:</b> <i>m - M = 5 log<sub>10</sub>(d / 10 pc)</i></li>
-            <li><b>Small angle:</b> 1 arcsec at distance D &rarr; <i>D &middot; tan(1") &asymp; D / 206265</i></li>
-        </ul>
-    """).props('id="units-desc"')
-                
-                        aria_button("Close", "Close the box",on_click=lambda:units_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                        
                     with ui.dialog() as cur_el_gordo, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Information about El Gordo galaxy cluster"'):
                         html_info_box(r"""
                         <h3>"El Gordo": The Cosmic Heavyweight</h3>
@@ -5195,64 +5412,466 @@ def create_page():
                         
                         aria_button("Close", "close", on_click=lambda:cur_el_gordo.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
-                    with ui.dialog() as more_DM_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="More information about evidence for dark matter"'):
-                        html_info_box(r"""
+                   
+                    cluster_popup_container = None
+                    @ui.refreshable
+                    def update_cluster_popup_plots():
+                        global cluster_popup_container
+                        if cluster_popup_container is None: return
+                        cluster_popup_container.clear()
+
+                        selected_file = cluster_select.value
+                        if not selected_file:
+                            return
+
+                        df = get_cluster_data_cached(selected_file)
+
+                        
+
+                        H0 = 70.0
+                        G = 4.302e-6
+                        M_sun_B = 5.48
+                        MLR_B = 5.0
+                        FIXED_DISTANCE_MPC = None
+
+                        members = df.copy()
+                        # sigma clipping
+                        for _ in range(5):
+                            v_rel = members["RV"] - np.median(members["RV"])
+                            mad = np.median(np.abs(v_rel))
+                            sigma = 1.4826 * mad if mad > 0 else np.std(v_rel)
+                            mask = np.abs(v_rel) <= 3 * sigma
+                            new_members = members[mask]
+                            if len(new_members) == len(members):
+                                break
+                            members = new_members
+
+                        if len(members) < 10:
+                            ui.label(f"Not enough valid galaxies in {selected_file}.").classes('text-orange-500')
+                            return
+
+                        cluster_distance = float(FIXED_DISTANCE_MPC) if FIXED_DISTANCE_MPC else np.median(members["RV"]) / H0
+
+                        mean_ra, mean_dec = members["RAdeg"].mean(), members["DEdeg"].mean()
+                        ang_sep = np.sqrt(((members["RAdeg"] - mean_ra) * np.cos(np.radians(mean_dec)))**2 +
+                                        (members["DEdeg"] - mean_dec)**2)
+                        r_kpc = cluster_distance * 1000 * np.radians(ang_sep)
+                        members = members.assign(r_kpc=r_kpc).replace([np.inf, -np.inf], np.nan).dropna(subset=["r_kpc"])
+                        members = members[members["r_kpc"] <= 3000]
+                        r = members["r_kpc"].values
+
+                        D_pc = cluster_distance * 1e6
+                        dist_mod = 5*np.log10(D_pc) - 5
+                        M_abs = members["bmag"] - dist_mod
+                        L_B = 10**(-0.4*(M_abs - M_sun_B))
+                        L_B_np = L_B.values
+
+                        order = np.argsort(r)
+                        R_cum = r[order]
+                        L_cum = np.cumsum(L_B_np[order])
+                        M_lum_r = MLR_B * L_cum
+
+                        sigma_global = np.std(members["RV"] - np.median(members["RV"]))
+                        M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
+                        h = 0.7  
+                        m_500_r = 0.7 * M_tot_r
+                        f_gas_r = 0.093 * ((m_500_r / (2e14 / h))**0.21)
+                        m_gas_r = m_500_r * f_gas_r
+                        M_baryonic_r = M_lum_r + m_gas_r
+                        # positive floor to avoid zeros
+                        def positive_floor(arr):
+                            pos = arr[np.isfinite(arr) & (arr > 0)]
+                            if pos.size == 0:
+                                return arr + 1e-6
+                            floor = np.nanmin(pos) * 1e-3
+                            return np.where(arr <= 0, floor, arr)
+
+                        M_tot_r = positive_floor(M_tot_r)
+                        M_baryonic_r = positive_floor(M_baryonic_r)
+
+                        rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
+                        rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
+
+                        with cluster_popup_container:
+                            with ui.row().classes('w-full justify-center gap-8 flex-wrap'):
+                                with ui.pyplot(figsize=(8, 6)):
+                                    plt.plot(R_cum, M_baryonic_r/1e9, label="Luminous Mass", color="red", lw=2)
+                                    plt.plot(R_cum, M_tot_r/1e9, label="Total Mass", color="blue", lw=2)
+                                    plt.xscale("log"); plt.yscale("log")
+                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
+                                    plt.title(f"Mass Profile — {selected_file}",fontweight='bold')
+                                    plt.grid(True, which="both", ls="--")
+                                    plt.legend()
+
+                                with ui.pyplot(figsize=(8, 6)):
+                                    plt.plot(R_cum, rho_lum_cum, label="Luminous Density", color="red")
+                                    plt.plot(R_cum, rho_tot_cum, label="Total Density", color="blue")
+                                    plt.xscale("log"); plt.yscale("log")
+                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Density (M☉/kpc³)")
+                                    plt.title(f"Density Profile — {selected_file}",fontweight='bold')
+                                    plt.grid(True, which="both", ls="--")
+                                    plt.legend()
+                    def open_cluster_analysis_dialog():
+                        global cluster_popup_container
+                        
+                        with ui.dialog() as comp_cluster_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="cluster-main-title"'):
+                            
+                            with ui.column().classes('w-full h-full bg-white'):
+                                
+                                with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0'):
+                                    ui.label('Cluster Analysis: Physics & Simulation').classes('text-xl font-bold').props('id="cluster-main-title" role=heading aria-level=2 tabindex=0')
+                                    aria_button('Close', 'close', on_click=comp_cluster_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                                
+                                
+                                with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                    
+                                   
+                                    
+                                    t_virial = ui.tab('Virial Theorem')
+                                    t_legend = ui.tab('Legend & Units')
+                                    t_plots = ui.tab('Cluster Plots')
+                                    t_math = ui.tab('Dark Matter Evidence')
+                                    
+
+                                    tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+
+                                with ui.tab_panels(tabs, value=t_virial).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                    
+                                   
+                                    with ui.tab_panel(t_plots).classes('flex flex-col items-center justify-start'):
+                                        ui.label("Cluster Analysis Plots").classes("text-2xl font-bold mb-4")
+                                        
+                                        ui.select(options=cluster_select.options, label='Select a Cluster Dataset') \
+                                            .bind_value(cluster_select, 'value') \
+                                            .classes('w-64 mb-6 bg-slate-800 text-white rounded shadow-sm') \
+                                            .props('behavior="menu" outlined popup-content-class="bg-slate-800 text-white"') \
+                                            .on_value_change(lambda e: update_cluster_popup_plots.refresh())
+                                  
+                                        cluster_popup_container = ui.column().classes("w-full items-center justify-center")
+                                        update_cluster_popup_plots()
+                                      
+
+                                        info_box("**Dataset variables**: Cluster (name), ID (galaxy ID), RAdeg (right ascension), DEdeg (declination), RV (radial velocity), e_RV (velocity error), q_RV (quality flag), Nint (n.lines), bmag (B band magnitude).")
+                                        reference_box("""**Dataset reference**: Way M.J. et al., *Redshifts in the Southern Abell Redshift Survey Clusters*.""").classes('text-base italic')
+
+                                   
+                                    with ui.tab_panel(t_math):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+
     <h3>Further Evidence: Lensing & Collisions</h3>
+
     <p>While rotation curves provided the first hint, other independent observations confirm the existence of Dark Matter.</p>
 
+
+
     <hr class="my-4">
+
+
 
     <h4>1. Gravitational Lensing</h4>
-    
+
+   
+
     <div style="text-align: center; margin: 10px 0;">
+
         <img src="/images/gravitational_lensing.jpg" alt="Gravitational Lensing Diagram" style="width: 100%; max-width: 400px; border-radius: 8px; border: 1px solid #ccc;">
+
         <p style="font-size: 0.85em; color: #555;"><i>Light bending around a massive object.</i></p>
+
     </div>
 
+
+
     <p>According to Einstein's General Relativity, mass bends space-time, causing light paths to curve. This effect is called <b>Gravitational Lensing</b>.</p>
+
     <ul style="list-style-type: disc; margin-left: 20px;">
+
         <li>Astronomers observe strong distortions (arcs and rings) of background galaxies around massive clusters.</li>
+
         <li>Calculations show that the <b>visible mass</b> (stars and gas) is insufficient to cause such strong bending.</li>
+
         <li>The extra bending implies a huge amount of invisible mass: <b>Dark Matter</b>.</li>
+
     </ul>
 
+
+
     <hr class="my-4">
+
+
 
     <h4>2. The Bullet Cluster (1E 0657-56)</h4>
 
+
+
     <div style="text-align: center; margin: 10px 0;">
+
         <img src="/images/bullet_lensing.jpg" alt="Bullet Cluster Composite Image" style="width: 100%; max-width: 400px; border-radius: 8px; border: 1px solid #ccc;">
+
         <p style="font-size: 0.85em; color: #555;"><i>Composite image: X-ray (pink) vs. Mass density (blue).</i></p>
+
     </div>
 
+
+
     <p>The coloured cloud for Dark Matter comes from the collision of two galaxy clusters, known as the <b>Bullet Cluster</b>.</p>
+
     <ul style="list-style-type: disc; margin-left: 20px;">
+
         <li><b>Baryonic Matter (Pink/Red):</b> The hot gas, observed in X-rays, constitutes most of the normal matter. During the collision, the gas clouds interacted electromagnetically (friction), slowed down, and lagged behind.</li>
+
         <li><b>Total Mass (Blue):</b> Mapped via gravitational lensing, the majority of the mass passed right through the collision without slowing down.</li>
+
     </ul>
+
     <p><b>Conclusion:</b> The mass (Blue) is separated from the gas (Pink). This proves that the majority of matter is <b>collisionless</b> and interacts only via gravity—fundamental properties of Dark Matter.</p>
+
+
 
     <hr class="my-4">
 
+
+
     <h4>References</h4>
+
     <div style="font-size: 0.9em; line-height: 1.4; color: #444;">
+
         <p style="margin-bottom: 5px;">
-            <b>[Wikipedia]</b> 
+
+            <b>[Wikipedia]</b>
+
             <a href="https://en.wikipedia.org/wiki/Gravitational_lens" target="_blank" style="color: #2563eb; text-decoration: underline;">Gravitational Lens</a>
+
         </p>
+
         <p style="margin-bottom: 5px;">
-            <b>[Wikipedia]</b> 
+
+            <b>[Wikipedia]</b>
+
             <a href="https://en.wikipedia.org/wiki/Bullet_Cluster" target="_blank" style="color: #2563eb; text-decoration: underline;">Bullet Cluster (1E 0657-56)</a>
+
         </p>
+
         <p style="margin-bottom: 5px;">
-            <b>[NASA]</b> 
+
+            <b>[NASA]</b>
+
             <a href="https://chandra.harvard.edu/press/06_releases/press_082106.html" target="_blank" style="color: #2563eb; text-decoration: underline;">Chandra Press Release (2006) - "NASA Finds Direct Proof of Dark Matter"</a>
+
         </p>
+
     </div>
-""").props('aria-label="Information about Gravitational Lensing and Bullet Cluster"')
-                        aria_button("Close", "Close the box",on_click=lambda:more_DM_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    def open_slides_DM():
-                        ui.run_javascript('window.open("/slides/Dark_matter.pdf", "_blank")')
+
+""")
+                                        aria_button('Supplementary Materials', 'Open Dark Matter Slides', 
+                                on_click=lambda: ui.run_javascript('window.open("/slides/Dark_matter.pdf", "_blank")')
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4")
+                               
+                                    with ui.tab_panel(t_virial):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+
+        <h3>Computational Notes</h3>
+
+
+
+        <ul>
+
+            <li><b>Step 1:</b> Compute angular separation (radians):<br> <span class="math">\( \Delta \theta \)</span></li>
+
+            <li><b>Step 2:</b> Compute radius (<span class="math">\( D = 100 \,\mathrm{Mpc} \)</span>):<br> <span class="math">\( r = D \cdot \Delta \theta \)</span> (kpc)</li>
+
+            <li><b>Step 3:</b> Compute observed velocity:<br> <span class="math">\( v_i = c \, z_i \)</span></li>
+
+            <li><b>Step 4:</b> Distance modulus:<br> <span class="math">\( \text{distmod} = 5 \log_{10}(D_{\mathrm{pc}}) - 5 \)</span></li>
+
+            <li><b>Step 5:</b> Absolute magnitude:<br> <span class="math">\( M_{\mathrm{abs}} = b_{\mathrm{mag}} - \text{distmod} \)</span></li>
+
+            <li><b>Step 6:</b> Luminosity (<span class="math">\( M_{\odot,B} = 5.48 \)</span>):<br> <span class="math">\( L_B = 10^{-0.4 (M_{\mathrm{abs}} - M_{\odot,B})} \)</span></li>
+
+            <li><b>Step 7:</b> Total cluster luminosity:<br> <span class="math">\( L_r = \sum_i L_{B,i} \)</span></li>
+
+            <li><b>Step 8:</b> Stars mass (<span class="math">\( M/L = 5 \)</span>):<br> <span class="math">\( M_{\mathrm{stars}} = (M/L) \cdot L_r \)</span></li>
+
+           
+
+<li><b>Step 9:</b> Gas mass (Giodini,2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+
+    <li><b>Step 10:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
+
+ </ul>
+
+
+
+        <h4>Virial Theorem Setup</h4>
+
+       
+
+        <ul>
+
+            <li><b>Step 9:</b> Gravitational potential energy: <span class="math">\( U(r) = - \frac{G M m}{r} \)</span></li>
+
+            <li><b>Step 10:</b> Gravitational force: <span class="math">\( F_{\mathrm{grav}} = \frac{G M m}{r^2} \)</span></li>
+
+            <li><b>Step 11:</b> Centripetal force: <span class="math">\( F_{\mathrm{cent}} = \frac{m v^2}{r} \)</span></li>
+
+            <li><b>Step 12:</b> Equating forces: <span class="math">\( v^2(r) = \frac{G M}{r} \)</span></li>
+
+            <li><b>Step 13:</b> Kinetic energy: <span class="math">\( K = \tfrac{1}{2} m v^2 = \tfrac{1}{2} \frac{G M m}{r} \)</span></li>
+
+            <li><b>Step 14:</b> Relation K vs U: <span class="math">\( K = -\tfrac{1}{2} U \)</span></li>
+
+            <li><b>Step 15:</b> Virial theorem: <span class="math">\( 2K + U = 0 \)</span></li>
+
+            <li><b>Step 16:</b> System treated as <span class="math">\( N \)</span> light particles orbiting a heavy center of mass.</li>
+
+        </ul>
+
+
+
+        <h4>Cluster Mass & Density</h4>
+
+        <ul>
+
+            <li><b>Step 17:</b> 1-D velocity dispersion: <span class="math">\( \sigma_v = \sqrt{\tfrac{1}{N} \sum_{i=0}^N (v_i - \bar{v})^2} \)</span></li>
+
+            <li><b>Step 18:</b> 3-D velocity dispersion (isotropic): <span class="math">\( \sigma_{3D} = \sqrt{3} \, \sigma_v \)</span></li>
+
+            <li><b>Step 19:</b> Total cluster mass: <span class="math">\( M_{\mathrm{tot}} = \frac{3 \, \sigma_v^2 \, r}{G} \)</span></li>
+
+            <li><b>Step 20:</b> Cluster volume: <span class="math">\( V = \tfrac{4}{3} \pi r^3 \)</span></li>
+
+            <li><b>Step 21:</b> Luminous density: <span class="math">\( \rho_{\mathrm{lum}} = \frac{M_{\mathrm{lum}}}{V} \)</span></li>
+
+            <li><b>Step 22:</b> Total density: <span class="math">\( \rho_{\mathrm{tot}} = \frac{M_{\mathrm{tot}}}{V} \)</span></li>
+
+            <li><b>Step 23 (Plot):</b> X-axis: radius. Y-axis: <span class="math">\( M_{\mathrm{lum}}, M_{\mathrm{tot}}, \rho_{\mathrm{lum}}, \rho_{\mathrm{tot}} \)</span></li>
+
+        </ul>
+
+    """)
+
+                                 
+                                    with ui.tab_panel(t_legend):
+                                        html_info_box(r"""
+                                                      <style>
+            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+            .math-den { padding-top: 2px; }
+        </style>
+                                                      <h3 class="text-xl font-bold mb-2">Legend of Symbols and Units</h3>
+
+        <ul class="list-disc pl-5 space-y-1">
+
+            <li><b>RV</b> = Radial velocity of cluster galaxies [km/s] (dataset)</li>
+
+            <li><b>&sigma;<sub>v</sub></b> = Velocity dispersion of cluster galaxies [km/s]</li>
+
+            <li><b>N</b> = Number of galaxies in the cluster</li>
+
+            <li><b>D</b> = Distance to the cluster [Mpc] (fixed or from redshift <i>D = z &middot; c / H<sub>0</sub></i>)</li>
+
+            <li><b>z</b> = redshift</li>
+
+            <li><b>r</b> = Cluster radius [kpc] (computed from angular separation in dataset and distance)</li>
+
+            <li><b>M<sub>total</sub>(r)</b> = Total mass (Virial theorem) [M<sub>&odot;</sub>]</li>
+
+            <li><b>M<sub>lum</sub>(r)</b> = Luminous mass (B-band luminosity &times; M/L) [M<sub>&odot;</sub>]</li>
+
+            <li><b>M/L</b> = 5 (Mass-to-light ratio in B-band) [M<sub>&odot;</sub>/L<sub>&odot;</sub>]</li>
+
+            <li><b>L(r)</b> = Cumulative B-band luminosity within radius r [L<sub>&odot;</sub>]</li>
+
+            <li><b>M<sub>sun,B</sub></b> = 5.48 (absolute magnitude of the Sun in B-band)</li>
+
+            <li><b>H<sub>0</sub></b> = 70 km/s/Mpc (Hubble constant)</li>
+
+            <li><b>G</b> = 4.302 &times; 10<sup>-6</sup> kpc&middot;(km/s)&sup2;&middot;M<sub>&odot;</sub><sup>-1</sup></li>
+
+            <li><b>c</b> = 299792 km/s (Speed of light)</li>
+
+            <li><b>U</b> = Gravitational potential energy of a particle [km&sup2;/s&sup2;]</li>
+
+            <li><b>F<sub>grav</sub></b> = Gravitational force [M<sub>&odot;</sub>&middot;kpc/s&sup2;]</li>
+
+            <li><b>F<sub>cent</sub></b> = Centripetal force [M<sub>&odot;</sub>&middot;kpc/s&sup2;]</li>
+
+            <li><b>v&sup2;(R)</b> = Squared orbital velocity for circular orbit [km&sup2;/s&sup2;]</li>
+
+            <li><b>K</b> = Kinetic energy of a particle [km&sup2;/s&sup2;]</li>
+
+            <li><b>2K + U = 0</b> = Virial theorem for bound system</li>
+
+            <li><b>M<sub>circ</sub></b> = Mass corresponding to circular orbit of one particle [M<sub>&odot;</sub>]</li>
+
+            <li><b>M<sub>tot</sub>(r)</b> = Total virial mass of the cluster [M<sub>&odot;</sub>]</li>
+
+            <li><b>L<sub>B</sub></b> = Luminosity of a single galaxy in B-band [L<sub>&odot;</sub>]</li>
+
+            <li><b>L(r)</b> = Cumulative luminosity up to radius r [L<sub>&odot;</sub>]</li>
+
+            <li><b>M<sub>lum</sub>(r)</b> = Luminous mass within radius r [M<sub>&odot;</sub>]</li>
+
+            <li><b>D<sub>pc</sub></b> = Cluster distance in parsecs [pc]</li>
+
+            <li><b>dist<sub>mod</sub></b> = Distance modulus</li>
+
+            <li><b>M<sub>abs</sub></b> = Absolute magnitude of a galaxy [mag]</li>
+
+            <li><b>m</b> = Mass of a light single particle or galaxy [M<sub>&odot;</sub>]</li>
+
+            <li><b>M</b> = Mass inside radius r of heavy particle or total enclosed mass [M<sub>&odot;</sub>]</li>
+
+            <li><b>M<sub>circ</sub></b> = Mass of a particle in circular orbit [M<sub>&odot;</sub>]</li>
+
+            <li><b>v&sup2;</b> = Squared orbital velocity [km&sup2;/s&sup2;]</li>
+
+            <li><b>L<sub>B,i</sub></b> = Luminosity of a single galaxy [L<sub>&odot;</sub>]</li>
+
+            <li><b>bmag</b> = Apparent magnitude in B band [mag] (dataset)</li>
+
+        </ul>
+
+        <h3 class="text-xl font-bold mb-2">Units Conversion</h3>
+
+        <ul class="list-disc pl-5 space-y-1">
+
+            <li><b>1 kpc</b> = 3.086 &times; 10<sup>16</sup> m = 3.26 &times; 10&sup3; light-years</li>
+
+            <li><b>1 pc</b> = 3.086 &times; 10<sup>13</sup> km = 3.26 light-years</li>
+
+            <li><b>1 Mpc</b> = 10<sup>6</sup> pc = 3.086 &times; 10<sup>19</sup> km</li>
+
+            <li><b>1 km/s</b> = 3.6 &times; 10&sup3; km/h = 10&sup3; m/s</li>
+
+            <li><b>1 M<sub>&odot;</sub></b> = 1.989 &times; 10<sup>30</sup> kg (solar mass)</li>
+
+            <li><b>1 L<sub>&odot;</sub></b> = 3.828 &times; 10<sup>26</sup> W (solar luminosity)</li>
+
+            <li><b>Distance modulus:</b> <i>m - M = 5 log<sub>10</sub>(d / 10 pc)</i></li>
+
+            <li><b>Small angle:</b> 1 arcsec at distance D &rarr; <i>D &middot; tan(1") &asymp; D / 206265</i></li>
+
+        </ul>
+
+    """)
+
+                        comp_cluster_dialog.open()
+                        
+                        ui.run_javascript("if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); }")
                     with ui.row().classes('w-full justify-center '):
                         cluster_files = [f for f in os.listdir(CLUSTER_DATA_PATH) if f.endswith(('.txt', '.dat', '.csv'))]
                         cluster_file_map = get_data_and_images(CLUSTER_DATA_PATH, CLUSTER_IMG_PATH)
@@ -5265,21 +5884,11 @@ def create_page():
                         aria_button("Instructions", "Read instruction for cluster activities",on_click=safe_click(lambda: [inst_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
         "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
     )
-                        aria_button("Dataset Info", "Read dataset info",on_click=safe_click(lambda: [datac_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button("Physics Info", "Read detailed information about computational steps from data to plots",on_click=lambda: [formula_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button("📘 Legend", "Read the legend of symbols and units",on_click=lambda:[legend_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-    "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button("📐 Units","Read units conversion", on_click=lambda:[units_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes(
-        "!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    )
-                        aria_button('Supplementary Materials',"Additional Information:Numerical Explanation", on_click=open_slides_DM).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                        aria_button("More on DM","Learn more about Dark Matter evidence", on_click=lambda:[more_DM_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    
+                        aria_button(
+    "Scientific Info", 
+    "Open the full cluster analysis dialog with plots and math", 
+    on_click=lambda: [open_cluster_analysis_dialog(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")]
+).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_el_gordo.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                         
                         ui.add_head_html('''
@@ -5455,7 +6064,7 @@ def create_page():
                                         with ui.row().classes('items-center gap-1 math-text'):
                                             ui.html('M<span class="math-sub">lum</span>(r) = (M/L) &middot ')
                                             answer_Mlum['el'] = aria_formula_input().props('dense filled').classes('w-12')
-                                            ui.html('+ M_gas; ')
+                                            ui.html('+ M<span class="math-sub">gas</span>(r); ')
 
                                         # 18) PLOT
                                         ui.label("18) Compare mass and density profiles").classes('text-blue-200 font-bold text-lg')
@@ -5638,100 +6247,7 @@ def create_page():
                                     
                                     
                                     
-                        @ui.refreshable
-                        def update_cluster_popup_plots():
-                            cluster_popup_container.clear()
-
-                            selected_file = cluster_select.value
-                            if not selected_file:
-                                return
-
-                            df = get_cluster_data_cached(selected_file)
-
-                          
-
-                            H0 = 70.0
-                            G = 4.302e-6
-                            M_sun_B = 5.48
-                            MLR_B = 5.0
-                            FIXED_DISTANCE_MPC = None
-
-                            members = df.copy()
-                            # sigma clipping
-                            for _ in range(5):
-                                v_rel = members["RV"] - np.median(members["RV"])
-                                mad = np.median(np.abs(v_rel))
-                                sigma = 1.4826 * mad if mad > 0 else np.std(v_rel)
-                                mask = np.abs(v_rel) <= 3 * sigma
-                                new_members = members[mask]
-                                if len(new_members) == len(members):
-                                    break
-                                members = new_members
-
-                            if len(members) < 10:
-                                ui.label(f"Not enough valid galaxies in {selected_file}.").classes('text-orange-500')
-                                return
-
-                            cluster_distance = float(FIXED_DISTANCE_MPC) if FIXED_DISTANCE_MPC else np.median(members["RV"]) / H0
-
-                            mean_ra, mean_dec = members["RAdeg"].mean(), members["DEdeg"].mean()
-                            ang_sep = np.sqrt(((members["RAdeg"] - mean_ra) * np.cos(np.radians(mean_dec)))**2 +
-                                            (members["DEdeg"] - mean_dec)**2)
-                            r_kpc = cluster_distance * 1000 * np.radians(ang_sep)
-                            members = members.assign(r_kpc=r_kpc).replace([np.inf, -np.inf], np.nan).dropna(subset=["r_kpc"])
-                            members = members[members["r_kpc"] <= 3000]
-                            r = members["r_kpc"].values
-
-                            D_pc = cluster_distance * 1e6
-                            dist_mod = 5*np.log10(D_pc) - 5
-                            M_abs = members["bmag"] - dist_mod
-                            L_B = 10**(-0.4*(M_abs - M_sun_B))
-                            L_B_np = L_B.values
-
-                            order = np.argsort(r)
-                            R_cum = r[order]
-                            L_cum = np.cumsum(L_B_np[order])
-                            M_lum_r = MLR_B * L_cum
-
-                            sigma_global = np.std(members["RV"] - np.median(members["RV"]))
-                            M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
-                            h = 0.7  
-                            m_500_r = 0.7 * M_tot_r
-                            f_gas_r = 0.093 * ((m_500_r / (2e14 / h))**0.21)
-                            m_gas_r = m_500_r * f_gas_r
-                            M_baryonic_r = M_lum_r + m_gas_r
-                            # positive floor to avoid zeros
-                            def positive_floor(arr):
-                                pos = arr[np.isfinite(arr) & (arr > 0)]
-                                if pos.size == 0:
-                                    return arr + 1e-6
-                                floor = np.nanmin(pos) * 1e-3
-                                return np.where(arr <= 0, floor, arr)
-
-                            M_tot_r = positive_floor(M_tot_r)
-                            M_baryonic_r = positive_floor(M_baryonic_r)
-
-                            rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
-                            rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
-
-                            with cluster_popup_container:
-                                with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_cum, M_baryonic_r/1e9, label="Luminous Mass", color="red", lw=2)
-                                    plt.plot(R_cum, M_tot_r/1e9, label="Total Mass", color="blue", lw=2)
-                                    plt.xscale("log"); plt.yscale("log")
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
-                                    plt.title(f"Mass Profile — {selected_file}",fontweight='bold')
-                                    plt.grid(True, which="both", ls="--")
-                                    plt.legend()
-
-                                with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_cum, rho_lum_cum, label="Luminous Density", color="red")
-                                    plt.plot(R_cum, rho_tot_cum, label="Total Density", color="blue")
-                                    plt.xscale("log"); plt.yscale("log")
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Density (M☉/kpc³)")
-                                    plt.title(f"Density Profile — {selected_file}",fontweight='bold')
-                                    plt.grid(True, which="both", ls="--")
-                                    plt.legend()
+                        
 
 
                         def check_and_run_cluster():
@@ -5809,18 +6325,12 @@ def create_page():
                             else:
                                 accessible_notify('Wrong! Try again!', type_='error')
 
-                                
-                        with ui.dialog() as cluster_plots_popup, ui.card().classes("p-4 w-full max-w-[1300px]").props('role=dialog aria-modal=true aria-label=Cluster Plots'):
-                            ui.label("Cluster Plots").classes("text-2xl font-bold mb-4").props('role=heading aria-level=2 tabindex=0')
-                            cluster_popup_container = ui.column().classes("w-full items-center")
-                            aria_button("Close", "close popup", on_click=lambda:cluster_plots_popup.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                     
                         with ui.row().classes('w-full justify-center'):
                             with ui.column().classes('flex-1 items-center '):
 
                                 aria_button("Run Analysis", "Ruon the analysis to make the plots",on_click=lambda:check_and_run_cluster()).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded")
-                            with ui.column().classes('flex-1 items-center '):
-                                
-                                aria_button("Open Cluster Plots",             "Open cluster mass & density plots",    on_click=lambda: [update_cluster_popup_plots(), cluster_plots_popup.open()]).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                          
                         cluster_select.on('update:model-value', lambda e: update_cluster_popup_plots.refresh())
 
 

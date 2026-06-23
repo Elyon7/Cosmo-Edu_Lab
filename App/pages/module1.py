@@ -322,90 +322,285 @@ def create_page():
             ui.tab('stars', label='Stars ').props('aria-label="Stars Map"')
             ui.tab('particles', label='Fundamental Particles').props('aria-label="Fundamental Particles"')
 #functions for observational methods and instruments dialog        
-        def open_observational_info_dialog():
-            with ui.dialog() as dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="title-dialog"'):
-     
-                with ui.column().classes('w-full h-full bg-white'):
-                    
+        def open_scientific_info_dialog():
+            with ui.dialog() as scientific_dialog, ui.card().classes('p-0 w-full max-w-[1400px] h-[85vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="title-dialog"'):
                 
-                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="title-dialog'):
-                        ui.label('Observational Techniques & Instruments').classes('text-xl font-bold').props('id="tile-dialog" role=heading aria-level=2 tabindex=0')
-                        aria_button('Close', 'close', on_click=dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                with ui.column().classes('w-full h-full bg-white flex flex-col'):
+                   
+                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="title-dialog"'):
+                        ui.label('Scientific Information').classes('text-xl font-bold').props('id="title-dialog" role=heading aria-level=2 tabindex=0')
+                        aria_button('Close', 'close', on_click=scientific_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-
-                 
+                   
                     with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                        t_ccd = ui.tab('CCD Concepts')
+                        t_math = ui.tab('Signal-Noise Math')
                         t_methods = ui.tab('Methods')
                         t_instr = ui.tab('Instruments')
                         t_env = ui.tab('Environments')
+                        t_biblio = ui.tab('Bibliography')
 
-                    with ui.tab_panels(tabs, value=t_methods).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                        tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+                    with ui.tab_panels(tabs, value=t_ccd).classes('w-full flex-1 overflow-y-auto bg-gray-50 text-slate-900 p-6'):
                         
-                   
-                        with ui.tab_panel(t_methods):
-                            html_info_box("""
-                            <h3 class="text-2xl font-bold text-slate-800 mb-6">Key Observational Methods</h3>
-                            <div class="grid grid-cols-1 gap-6">
+                        with ui.tab_panel(t_ccd):
+                            html_info_box(r"""
+                        <h3 class="text-slate-800 mb-4">🔭 CCD Concepts & Physics</h3>
+
+                        <div class="space-y-8">
+
+                            <div>
+                                <h4 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2">1. Context: What is a CCD?</h4>
                                 
-                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
-                                    <div class="flex items-start">
-                                        <i class="material-icons text-indigo-600 mr-3 text-3xl">spectrum</i>
-                                        <div>
-                                            <strong class="text-indigo-900 text-xl block mb-1">Spectroscopy</strong>
-                                            <p class="text-gray-700 leading-relaxed">
-                                                The study of light dispersed into its constituent wavelengths (spectrum). 
-                                                By analyzing spectral lines (emission/absorption), astronomers can measure:
-                                                <ul class="list-disc ml-5 mt-2 text-sm text-gray-600">
-                                                    <li><b>Chemical Composition:</b> Each element leaves a unique fingerprint.</li>
-                                                    <li><b>Radial Velocity:</b> Via the Doppler Shift ($z$).</li>
-                                                    <li><b>Physical Properties:</b> Temperature, density, and pressure of the source.</li>
-                                                </ul>
-                                            </p>
+                                <p class="text-gray-700 text-sm mb-2">
+                                    The <b>CCD (Charge-Coupled Device)</b> is the "electronic retina" of modern telescopes. It connects the optical world to the digital world.
+                                </p>
+
+                                <div class="bg-blue-50 p-3 rounded border-l-4 border-blue-500 text-sm text-gray-800">
+                                    <strong>The "Rain & Buckets" Analogy:</strong><br>
+                                    Imagine a telescope as a funnel and the CCD as a grid of buckets placed underneath.
+                                    <ul class="list-disc ml-5 mt-1 space-y-1">
+                                        <li><b>The Rain (Photons):</b> Light travels from the star and is collected by the telescope mirror.</li>
+                                        <li><b>The Buckets (Pixels):</b> The CCD captures these photons. Through the <i>photoelectric effect</i>, each photon that hits a pixel knocks loose an electron.</li>
+                                        <li><b>The Count (Data):</b> At the end of the exposure, the computer counts how many electrons are in each bucket.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2">2. The Battle: Signal vs. Noise</h4>
+                                <p class="text-gray-700 text-sm">The quality of an image is defined by the <b>Signal-to-Noise Ratio (SNR)</b>.</p>
+                                <ul class="list-disc ml-6 mt-2 text-sm text-gray-800">
+                                    <li><b>Signal (\(S\)):</b> The "good" photons from the star/galaxy.</li>
+                                    <li><b>Noise (\(N\)):</b> The "bad" fluctuations (Poisson Noise + Sky Background).</li>
+                                </ul>
+
+                                <div style="margin: 15px 0; padding: 10px; background-color: rgba(2, 132, 199, 0.1); border-left: 4px solid #0284c7; border-radius: 4px;">
+                                    <p style="margin:0; font-style:italic; color:#0369a1; font-size: 0.9em;">
+                                        <b>The Golden Rule:</b> Collect enough photons so the Signal stands out above the Noise.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        """)
+
+                        with ui.tab_panel(t_math):
+                            html_info_box(r"""
+                <h3 class="text-slate-800 mb-4">📊 Scientific Background & Logic</h3>
+
+                <div class="space-y-8">
+
+                    <div class="mb-8">
+                        <h4 class="text-indigo-900 font-bold text-lg border-b border-indigo-100 pb-1 mb-2">1. How this Simulation Works</h4>
+                        
+                        <div class="float-right ml-4 mb-2 w-1/3">
+                            <img src="/images/eso9845d.jpg" class="rounded shadow-md border border-gray-300 w-full" alt="Target Galaxy">
+                            <p class="text-[10px] text-gray-500 text-center mt-1">
+                                Target Example: NGC 1232 (Credit: <a href="https://www.eso.org/public/images/eso9845d/" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">ESO</a>)
+                            </p>
+                        </div>
+
+                        <ol class="list-decimal ml-6 space-y-2 text-sm text-gray-800">
+                            <li>
+                                <b>The Input (Truth):</b> We start by reading the pixel values from the real image shown on the right.
+                            </li>
+                            <li>
+                                <b>Physics Scaling:</b> We multiply these values by the <b>Telescope Area (\(D^2\))</b> and <b>Exposure Time (\(t\))</b>.
+                            </li>
+                            <li>
+                                <b>Adding Noise (The CCD Equation):</b> 
+                                We define the Signal-to-Noise Ratio (SNR) according to Howell (2006):
+                                <div class="my-4 py-3 bg-gray-100 text-center rounded overflow-x-auto text-lg font-bold">
+                                    \[ SNR = \frac{S_{star} \cdot t}{\sqrt{ (S_{star} + B_{sky} + D_{dark}) \cdot t + R_{read}^2 }} \]
+                                </div>
+                                We use <code>np.random.poisson()</code> to simulate the random arrival of photons based on this formula.
+                            </li>
+                        </ol>
+                        <div style="clear: both;"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-indigo-900 font-bold text-lg border-b border-indigo-100 pb-1 mb-2">2. Simulation Parameters</h4>
+                        <p class="text-sm mb-2 text-gray-600">Standard values for a cooled amateur CCD:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-3 bg-gray-100 rounded border-l-4 border-gray-500">
+                                <b>Dark Current = 1.0 \(e^-\)/s</b><br>
+                                <span class="text-xs text-gray-600">Thermal noise at approx -20°C.</span>
+                            </div>
+                            <div class="p-3 bg-gray-100 rounded border-l-4 border-gray-500">
+                                <b>Read Noise = 10.0 \(e^-\)</b><br>
+                                <span class="text-xs text-gray-600">Electronic readout error.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-300 mt-6">
+                        <h4 class="text-indigo-900 font-bold mb-3 border-b border-gray-300 pb-1">3. Behind the Simulation: Sky & Optics</h4>
+
+                        <div class="mb-4">
+                            <h5 class="font-bold text-slate-800 text-sm mb-1">A. The 3 Sky Levels (\(B_{sky}\)) explained</h5>
+                            <p class="text-xs text-gray-600 mb-2">We use specific photon flux rates (\(e^-/\mathrm{pixel}/\mathrm{sec}\)) based on real sky brightness magnitudes:</p>
+                            <ul class="list-disc ml-5 text-sm text-gray-700 space-y-2">
+                                <li>
+                                    <b>Dark Mountain (Value = 10):</b> <br>
+                                    Corresponds to a dark site (~21.5 mag/arcsec²). Only natural airglow exists. The noise is minimal (\(\sqrt{10} \approx 3.1\)).
+                                </li>
+                                <li>
+                                    <b>Suburban (Value = 100):</b> <br>
+                                    Corresponds to ~19.5 mag/arcsec². Light pollution increases the background by <b>10x</b>, making the noise \(\sqrt{100} = 10\) times higher.
+                                </li>
+                                <li>
+                                    <b>City Center (Value = 500):</b> <br>
+                                    Corresponds to a bright city sky (~17.5 mag/arcsec²). The sky is <b>50x brighter</b> than the mountain. The resulting "Shot Noise" (\(\sqrt{500} \approx 22\)) completely buries the faint galaxy signal.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h5 class="font-bold text-slate-800 text-sm mb-1">B. Linking Sliders to the Formula</h5>
+                            
+                            <ul class="list-disc ml-5 text-sm text-gray-700 space-y-2">
+                                <li>
+                                    <b>Telescope Diameter Slider:</b> 
+                                    Increases <b>\(S_{star}\)</b>. Since Area \(\propto D^2\), doubling the diameter captures <b>4x more photons</b>.
+                                </li>
+                                <li>
+                                    <b>Exposure Time Slider:</b> 
+                                    Increases <b>\(t\)</b>. While Noise grows as \(\sqrt{t}\), Signal grows as \(t\). Thus, longer exposures always improve the image quality.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                """)
+                        with ui.tab_panel(t_methods):
+                            html_info_box(r"""
+                                <h3 class="text-2xl font-bold text-slate-800 mb-6">Key Observational Methods</h3>
+                                <div class="grid grid-cols-1 gap-6">
+                                    
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
+                                        <div class="flex items-start">
+                                            <i class="material-icons text-indigo-600 mr-3 text-3xl">spectrum</i>
+                                            <div>
+                                                <strong class="text-indigo-900 text-xl block mb-1">Spectroscopy</strong>
+                                                <p class="text-gray-700 leading-relaxed">
+                                                    The study of light dispersed into its constituent wavelengths (spectrum). 
+                                                    By analyzing spectral lines (emission/absorption), astronomers can measure:
+                                                    <ul class="list-disc ml-5 mt-2 text-sm text-gray-600">
+                                                        <li><b>Chemical Composition:</b> Each element leaves a unique fingerprint.</li>
+                                                        <li><b>Radial Velocity:</b> Via the Doppler Shift (\(z\)).</li>
+                                                        <li><b>Physical Properties:</b> Temperature, density, and pressure of the source.</li>
+                                                    </ul>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                                        <div class="flex items-start">
+                                            <i class="material-icons text-blue-600 mr-3 text-3xl">brightness_6</i>
+                                            <div>
+                                                <strong class="text-blue-900 text-xl block mb-1">Photometry</strong>
+                                                <p class="text-gray-700 leading-relaxed">
+                                                    The precise measurement of the intensity of light (flux) from astronomical objects.
+                                                    It is often performed using standard filters (U, B, V, R, I).
+                                                    <ul class="list-disc ml-5 mt-2 text-sm text-gray-600">
+                                                        <li><b>Variable Stars:</b> Measuring light curves to find periods (e.g., Cepheids).</li>
+                                                        <li><b>Exoplanets:</b> Detecting transits (dips in brightness).</li>
+                                                        <li><b>Supernovae:</b> Tracking the explosion's evolution over time.</li>
+                                                    </ul>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                                        <div class="flex items-start">
+                                            <i class="material-icons text-purple-600 mr-3 text-3xl">settings_input_antenna</i>
+                                            <div>
+                                                <strong class="text-purple-900 text-xl block mb-1">Interferometry</strong>
+                                                <p class="text-gray-700 leading-relaxed">
+                                                    A technique that combines signals from multiple telescopes (acting as an array) to interfere with each other.
+                                                    This simulates a telescope with a diameter equal to the maximum separation (baseline) between the antennas, drastically increasing <b>Angular Resolution</b>.
+                                                    <br><i>Examples: VLA (Radio), VLTI (Optical), EHT (Black Hole Imaging).</i>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                                        <div class="flex items-start">
+                                            <i class="material-icons text-green-600 mr-3 text-3xl">blur_on</i>
+                                            <div>
+                                                <strong class="text-green-900 text-xl block mb-1">Adaptive Optics (AO)</strong>
+                                                <p class="text-gray-700 leading-relaxed">
+                                                    A technology used in ground-based telescopes to correct the blurring effects of Earth's atmosphere (seeing) in real-time.
+                                                    It uses deformable mirrors that change shape hundreds of times per second, guided by a laser "artificial star".
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                """)
+
+                        with ui.tab_panel(t_instr):
+                            html_info_box(r"""
+                            <h3 class="text-2xl font-bold text-slate-800 mb-6">Major Instruments & Technology</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col justify-between">
+                                    <div>
+                                        <h4 class="text-xl font-bold text-slate-900 mb-3 border-b pb-2">🔭 Telescopes (The Collectors)</h4>
+                                        <p class="text-gray-700 mb-3">Their main job is to collect light ("Light Buckets"), not just to magnify.</p>
+                                        <ul class="list-none space-y-2 text-gray-800">
+                                            <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
+                                                <b>Refractors:</b> Use lenses. Limited in size due to lens weight/sagging.
+                                            </li>
+                                            <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
+                                                <b>Reflectors:</b> Use mirrors. Modern giant telescopes (8m-39m) are all reflectors, often using segmented hexagonal mirrors (e.g., JWST, ELT).
+                                            </li>
+                                            <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
+                                                <b>Radio Telescopes:</b> Huge dishes (or arrays) to focus long-wavelength radio waves.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t border-slate-200">
+                                        <img src="/images/hubble_tel.jpg" class="w-full rounded shadow-sm border border-gray-300 mb-2" alt="Hubble Telescope">
+                                        <div class="text-right">
+                                            <a href="https://science.nasa.gov/mission/hubble/observatory/design/instruments/" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-end gap-1">
+                                                Source: NASA Hubble Instruments <i class="material-icons text-[10px]">open_in_new</i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-                                    <div class="flex items-start">
-                                        <i class="material-icons text-blue-600 mr-3 text-3xl">brightness_6</i>
-                                        <div>
-                                            <strong class="text-blue-900 text-xl block mb-1">Photometry</strong>
-                                            <p class="text-gray-700 leading-relaxed">
-                                                The precise measurement of the intensity of light (flux) from astronomical objects.
-                                                It is often performed using standard filters (U, B, V, R, I).
-                                                <ul class="list-disc ml-5 mt-2 text-sm text-gray-600">
-                                                    <li><b>Variable Stars:</b> Measuring light curves to find periods (e.g., Cepheids).</li>
-                                                    <li><b>Exoplanets:</b> Detecting transits (dips in brightness).</li>
-                                                    <li><b>Supernovae:</b> Tracking the explosion's evolution over time.</li>
-                                                </ul>
-                                            </p>
-                                        </div>
+                                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col justify-between">
+                                    <div>
+                                        <h4 class="text-xl font-bold text-slate-900 mb-3 border-b pb-2">📷 Detectors (The Eyes)</h4>
+                                        <p class="text-gray-700 mb-3">Devices that convert photons into digital signals.</p>
+                                        <ul class="list-none space-y-2 text-gray-800">
+                                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
+                                                <b>CCDs & CMOS:</b> Charge-Coupled Devices. They have high Quantum Efficiency (>90%), meaning they detect almost every photon that hits them (compared to <2% for the human eye).
+                                            </li>
+                                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
+                                                <b>Spectrographs:</b> Use prisms, grisms, or diffraction gratings to disperse light onto the detector.
+                                            </li>
+                                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
+                                                <b>Bolometers:</b> Used in Infrared/Microwave astronomy (like Planck) to measure the heat generated by incoming radiation.
+                                            </li>
+                                        </ul>
                                     </div>
-                                </div>
 
-                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-                                    <div class="flex items-start">
-                                        <i class="material-icons text-purple-600 mr-3 text-3xl">settings_input_antenna</i>
-                                        <div>
-                                            <strong class="text-purple-900 text-xl block mb-1">Interferometry</strong>
-                                            <p class="text-gray-700 leading-relaxed">
-                                                A technique that combines signals from multiple telescopes (acting as an array) to interfere with each other.
-                                                This simulates a telescope with a diameter equal to the maximum separation (baseline) between the antennas, drastically increasing <b>Angular Resolution</b>.
-                                                <br><i>Examples: VLA (Radio), VLTI (Optical), EHT (Black Hole Imaging).</i>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-                                    <div class="flex items-start">
-                                        <i class="material-icons text-green-600 mr-3 text-3xl">blur_on</i>
-                                        <div>
-                                            <strong class="text-green-900 text-xl block mb-1">Adaptive Optics (AO)</strong>
-                                            <p class="text-gray-700 leading-relaxed">
-                                                A technology used in ground-based telescopes to correct the blurring effects of Earth's atmosphere (seeing) in real-time.
-                                                It uses deformable mirrors that change shape hundreds of times per second, guided by a laser "artificial star".
-                                            </p>
+                                    <div class="mt-4 pt-4 border-t border-slate-200">
+                                        <img src="/images/ccd_detector.jpg" class="w-full rounded shadow-sm border border-gray-300 mb-2" alt="CCD Detector">
+                                        <div class="text-right">
+                                            <a href="https://noirlab.edu/public/blog/50-years-ccds/" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-end gap-1">
+                                                Source: NOIRLab (50 Years of CCDs) <i class="material-icons text-[10px]">open_in_new</i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -413,95 +608,73 @@ def create_page():
                             </div>
                             """)
 
-                  
-                        with ui.tab_panel(t_instr):
-                            html_info_box("""
-                    <h3 class="text-2xl font-bold text-slate-800 mb-6">Major Instruments & Technology</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col justify-between">
-                            <div>
-                                <h4 class="text-xl font-bold text-slate-900 mb-3 border-b pb-2">🔭 Telescopes (The Collectors)</h4>
-                                <p class="text-gray-700 mb-3">Their main job is to collect light ("Light Buckets"), not just to magnify.</p>
-                                <ul class="list-none space-y-2 text-gray-800">
-                                    <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
-                                        <b>Refractors:</b> Use lenses. Limited in size due to lens weight/sagging.
-                                    </li>
-                                    <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
-                                        <b>Reflectors:</b> Use mirrors. Modern giant telescopes (8m-39m) are all reflectors, often using segmented hexagonal mirrors (e.g., JWST, ELT).
-                                    </li>
-                                    <li class="flex items-start"><span class="text-blue-500 font-bold mr-2">➤</span> 
-                                        <b>Radio Telescopes:</b> Huge dishes (or arrays) to focus long-wavelength radio waves.
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div class="mt-4 pt-4 border-t border-slate-200">
-                                <img src="/images/hubble_tel.jpg" class="w-full rounded shadow-sm border border-gray-300 mb-2" alt="Hubble Telescope">
-                                <div class="text-right">
-                                    <a href="https://science.nasa.gov/mission/hubble/observatory/design/instruments/" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-end gap-1">
-                                        Source: NASA Hubble Instruments <i class="material-icons text-[10px]">open_in_new</i>
-                                    </a>
+                        with ui.tab_panel(t_env):
+                            html_info_box(r"""
+                                <h3 class="text-2xl font-bold text-slate-800 mb-4">Observational Environments</h3>
+                                <p class="italic text-gray-600 mb-6">Why do we put telescopes in weird places? To escape the Earth's atmosphere.</p>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                        <h4 class="text-lg font-bold text-purple-800">🏔️ Ground-based</h4>
+                                        <p class="text-gray-700 text-sm">Located on high mountains (Atacama Desert, Mauna Kea, Canary Islands) to minimize atmospheric turbulence and water vapor absorption.</p>
+                                        <p class="text-xs text-gray-500 mt-1">Best for: Optical, Radio, Near-Infrared.</p>
+                                    </div>
+
+                                    <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                        <h4 class="text-lg font-bold text-blue-800">✈️ Airborne</h4>
+                                        <p class="text-gray-700 text-sm">Telescopes inside stratospheric aircraft (e.g., SOFIA). They fly above 99% of the water vapor.</p>
+                                        <p class="text-xs text-gray-500 mt-1">Best for: Far-Infrared.</p>
+                                    </div>
+
+                                    <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                        <h4 class="text-lg font-bold text-black">🚀 Space-based</h4>
+                                        <p class="text-gray-700 text-sm">The ultimate view. No atmosphere means perfect seeing and access to all wavelengths.</p>
+                                        <p class="text-xs text-gray-500 mt-1">Best for: UV, X-ray, Gamma-ray, and ultra-deep Optical/IR (Hubble, JWST).</p>
+                                    </div>
                                 </div>
-                            </div>
+                                """)
+
+                        with ui.tab_panel(t_biblio):
+                            html_info_box(r"""
+                <div>
+                    <h4 class="text-slate-800 font-bold text-lg mb-2">📚 Scientific Bibliography</h4>
+                    <p class="text-gray-600 mb-4 text-sm">The simulations and concepts in this module are based on standard astrophysical literature.</p>
+                    
+                    <div class="space-y-6">
+                        
+                        <div>
+                            <h5 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2 text-sm uppercase">1. CCD Physics & Signal-to-Noise Ratio</h5>
+                            <ul class="list-disc ml-6 text-gray-800 space-y-2 text-sm">
+                                <li>
+                                    <b>Howell, S. B. (2006).</b> <i>Handbook of CCD Astronomy</i>. Cambridge University Press.<br>
+                                    <span class="text-gray-500 italic">Source for the "CCD Equation" and the photon-counting logic used in the simulation (\( SNR = \frac{S_{star} \cdot t}{\sqrt{ (S_{star} + B_{sky} + D_{dark}) \cdot t + R_{read}^2 }} \)).</span>
+                                </li>
+                                <li>
+                                    <b>Bevington, P. R., & Robinson, D. K. (2003).</b> <i>Data Reduction and Error Analysis for the Physical Sciences</i>. McGraw-Hill.<br>
+                                    <span class="text-gray-500 italic">Mathematical basis for Poisson Statistics (the square root noise rule).</span>
+                                </li>
+                            </ul>
                         </div>
 
-                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col justify-between">
-                            <div>
-                                <h4 class="text-xl font-bold text-slate-900 mb-3 border-b pb-2">📷 Detectors (The Eyes)</h4>
-                                <p class="text-gray-700 mb-3">Devices that convert photons into digital signals.</p>
-                                <ul class="list-none space-y-2 text-gray-800">
-                                    <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
-                                        <b>CCDs & CMOS:</b> Charge-Coupled Devices. They have high Quantum Efficiency (>90%), meaning they detect almost every photon that hits them (compared to <2% for the human eye).
-                                    </li>
-                                    <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
-                                        <b>Spectrographs:</b> Use prisms, grisms, or diffraction gratings to disperse light onto the detector.
-                                    </li>
-                                    <li class="flex items-start"><span class="text-green-500 font-bold mr-2">➤</span> 
-                                        <b>Bolometers:</b> Used in Infrared/Microwave astronomy (like Planck) to measure the heat generated by incoming radiation.
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="mt-4 pt-4 border-t border-slate-200">
-                                <img src="/images/ccd_detector.jpg" class="w-full rounded shadow-sm border border-gray-300 mb-2" alt="CCD Detector">
-                                <div class="text-right">
-                                    <a href="https://noirlab.edu/public/blog/50-years-ccds/" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-end gap-1">
-                                        Source: NOIRLab (50 Years of CCDs) <i class="material-icons text-[10px]">open_in_new</i>
-                                    </a>
-                                </div>
-                            </div>
+                        <div>
+                            <h5 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2 text-sm uppercase">2. Observational Methods & Optics</h5>
+                            <ul class="list-disc ml-6 text-gray-800 space-y-2 text-sm">
+                                <li>
+                                    <b>Kitchin, C. R. (2013).</b> <i>Astrophysical Techniques</i>. CRC Press.<br>
+                                    <span class="text-gray-500 italic">Reference for Spectroscopy, Photometry, and Interferometry definitions.</span>
+                                </li>
+                                <li>
+                                    <b>Carroll, B. W., & Ostlie, D. A. (2017).</b> <i>An Introduction to Modern Astrophysics</i>. Cambridge University Press.<br>
+                                    <span class="text-gray-500 italic">Reference for Telescope Light Gathering Power (\(\propto D^2\)).</span>
+                                </li>
+                            </ul>
                         </div>
 
                     </div>
-                    """)
-                   
-                        with ui.tab_panel(t_env):
-                            html_info_box("""
-                            <h3 class="text-2xl font-bold text-slate-800 mb-4">Observational Environments</h3>
-                            <p class="italic text-gray-600 mb-6">Why do we put telescopes in weird places? To escape the Earth's atmosphere.</p>
-                            
-                            <div class="space-y-4">
-                                <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                                    <h4 class="text-lg font-bold text-purple-800">🏔️ Ground-based</h4>
-                                    <p class="text-gray-700 text-sm">Located on high mountains (Atacama Desert, Mauna Kea, Canary Islands) to minimize atmospheric turbulence and water vapor absorption.</p>
-                                    <p class="text-xs text-gray-500 mt-1">Best for: Optical, Radio, Near-Infrared.</p>
-                                </div>
-
-                                <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                                    <h4 class="text-lg font-bold text-blue-800">✈️ Airborne</h4>
-                                    <p class="text-gray-700 text-sm">Telescopes inside stratospheric aircraft (e.g., SOFIA). They fly above 99% of the water vapor.</p>
-                                    <p class="text-xs text-gray-500 mt-1">Best for: Far-Infrared.</p>
-                                </div>
-
-                                <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                                    <h4 class="text-lg font-bold text-black">🚀 Space-based</h4>
-                                    <p class="text-gray-700 text-sm">The ultimate view. No atmosphere means perfect seeing and access to all wavelengths.</p>
-                                    <p class="text-xs text-gray-500 mt-1">Best for: UV, X-ray, Gamma-ray, and ultra-deep Optical/IR (Hubble, JWST).</p>
-                                </div>
-                            </div>
-                            """)
-            dialog.open()
+                </div>
+        """)
+                
+                scientific_dialog.open()
 
 
    #panel for observational methods and instruments
@@ -528,239 +701,47 @@ def create_page():
                     aria_button("Close", "close popup", on_click=lambda:instruction_d.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                
-                with ui.dialog() as info_dialog, ui.card().classes('p-0 w-full max-w-[900px] overflow-hidden').props('role=dialog aria-label="Scientific Concepts & Instructions"'):
-                    with ui.column().classes('p-6 bg-white w-full overflow-y-auto'):
-                        
-                        
-                        html_info_box(r"""
-                <h3 class="text-slate-800 mb-4">🔭 Scientific Concepts & Instructions</h3>
-
-                <div class="space-y-8">
-
-                    <div>
-                        <h4 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2">1. Context: What is a CCD?</h4>
-                        
-                        <p class="text-gray-700 text-sm mb-2">
-                            The <b>CCD (Charge-Coupled Device)</b> is the "electronic retina" of modern telescopes. It connects the optical world to the digital world.
-                        </p>
-
-                        <div class="bg-blue-50 p-3 rounded border-l-4 border-blue-500 text-sm text-gray-800">
-                            <strong>The "Rain & Buckets" Analogy:</strong><br>
-                            Imagine a telescope as a funnel and the CCD as a grid of buckets placed underneath.
-                            <ul class="list-disc ml-5 mt-1 space-y-1">
-                                <li><b>The Rain (Photons):</b> Light travels from the star and is collected by the telescope mirror.</li>
-                                <li><b>The Buckets (Pixels):</b> The CCD captures these photons. Through the <i>photoelectric effect</i>, each photon that hits a pixel knocks loose an electron.</li>
-                                <li><b>The Count (Data):</b> At the end of the exposure, the computer counts how many electrons are in each bucket.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2">2. The Battle: Signal vs. Noise</h4>
-                        <p class="text-gray-700 text-sm">The quality of an image is defined by the <b>Signal-to-Noise Ratio (SNR)</b>.</p>
-                        <ul class="list-disc ml-6 mt-2 text-sm text-gray-800">
-                            <li><b>Signal ($S$):</b> The "good" photons from the star/galaxy.</li>
-                            <li><b>Noise ($N$):</b> The "bad" fluctuations (Poisson Noise + Sky Background).</li>
-                        </ul>
-
-                        <div style="margin: 15px 0; padding: 10px; background-color: rgba(2, 132, 199, 0.1); border-left: 4px solid #0284c7; border-radius: 4px;">
-                            <p style="margin:0; font-style:italic; color:#0369a1; font-size: 0.9em;">
-                                <b>The Golden Rule:</b> Collect enough photons so the Signal stands out above the Noise.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-slate-800 font-bold border-b border-gray-200 pb-1 mb-2">3. Your Mission</h4>
-                        <p class="text-gray-700 text-sm">
-                            The image initially looks like "snow" (pure noise). 
-                            <b>Adjust the sliders</b> (Diameter & Time) to make the galaxy's spiral arms visible above the noise.
-                        </p>
-                    </div>
-
-                </div>
-                """)
-                    
-                        
-                    aria_button("Close ", "Close", on_click=info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-             
-              
-                with ui.dialog() as biblio_dialog, ui.card().classes('w-full max-w-3xl p-0 overflow-hidden').props('role=dialog aria-label="Scientific Bibliography"'):
-                    with ui.column().classes('p-6 bg-white w-full h-full overflow-y-auto'):
-                        html_info_box(r"""
-    
-
-        <div>
-            <h4 class="text-slate-800 font-bold text-lg mb-2">📚 Scientific Bibliography</h4>
-            <p class="text-gray-600 mb-4 text-sm">The simulations and concepts in this module are based on standard astrophysical literature.</p>
-            
-            <div class="space-y-6">
+                with ui.dialog() as curiosity_d, ui.card().classes("p-6 w-full max-w-[600px]").props('role=dialog aria-label=Curiosity'):
+                    html_info_box(r"""
+                <h2 class="text-2xl font-bold mb-4 text-purple-800">💡 Did you know?</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Before the invention of the CCD, astronomers had to rely on <b>glass photographic plates</b> to capture images of the night sky. These plates were incredibly inefficient, capturing only about <b>1% to 2%</b> of the photons that hit them! Astronomers had to expose a plate for hours in the freezing cold just to record a faint smudge of a galaxy.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    In 1969, Willard Boyle and George E. Smith invented the CCD at Bell Labs. Modern astronomical CCDs have a "Quantum Efficiency" of over <b>90%</b>, meaning they record almost every single particle of light they receive. This revolutionary leap completely transformed astrophysics, allowing us to peer deeper into the universe than ever before.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    For this world-changing invention, Boyle and Smith were awarded the <b>Nobel Prize in Physics in 2009</b>!
+                </p>
+                                    """)
+                    aria_button("Close", "close curiosity popup", on_click=curiosity_d.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
                 
-                <div>
-                    <h5 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2 text-sm uppercase">1. CCD Physics & Signal-to-Noise Ratio</h5>
-                    <ul class="list-disc ml-6 text-gray-800 space-y-2 text-sm">
-                        <li>
-                            <b>Howell, S. B. (2006).</b> <i>Handbook of CCD Astronomy</i>. Cambridge University Press.<br>
-                            <span class="text-gray-500 italic">Source for the "CCD Equation" and the photon-counting logic used in the simulation ($SNR = \frac{S_{star} \cdot t}{\sqrt{ (S_{star} + B_{sky} + D_{dark}) \cdot t + R_{read}^2 }}$).</span>
-                        </li>
-                        <li>
-                            <b>Bevington, P. R., & Robinson, D. K. (2003).</b> <i>Data Reduction and Error Analysis for the Physical Sciences</i>. McGraw-Hill.<br>
-                            <span class="text-gray-500 italic">Mathematical basis for Poisson Statistics (the square root noise rule).</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h5 class="text-indigo-900 font-bold border-b border-indigo-100 pb-1 mb-2 text-sm uppercase">2. Observational Methods & Optics</h5>
-                    <ul class="list-disc ml-6 text-gray-800 space-y-2 text-sm">
-                        <li>
-                            <b>Kitchin, C. R. (2013).</b> <i>Astrophysical Techniques</i>. CRC Press.<br>
-                            <span class="text-gray-500 italic">Reference for Spectroscopy, Photometry, and Interferometry definitions.</span>
-                        </li>
-                        <li>
-                            <b>Carroll, B. W., & Ostlie, D. A. (2017).</b> <i>An Introduction to Modern Astrophysics</i>. Cambridge University Press.<br>
-                            <span class="text-gray-500 italic">Reference for Telescope Light Gathering Power ($\propto D^2$).</span>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-""")
-                        with ui.row().classes('w-full justify-center mt-6'):
-                            aria_button("Close", "Close", on_click=biblio_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-                with ui.dialog() as math_dialog, ui.card().classes('p-0 w-full max-w-5xl h-[90vh] overflow-hidden').props('role=dialog aria-label="Scientific Background & Logic"'):
-                    
-                
-                    with ui.column().classes('w-full h-full p-6 overflow-y-auto'):
-                        
-                        html_info_box(r"""
-                <h3 class="text-slate-800 mb-4">📊 Scientific Background & Logic</h3>
-
-                <div class="space-y-8">
-
-                    <div class="mb-8">
-                        <h4 class="text-indigo-900 font-bold text-lg border-b border-indigo-100 pb-1 mb-2">1. How this Simulation Works</h4>
-                        
-                        <div class="float-right ml-4 mb-2 w-1/3">
-                            <img src="/images/eso9845d.jpg" class="rounded shadow-md border border-gray-300 w-full" alt="Target Galaxy">
-                            <p class="text-[10px] text-gray-500 text-center mt-1">
-                                Target Example: NGC 1232 (Credit: <a href="https://www.eso.org/public/images/eso9845d/" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">ESO</a>)
-                            </p>
-                        </div>
-
-                        <ol class="list-decimal ml-6 space-y-2 text-sm text-gray-800">
-                            <li>
-                                <b>The Input (Truth):</b> We start by reading the pixel values from the real image shown on the right.
-                            </li>
-                            <li>
-                                <b>Physics Scaling:</b> We multiply these values by the <b>Telescope Area ($D^2$)</b> and <b>Exposure Time ($t$)</b>.
-                            </li>
-                            <li>
-                                <b>Adding Noise (The CCD Equation):</b> 
-                                We define the Signal-to-Noise Ratio (SNR) according to Howell (2006):
-                                <div class="my-2 py-2 bg-gray-100 text-center rounded">
-                                    $$ SNR = \frac{S_{star} \cdot t}{\sqrt{ (S_{star} + B_{sky} + D_{dark}) \cdot t + R_{read}^2 }} $$
-                                </div>
-                                We use <code>np.random.poisson()</code> to simulate the random arrival of photons based on this formula.
-                            </li>
-                        </ol>
-                        <div style="clear: both;"></div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h4 class="text-indigo-900 font-bold text-lg border-b border-indigo-100 pb-1 mb-2">2. Simulation Parameters</h4>
-                        <p class="text-sm mb-2 text-gray-600">Standard values for a cooled amateur CCD:</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="p-3 bg-gray-100 rounded border-l-4 border-gray-500">
-                                <b>Dark Current = 1.0 $e^-$/s</b><br>
-                                <span class="text-xs text-gray-600">Thermal noise at approx -20°C.</span>
-                            </div>
-                            <div class="p-3 bg-gray-100 rounded border-l-4 border-gray-500">
-                                <b>Read Noise = 10.0 $e^-$</b><br>
-                                <span class="text-xs text-gray-600">Electronic readout error.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-300 mt-6">
-                        <h4 class="text-indigo-900 font-bold mb-3 border-b border-gray-300 pb-1">3. Behind the Simulation: Sky & Optics</h4>
-
-                        <div class="mb-4">
-                            <h5 class="font-bold text-slate-800 text-sm mb-1">A. The 3 Sky Levels ($B_{sky}$) explained</h5>
-                            <p class="text-xs text-gray-600 mb-2">We use specific photon flux rates ($e^-/pixel/sec$) based on real sky brightness magnitudes:</p>
-                            <ul class="list-disc ml-5 text-sm text-gray-700 space-y-2">
-                                <li>
-                                    <b>Dark Mountain (Value = 10):</b> <br>
-                                    Corresponds to a dark site (~21.5 mag/arcsec²). Only natural airglow exists. The noise is minimal ($\sqrt{10} \approx 3.1$).
-                                </li>
-                                <li>
-                                    <b>Suburban (Value = 100):</b> <br>
-                                    Corresponds to ~19.5 mag/arcsec². Light pollution increases the background by <b>10x</b>, making the noise $\sqrt{100} = 10$ times higher.
-                                </li>
-                                <li>
-                                    <b>City Center (Value = 500):</b> <br>
-                                    Corresponds to a bright city sky (~17.5 mag/arcsec²). The sky is <b>50x brighter</b> than the mountain. The resulting "Shot Noise" ($\sqrt{500} \approx 22$) completely buries the faint galaxy signal.
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h5 class="font-bold text-slate-800 text-sm mb-1">B. Linking Sliders to the Formula</h5>
-                            
-                            <ul class="list-disc ml-5 text-sm text-gray-700 space-y-2">
-                                <li>
-                                    <b>Telescope Diameter Slider:</b> 
-                                    Increases <b>$S_{star}$</b>. Since Area $\propto D^2$, doubling the diameter captures <b>4x more photons</b>.
-                                </li>
-                                <li>
-                                    <b>Exposure Time Slider:</b> 
-                                    Increases <b>$t$</b>. While Noise grows as $\sqrt{t}$, Signal grows as $t$. Thus, longer exposures always improve the image quality.
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                </div>
-                """)
-                    
-                        with ui.row().classes('w-full justify-center mt-6 mb-2'):
-                            aria_button("Close", "Close", on_click=math_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
                 with ui.row().classes('w-full justify-center gap-6 mb-4'):
                     aria_button(
                         'Instructions', 
                         'Open Instructions Dialog', 
                         on_click=lambda: [instruction_d.open(), ui.run_javascript("MathJax.typesetPromise()")]
                     ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button(
-                        'Scientific Background', 
-                        'Open Scientific Background Dialog', 
-                        on_click=lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Signal-Noise Math', 'Open Math Explanation', 
-                on_click=lambda: [math_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-            ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button(
-                        "Methods & Instruments", 
-                        "Open Theory Dialog", 
-                        on_click=open_observational_info_dialog
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Bibliography', 'Open Bibliography', on_click=lambda:[biblio_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-
-               
-                with ui.row().classes('w-full items-center justify-center gap-5'):
                     
+                    aria_button(
+                        'Scientific Info', 
+                        'Open Scientific Information Dialog', 
+                        on_click=lambda: [open_scientific_info_dialog(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")]
+                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    
+                    aria_button(
+                        'Curiosity', 
+                        'Open Curiosity Dialog', 
+                        on_click=curiosity_d.open
+                    ).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                
              
-                    with ui.column().classes('w-full md:w-1/3 space-y-6 text-left'):
-                      
+                with ui.row().classes('w-full justify-center items-start gap-8 mt-4'):
+                    
+                   
+                    with ui.column().classes('w-full md:w-1/3 space-y-4 text-left'):
                         ui.label("Instrument Controls").classes('text-2xl font-bold text-white border-b border-gray-500 pb-2 w-full')
 
-                     
                         with ui.column().classes('w-full gap-1'):
                             ui.label("Telescope Diameter (m)").classes('font-bold text-white text-lg')
                             diam_slider = aria_slider(
@@ -768,7 +749,6 @@ def create_page():
                                 aria_label="Telescope Diameter"
                             ).props('label-always color="blue" dark').classes('w-full')
 
-                    
                         with ui.column().classes('w-full gap-1'):
                             ui.label("Exposure Time (seconds)").classes('font-bold text-white text-lg')
                             time_slider = aria_slider(
@@ -776,18 +756,14 @@ def create_page():
                                 aria_label="Exposure Time"
                             ).props('label-always color="green" dark').classes('w-full') 
 
-                  
                         with ui.column().classes('w-full gap-1'):
                             ui.label("Sky Background Level").classes('font-bold text-white text-lg')
-                            
-                           
                             sky_select = ui.select(
                                 options={10: 'Dark Mountain Sky (Low Noise)', 100: 'Suburban Sky', 500: 'City Center (High Noise)'}, 
                                 value=100
                             ).classes('w-full bg-slate-800 text-white border border-gray-600 rounded shadow-sm')\
                             .props('outlined behavior="menu" dark label-color="white"')
 
-                     
                         with ui.column().classes('w-full gap-2'):
                             ui.label("CCD Visualization Mode").classes('font-bold text-white text-lg')
                             cmap_select = ui.select(
@@ -798,21 +774,18 @@ def create_page():
                                 }, 
                                 value='gray' 
                             ).classes('w-full bg-slate-800 text-white border border-gray-600 rounded shadow-sm').props('outlined behavior="menu" dark label-color="white"')
-                    with ui.column().classes('w-full md:w-1/2 space-y-6 '):
-                
-                       
-                
-                        
+                    
+                 
+                    with ui.column().classes('w-full md:w-1/2 flex flex-col items-center gap-1'):
                         visibility_status = ui.label("Image status: Waiting for parameters...").classes(
-                            "text-xl font-bold text-green-400 text-center w-full bg-slate-800 p-2 rounded border border-green-500/50"
+                            "text-xl font-bold text-green-400 text-center w-full bg-slate-800 p-2 rounded border border-green-500/50 m-0"
                         ).props('aria-live=polite')
-                        plot_container = ui.column().classes('w-full items-center justify-start')
+                        
+                        plot_container = ui.column().classes('w-full items-center justify-start p-0 m-0')
                 
-            
                     def update_simulation():
                         plot_container.clear()
                         
-                 
                         D = diam_slider.value       
                         t = time_slider.value       
                         bg_level = sky_select.value 
@@ -820,47 +793,42 @@ def create_page():
                    
                         dark_current = 1.0 
                         read_noise = 10.0  
-
-                        size = 100 
                         
                    
-                        image_file_path = os.path.join(BASE_DIR, 'images', 'eso9845d.jpg')
+                        size = 300 
                         
+                        image_file_path = os.path.join(BASE_DIR, 'images', 'eso9845d.jpg')
                         true_flux = None
 
-                      
                         if os.path.exists(image_file_path):
                             try:
-                          
                                 img = Image.open(image_file_path).convert('L').resize((size, size))
                                 img_array = np.array(img)
-                                
-                               
                                 true_flux = (img_array / 255.0) * 60.0 
-                                
                             except Exception as e:
                                 print(f"Errore caricamento immagine: {e}")
 
-                      
                         if true_flux is None:
                             x, y = np.meshgrid(np.linspace(-1, 1, size), np.linspace(-1, 1, size))
                             r = np.sqrt(x**2 + y**2)
                             spiral = np.sin(5*r + np.arctan2(y, x))
                             true_flux = 50 * np.exp(-r/0.2) + 10 * np.exp(-r/0.5) * (spiral**2)
 
-                   
-
-                      
                         area_factor = (D / 2.0)**2 
                         
-                       
                         S_map = true_flux * area_factor * t
                         B_map = np.ones_like(S_map) * bg_level * t
                         D_map = np.ones_like(S_map) * dark_current * t
                         
-                     
+                  
+                        MAX_DIAMETER_FACTOR = (10.0 / 2.0)**2
+                        MAX_EXPOSURE = 300
+                        max_possible_signal = np.max(true_flux) * MAX_DIAMETER_FACTOR * MAX_EXPOSURE
+                        
+                        fixed_vmin = 0
+                        fixed_vmax = max_possible_signal
+
                         poisson_source = S_map + B_map + D_map
-                   
                         poisson_source = np.maximum(poisson_source, 0) 
                         
                         image_poisson = np.random.poisson(poisson_source)
@@ -868,13 +836,13 @@ def create_page():
                         
                         observed_image = image_poisson + image_read_noise
                         
-                      
                         S_peak = np.max(S_map)
                         noise_variance = S_peak + (bg_level * t) + (dark_current * t) + (read_noise**2)
                         snr = S_peak / np.sqrt(noise_variance) if noise_variance > 0 else 0
 
                         total_signal = int(np.sum(S_map))  
                         total_bg_noise = int(np.sum(B_map + D_map)) 
+                        
                         if snr < 5:
                             status_text = "Image status: Dominated by noise. The galaxy is completely invisible."
                         elif snr < 15:
@@ -885,31 +853,32 @@ def create_page():
                             status_text = "Image status: Excellent visibility! The spiral structure and arms are perfectly clear."
                             
                         visibility_status.set_text(status_text)
+                        
                         with plot_container:
-                         
                             with ui.pyplot(figsize=(8, 6), facecolor='none').classes('w-full max-w-[800px] mx-auto') as plot_element:
                                 fig = plot_element.fig
                                 fig.patch.set_alpha(0.0)
                                 ax = fig.gca()
                                 
-                                im = ax.imshow(observed_image, cmap=current_cmap, origin='lower')
+                                im = ax.imshow(
+                                    observed_image, 
+                                    cmap=current_cmap, 
+                                    origin='lower',
+                                    vmin=fixed_vmin,
+                                    vmax=fixed_vmax
+                                )
                                 ax.set_title(r"$\mathbf{SNR}$: " + f"{snr:.1f} | " + r"$\mathbf{Total\ Photons}$: " + f"{int(np.sum(observed_image))}\n" +
-             r"$\mathbf{Signal}$: " + f"{total_signal} e- | " + r"$\mathbf{Noise}$: " + f"{total_bg_noise} e-",
-             fontsize=12, pad=20, color='white', loc='center')
+                                r"$\mathbf{Signal}$: " + f"{total_signal} e- | " + r"$\mathbf{Noise}$: " + f"{total_bg_noise} e-",
+                                fontsize=12, pad=20, color='white', loc='center')
                                 ax.axis('off')
                                 cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.06)
         
-                              
                                 cbar.set_label('Photons Counts (ADU/pixel)', fontsize=12, color='white', labelpad=20)
-                                
-                               
                                 cbar.ax.yaxis.set_tick_params(color='white', labelcolor='white', labelsize=11)
                                 cbar.outline.set_edgecolor('white')
                                 
-                              
                                 fig.subplots_adjust(left=0.05, right=0.82, top=0.80, bottom=0.05)
 
-                  
                     diam_slider.on_value_change(update_simulation)
                     time_slider.on_value_change(update_simulation)
                     sky_select.on_value_change(update_simulation)
@@ -1010,18 +979,93 @@ def create_page():
                 thumb.props(f'ondragstart="event.dataTransfer.setData(\'application/json\', JSON.stringify({{file:\'{image_file}\', title:\'{title}\', safe_id:\'{safe_id}\', size:{size}}}))"')
         
 
-
-        def introduction_page(container):
-            ui.run_javascript('window.gameRunning = false; window.gameScore = 0;')
-            timer_state = {'time': 0, 'running': False, 'started': False}
-            container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
-            with container:
-
-                ui.label("Embark on a journey through time and space to understand the scales and fundamental structures of the universe.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+        def open_external_and_units_dialog():
+            with ui.dialog() as ext_units_dialog, ui.card().classes('p-0 w-full max-w-[1400px] h-[85vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="ext-units-title"'):
                 
-               
-                with ui.dialog() as units_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Cosmic Distance Scales"'):
-                    html_info_box(r"""
+                with ui.column().classes('w-full h-full bg-white flex flex-col'):
+                    
+                   
+                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="ext-units-title"'):
+                        ui.label('Resources & Cosmic Scales').classes('text-xl font-bold').props('id="ext-units-title" role=heading aria-level=2 tabindex=0')
+                        aria_button('Close', 'close', on_click=ext_units_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                   
+                    with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                        t_ext_res = ui.tab('External Resources')
+                        t_units = ui.tab('Cosmic Distance Scales')
+                        tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+              
+                    with ui.tab_panels(tabs, value=t_ext_res).classes('w-full flex-1 overflow-y-auto bg-gray-50 text-slate-900 p-6'):
+                        
+                  
+                        with ui.tab_panel(t_ext_res):
+                            html_info_box(r"""
+                    <div style="font-family: sans-serif; padding: 10px;">
+                        <h3 style="margin-top: 0; color: #166534; border-bottom: 2px solid #22c55e; padding-bottom: 10px; margin-bottom: 20px;">
+                            Explore External Resources
+                        </h3>
+                        <p style="margin-bottom: 20px; color: #4b5563;">
+                            Interactive simulators and visualization tools to deepen your understanding of the cosmos.
+                        </p>
+
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+
+                            <a href="https://www.solarsystemscope.com/" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
+                                    onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Solar System Scope ↗</div>
+                                    <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
+                                        Interactive 3D model of the Solar System and night sky.
+                                    </div>
+                                </div>
+                            </a>
+
+                            <a href="https://scaleofuniverse.com/en" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
+                                    onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Scale of the Universe ↗</div>
+                                    <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
+                                        Zoom from the Planck length to the edge of the observable Universe.
+                                    </div>
+                                </div>
+                            </a>
+
+                            <a href="https://theskylive.com/3dsolarsystem" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
+                                    onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">The Sky Live 3D ↗</div>
+                                    <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
+                                        Real-time positions of planets and comets in the solar system.
+                                    </div>
+                                </div>
+                            </a>
+
+                            <a href="https://stellarium-web.org/" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
+                                    onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Stellarium Web ↗</div>
+                                    <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
+                                        Realistic planetarium to see stars and constellations from any location.
+                                    </div>
+                                </div>
+                            </a>
+
+                            <a href="https://science.nasa.gov/eyes/" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
+                                    onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">NASA Eyes ↗</div>
+                                    <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
+                                        Official NASA visualization apps for Earth, Solar System, and Exoplanets.
+                                    </div>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                    """).props('tabindex=0 role=document aria-label="List of external astronomy resources"')
+
+                      
+                        with ui.tab_panel(t_units):
+                            html_info_box(r"""
         <h3>Cosmic Distance Scales: km, AU, and pc</h3>
         <p>In cosmology, distances range from the relatively "small" scale of planets to the vast expanse between galaxies. To handle these massive numbers without writing endless zeros, astronomers use three primary units of measurement.</p>
 
@@ -1042,10 +1086,10 @@ def create_page():
         <p>The <b>Light-year</b> is the distance that light travels in a vacuum in one Julian year (365.25 days). Despite the name, it is a unit of distance, not time.</p>
 
         <ul>
-            <li><b>Definition:</b> $1 \, \mathrm{ly} = c \times 1 \text{ year}$</li>
-            <li><b>Conversion to km:</b> $\approx 9.461 \times 10^{12} \, \mathrm{km}$</li>
-            <li><b>Conversion to AU:</b> $\approx 63,241 \, \mathrm{AU}$</li>
-            <li><b>Conversion to pc:</b> $\approx 0.3066 \, \mathrm{pc}$</li>
+            <li><b>Definition:</b> \( 1 \, \mathrm{ly} = c \times 1 \text{ year} \)</li>
+            <li><b>Conversion to km:</b> \( \approx 9.461 \times 10^{12} \, \mathrm{km} \)</li>
+            <li><b>Conversion to AU:</b> \( \approx 63,241 \, \mathrm{AU} \)</li>
+            <li><b>Conversion to pc:</b> \( \approx 0.3066 \, \mathrm{pc} \)</li>
         </ul>
         <hr style="margin: 15px 0; border-top: 1px solid #0284c7; opacity: 0.3;">
 
@@ -1066,9 +1110,24 @@ def create_page():
             </p>
         </div>
     """)
-                    
-                    aria_button("Close", "close the conversion guide", on_click=lambda:units_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-          
+                ext_units_dialog.open()
+        def introduction_page(container):
+            ui.run_javascript('window.gameRunning = false; window.gameScore = 0;')
+            timer_state = {'time': 0, 'running': False, 'started': False}
+            container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
+            with container:
+
+                ui.label("Embark on a journey through time and space to understand the scales and fundamental structures of the universe.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
+                
+                with ui.dialog() as units_curiosity_d, ui.card().classes("p-6 w-full max-w-[600px]").props('role=dialog aria-label=Curiosity'):
+                    html_info_box(r"""
+                <h2 class="text-2xl font-bold mb-4 text-purple-800">💡 Did you know?</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    The concept of measuring distances using parallax, which forms the basis for the parsec, was first successfully used by Friedrich Bessel in 1838 to measure the distance to the star 61 Cygni. This was a monumental achievement, proving that stars are incredibly far away and cementing our modern understanding of the universe's vast scale.
+                </p>
+                                    """)
+                    aria_button("Close", "close curiosity popup", on_click=units_curiosity_d.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
+                
 
                
 
@@ -1162,79 +1221,7 @@ def create_page():
                     ui.timer(0.1, update_math, once=True)
                     #update_math()
              
-                with ui.dialog() as external_resources_dialog, ui.card().classes('p-0 w-full max-w-[600px] overflow-hidden').props('role=dialog aria-label="External Resources"'):
-            
-           
-                    html_info_box(r"""
-            <div style="font-family: sans-serif; padding: 10px;">
-                <h3 style="margin-top: 0; color: #166534; border-bottom: 2px solid #22c55e; padding-bottom: 10px; margin-bottom: 20px;">
-                    Explore External Resources
-                </h3>
-                <p style="margin-bottom: 20px; color: #4b5563;">
-                    Interactive simulators and visualization tools to deepen your understanding of the cosmos.
-                </p>
-
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-
-                    <a href="https://www.solarsystemscope.com/" target="_blank" style="text-decoration: none; color: inherit;">
-                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
-                             onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Solar System Scope ↗</div>
-                            <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
-                                Interactive 3D model of the Solar System and night sky.
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="https://scaleofuniverse.com/en" target="_blank" style="text-decoration: none; color: inherit;">
-                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
-                             onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Scale of the Universe ↗</div>
-                            <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
-                                Zoom from the Planck length to the edge of the observable Universe.
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="https://theskylive.com/3dsolarsystem" target="_blank" style="text-decoration: none; color: inherit;">
-                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
-                             onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">The Sky Live 3D ↗</div>
-                            <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
-                                Real-time positions of planets and comets in the solar system.
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="https://stellarium-web.org/" target="_blank" style="text-decoration: none; color: inherit;">
-                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
-                             onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">Stellarium Web ↗</div>
-                            <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
-                                Realistic planetarium to see stars and constellations from any location.
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="https://science.nasa.gov/eyes/" target="_blank" style="text-decoration: none; color: inherit;">
-                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; transition: background-color 0.2s; cursor: pointer;" 
-                             onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="font-weight: bold; color: #15803d; font-size: 1.1em;">NASA Eyes ↗</div>
-                            <div style="font-size: 0.9em; color: #6b7280; margin-top: 4px;">
-                                Official NASA visualization apps for Earth, Solar System, and Exoplanets.
-                            </div>
-                        </div>
-                    </a>
-
-                </div>
-            </div>
-            """).props('tabindex=0 role=document aria-label="List of external astronomy resources"')
-
-           
-         
-                    aria_button('Close', 'Close resources dialog', on_click=external_resources_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded shadow-md")
-
-
+               
 
             
                 with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Game Instructions"'):
@@ -1276,15 +1263,18 @@ def create_page():
                     ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
 
                  
-                    aria_button('Units', 'Open Units', 
-                        on_click=lambda: (units_dialog.open(), update_math())
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                   
                     aria_button(
-                ' External Resources', 
-                "Open external resources list",
-                on_click=external_resources_dialog.open
-            ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+            'Scientific Info', 
+            'Open Resources and Cosmic Scales Dialog', 
+            on_click=lambda: [open_external_and_units_dialog(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+
+                    aria_button(
+            'Curiosity', 
+            'Open Curiosity Dialog', 
+            on_click=units_curiosity_d.open
+        ).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
+                   
                     aria_button(
                         '♿ Accessibility Mode', 
                         'Jump to accessibility exercise',
@@ -2269,7 +2259,206 @@ def create_page():
  
 
 
+        def open_comprehensive_particles_dialog():
+            with ui.dialog() as comp_particles_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="main-title"'):
+                
+                with ui.column().classes('w-full h-full bg-white'):
+                    
+                 
+                    with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="main-title"'):
+                        ui.label('Particles & Cosmology').classes('text-xl font-bold').props('id="main-title" role=heading aria-level=2 tabindex=0')
+                        aria_button('Close', 'close', on_click=comp_particles_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    
+                    
+                    with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                        t_info = ui.tab('Particles Classification ')
+                        t_mass_conv = ui.tab('Mass Conversion')
+                        t_leptons = ui.tab('Leptons')
+                        t_quarks = ui.tab('Quarks')
+                        t_bosons = ui.tab('Bosons')
+                        t_hadrons = ui.tab('Hadrons')
+                        t_processes = ui.tab('Cosmic Processes')
+                        t_mass_plot = ui.tab('Mass Plot')
+                        t_materials = ui.tab('Supplementary Materials')
 
+                        tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
+                    with ui.tab_panels(tabs, value=t_info).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                        
+                      
+                        with ui.tab_panel(t_info):
+                            html_info_box(r"""
+            <h3>1. The Particles Zoo in the universe(Micro-Cosmos)</h3>
+            
+            <p>The Standard Model of Particle Physics classifies all known fundamental particles into several categories based on their properties and interactions. Here's an overview of the main categories:</p>
+
+            <h4>A. Leptons</h4>
+            <p><b>Fermions (Spin 1/2) that do not interact via the strong force.</b></p>
+            <ul>
+                <li><b>Electron (e⁻):</b> The lightest charged lepton (0.511 MeV). Stable and fundamental to atomic structure.</li>
+                <li><b>Muon (<span class="math">\(\mu^-\)</span>) & Tau (<span class="math">\(\tau^-\)</span>):</b> Heavier, unstable cousins of the electron. They decay quickly into lighter particles.</li>
+                <li><b>Neutrinos (<span class="math">\(\nu_e, \nu_\mu, \nu_\tau\)</span>):</b> Neutral "ghost" particles corresponding to each charged lepton. They have tiny masses (<1 eV) and interact only via the weak force.</li>
+            </ul>
+
+            <h4>B. Quarks</h4>
+            <p><b>Fermions (Spin 1/2) that interact via the strong force (QCD). They possess fractional electric charges.</b></p>
+            <ul>
+                <li><b>Up (u) & Down (d):</b> The light quarks that make up everyday matter (protons and neutrons).</li>
+                <li><b>Charm (c) & Strange (s):</b> Heavier, second-generation quarks. Found in exotic particles like Kaons.</li>
+                <li><b>Top (t) & Bottom (b):</b> The heaviest generation. The Top quark is the most massive elementary particle known (173 GeV).</li>
+            </ul>
+
+            <h4>C. Bosons</h4>
+            <p><b>The Force Carriers (Integer Spin).</b></p>
+            <ul>
+                <li><b>Photon (<span class="math">\(\gamma\)</span>):</b> Massless carrier of the Electromagnetic force (light).</li>
+                <li><b>Gluon (g):</b> Massless carrier of the Strong force; it "glues" quarks together.</li>
+                <li><b>W± & Z Bosons:</b> Massive carriers of the Weak force, responsible for radioactive decay.</li>
+                <li><b>Higgs Boson (H):</b> The particle associated with the Higgs field, giving mass to other elementary particles.</li>
+            </ul>
+
+            <h4>D. Hadrons</h4>
+            <p><b>Composite particles made of Quarks held together by Gluons.</b></p>
+            <ul>
+                <li><b>Baryons (3 Quarks):</b>
+                    <ul>
+                        <li><b>Proton (p):</b> Stable (uud). The nucleus of Hydrogen.</li>
+                        <li><b>Neutron (n):</b> Neutral (udd). Stable inside nuclei, but decays when free.</li>
+                    </ul>
+                </li>
+                <li><b>Mesons (Quark + Anti-Quark):</b>
+                    <ul>
+                        <li><b>Pion (<span class="math">\(\pi\)</span>):</b> The lightest meson, mediates forces between nucleons.</li>
+                        <li><b>Kaon (K):</b> Contains a strange quark.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <hr style="margin: 20px 0; border-top: 1px solid #0284c7;">
+
+            <h3>2. Cosmological Timeline (Macro-Cosmos)</h3>
+            
+            <h4>Epoch 1: The Big Bang</h4>
+            <p>The initial singularity from which space, time, and energy expanded. The universe began in an extremely hot and dense state.</p>
+
+            <h4>Epoch 2: Big Bang Nucleosynthesis (BBN)</h4>
+            <p><b>"The First Nuclei"</b><br>
+            Shortly after the Big Bang, the universe cooled enough for protons (p) and neutrons (n) to fuse.</p>
+            <ul>
+                <li><b>Process:</b> <span class="math">\(p + n \rightarrow D\)</span> (Deuterium) <span class="math">\(\rightarrow\)</span> Helium-4 (⁴He) & Lithium-7 (⁷Li).</li>
+                <li><b>Outcome:</b> Created the primordial abundance of light elements (mostly Hydrogen and Helium).</li>
+            </ul>
+
+            <h4>Epoch 3: Recombination</h4>
+            <p><b>"The First Atoms"</b></p>
+            <ul>
+                <li><b>Process:</b> The universe cooled to ~3000K. Electrons (e⁻) combined with Protons (p) to form <b>Neutral Hydrogen (H)</b>.</li>
+                <li><b>Significance:</b> Photons could finally travel freely, creating the Cosmic Microwave Background (CMB).</li>
+            </ul>
+
+            <h4>Epoch 4: Reionization</h4>
+            <p><b>"The Cosmic Dawn"</b></p>
+            <ul>
+                <li><b>Process:</b> The first stars and Active Galactic Nuclei (AGN) formed. Their intense radiation (photons) hit the neutral hydrogen gas.</li>
+                <li><b>Outcome:</b> The neutral hydrogen was ionized back into protons and electrons (<span class="math">\(H \rightarrow p + e^-\)</span>), ending the "Dark Ages."</li>
+            </ul>
+            """).props('aria-label="Particles information"')
+                            
+                            aria_image('/images/Standard_Model_of_Elementary_Particles.png', "Image of standard model for elementary particles").classes('w-full max-w-[800px] h-auto rounded-lg shadow-lg border border-gray-300 mt-6 mx-auto block')
+
+                      
+                        with ui.tab_panel(t_mass_conv):
+                            html_info_box(r"""
+        <h3>Mass-Energy Conversion: kg to eV</h3>
+        <p>In particle physics, mass (\(m\)) is often expressed as equivalent energy (\(E\)) using <b>Einstein's mass-energy equivalence</b> principle:</p>
+        
+        <div style="text-align:center; font-size: 1.2em; margin: 15px 0;">
+            \[ E = m c^2 \]
+        </div>
+
+        <p>Where \(c\) is the speed of light in a vacuum.</p>
+
+        <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
+
+        <h4>Conversion Steps</h4>
+        <ol>
+            <li>
+                <b>Mass (kg) to Energy (Joule):</b>
+                <div style="text-align:center; margin: 10px 0;">\[ E \, (\mathrm{J}) = m \, (\mathrm{kg}) \times (c)^2 \]</div>
+                <p>(\(c \approx 2.9979 \times 10^8 \, \mathrm{m/s}\))</p>
+            </li>
+            <li style="margin-top: 10px;">
+                <b>Energy (Joule) to Electronvolt (eV):</b>
+                <p>The energy in Joules must be divided by the elementary charge (\(e\)) to get Electronvolts.</p>
+                <div style="text-align:center; margin: 10px 0;">\[ E \, (\mathrm{eV}) = \frac{E \, (\mathrm{J})}{e} \]</div>
+                <p>(\(e \approx 1.60217 \times 10^{-19} \, \mathrm{J/eV}\))</p>
+            </li>
+        </ol>
+
+        <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
+
+        <h4>Key Conversion Factors</h4>
+        <p>The standard convention uses prefixes to denote magnitude:</p>
+        
+        <table style="width:100%; border-collapse: collapse; margin-top: 10px; text-align:center;">
+            <tr style="background-color: #bae6fd; color: #0c4a6e;">
+                <th style="border: 1px solid #0284c7; padding: 8px;">Unit</th>
+                <th style="border: 1px solid #0284c7; padding: 8px;">Value in eV</th>
+                <th style="border: 1px solid #0284c7; padding: 8px;">Example</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #0284c7; padding: 8px;">keV (kilo)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">\(10^3 \, \mathrm{eV}\)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">Binding energies of inner-shell electrons.</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #0284c7; padding: 8px;">MeV (mega)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">\(10^6 \, \mathrm{eV}\)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">Electron rest mass (\(\approx 0.511 \, \mathrm{MeV}\))</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #0284c7; padding: 8px;">GeV (giga)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">\(10^9 \, \mathrm{eV}\)</td>
+                <td style="border: 1px solid #0284c7; padding: 8px;">Proton rest mass (\(\approx 0.938 \, \mathrm{GeV}\))</td>
+            </tr>
+        </table>
+        
+        <p style="margin-top: 15px; font-weight: bold;">
+            The factor for 1 kg mass is approximately \( 5.61 \times 10^{35} \, \mathrm{eV} \).
+        </p>
+        """)
+
+                        with ui.tab_panel(t_leptons).classes('flex flex-col items-center'):
+                            plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=600, width=800)
+                            
+                        with ui.tab_panel(t_quarks).classes('flex flex-col items-center'):
+                            plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=600, width=800)
+                            
+                        with ui.tab_panel(t_bosons).classes('flex flex-col items-center'):
+                            plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=600, width=800)
+                            
+                        with ui.tab_panel(t_hadrons).classes('flex flex-col items-center'):
+                            plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=600, width=800)
+
+                       
+                        with ui.tab_panel(t_processes).classes('flex flex-col items-center'):
+                            plot_particle_graph("Cosmological Processes ", processes_nodes, processes_edges, is_process_graph=True, height=700 , width=500)
+
+                        with ui.tab_panel(t_mass_plot).classes('flex flex-col items-center overflow-x-auto'):
+                            
+                            mass_container = ui.column().classes('w-full items-center justify-center')
+                            plot_mass_strip(mass_container, height=400, width=1000)
+
+                      
+                        with ui.tab_panel(t_materials).classes('flex flex-col items-center justify-center h-full'):
+                            ui.label("Introductory Slides").classes("text-3xl font-bold text-slate-800 mb-4")
+                            ui.label("Click the button below to view the supplementary PDF presentation about particles.").classes("text-lg text-gray-600 mb-8")
+                            aria_button(
+                                'Open PDF: Particles', 
+                                'Open Introductory Slides about Particles',
+                                on_click=lambda: ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
+                            ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-8 text-lg rounded shadow-lg")
+
+            comp_particles_dialog.open()
         def particle_page(container):
             timer_state = {'time': 0, 'running': False, 'started': False}
             container.classes('w-full flex flex-col items-center justify-center text-center mx-auto gap-6')
@@ -2306,92 +2495,7 @@ def create_page():
 """)
                     aria_button("Close", "close popup", on_click=lambda:instru.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
-                with ui.dialog() as info_dialog, ui.card().classes('w-[800px] h-[80vh] overflow-y-auto').props('role=dialog aria-label="Detailed information about particles and cosmology"'):
-                    html_info_box(r"""
-        <h3>1. The Particles Zoo in the universe(Micro-Cosmos)</h3>
-        
-        <p>The Standard Model of Particle Physics classifies all known fundamental particles into several categories based on their properties and interactions. Here's an overview of the main categories:</p>
-
-
-        <h4>A. Leptons</h4>
-        <p><b>Fermions (Spin 1/2) that do not interact via the strong force.</b></p>
-        <ul>
-            <li><b>Electron (e⁻):</b> The lightest charged lepton (0.511 MeV). Stable and fundamental to atomic structure.</li>
-            <li><b>Muon (<span class="math">\(\mu^-\)</span>) & Tau (<span class="math">\(\tau^-\)</span>):</b> Heavier, unstable cousins of the electron. They decay quickly into lighter particles.</li>
-            <li><b>Neutrinos (<span class="math">\(\nu_e, \nu_\mu, \nu_\tau\)</span>):</b> Neutral "ghost" particles corresponding to each charged lepton. They have tiny masses (<1 eV) and interact only via the weak force.</li>
-        </ul>
-
-        <h4>B. Quarks</h4>
-        <p><b>Fermions (Spin 1/2) that interact via the strong force (QCD). They possess fractional electric charges.</b></p>
-        <ul>
-            <li><b>Up (u) & Down (d):</b> The light quarks that make up everyday matter (protons and neutrons).</li>
-            <li><b>Charm (c) & Strange (s):</b> Heavier, second-generation quarks. Found in exotic particles like Kaons.</li>
-            <li><b>Top (t) & Bottom (b):</b> The heaviest generation. The Top quark is the most massive elementary particle known (173 GeV).</li>
-        </ul>
-
-        <h4>C. Bosons</h4>
-        <p><b>The Force Carriers (Integer Spin).</b></p>
-        <ul>
-            <li><b>Photon (<span class="math">\(\gamma\)</span>):</b> Massless carrier of the Electromagnetic force (light).</li>
-            <li><b>Gluon (g):</b> Massless carrier of the Strong force; it "glues" quarks together.</li>
-            <li><b>W± & Z Bosons:</b> Massive carriers of the Weak force, responsible for radioactive decay.</li>
-            <li><b>Higgs Boson (H):</b> The particle associated with the Higgs field, giving mass to other elementary particles.</li>
-        </ul>
-
-        <h4>D. Hadrons</h4>
-        <p><b>Composite particles made of Quarks held together by Gluons.</b></p>
-        <ul>
-            <li><b>Baryons (3 Quarks):</b>
-                <ul>
-                    <li><b>Proton (p):</b> Stable (uud). The nucleus of Hydrogen.</li>
-                    <li><b>Neutron (n):</b> Neutral (udd). Stable inside nuclei, but decays when free.</li>
-                </ul>
-            </li>
-            <li><b>Mesons (Quark + Anti-Quark):</b>
-                <ul>
-                    <li><b>Pion (<span class="math">\(\pi\)</span>):</b> The lightest meson, mediates forces between nucleons.</li>
-                    <li><b>Kaon (K):</b> Contains a strange quark.</li>
-                </ul>
-            </li>
-        </ul>
-
-        <hr style="margin: 20px 0; border-top: 1px solid #0284c7;">
-
-        <h3>2. Cosmological Timeline (Macro-Cosmos)</h3>
-        
-
-
-
-        <h4>Epoch 1: The Big Bang</h4>
-        <p>The initial singularity from which space, time, and energy expanded. The universe began in an extremely hot and dense state.</p>
-
-        <h4>Epoch 2: Big Bang Nucleosynthesis (BBN)</h4>
-        <p><b>"The First Nuclei"</b><br>
-        Shortly after the Big Bang, the universe cooled enough for protons (p) and neutrons (n) to fuse.</p>
-        <ul>
-            <li><b>Process:</b> <span class="math">\(p + n \rightarrow D\)</span> (Deuterium) <span class="math">\(\rightarrow\)</span> Helium-4 (⁴He) & Lithium-7 (⁷Li).</li>
-            <li><b>Outcome:</b> Created the primordial abundance of light elements (mostly Hydrogen and Helium).</li>
-        </ul>
-
-        <h4>Epoch 3: Recombination</h4>
-        <p><b>"The First Atoms"</b></p>
-        <ul>
-            <li><b>Process:</b> The universe cooled to ~3000K. Electrons (e⁻) combined with Protons (p) to form <b>Neutral Hydrogen (H)</b>.</li>
-            <li><b>Significance:</b> Photons could finally travel freely, creating the Cosmic Microwave Background (CMB).</li>
-        </ul>
-
-        <h4>Epoch 4: Reionization</h4>
-        <p><b>"The Cosmic Dawn"</b></p>
-        <ul>
-            <li><b>Process:</b> The first stars and Active Galactic Nuclei (AGN) formed. Their intense radiation (photons) hit the neutral hydrogen gas.</li>
-            <li><b>Outcome:</b> The neutral hydrogen was ionized back into protons and electrons (<span class="math">\(H \rightarrow p + e^-\)</span>), ending the "Dark Ages."</li>
-        </ul>
-    """).props('aria-label="Mass and Energy Conversion information"')
-                  
-                    aria_image('/images/Standard_Model_of_Elementary_Particles.png', "Image of standard model for elementary particles").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-            
-                    aria_button("Close", 'close',on_click=lambda: info_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-              
+                
                 with ui.dialog() as cur_part, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-label="Curiosity: The Ghost Particles"'):
                     html_info_box(r"""
                     <h3>The Ghost Particles</h3>
@@ -2403,43 +2507,14 @@ def create_page():
                     aria_button("Close", "close", on_click=lambda:cur_part.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
               
-                def open_particles():
-                        ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
-                with ui.dialog() as mass, ui.card().classes('p-4 w-full h-auto min-w-[1200px] overflow-x-auto').props('role=dialog aria-label="Mass Distribution in the Universe"'):
-                    plot_mass_strip(container, height=400, width=1000)
-                    aria_button("Close", 'close',on_click=lambda: mass.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as relation, ui.card().classes('w-full h-auto p-4 items-center ').props('role=dialog aria-label="Particle Interactions and Cosmological Processes"'):
-                    plot_particle_graph(
-                            "Cosmological Processes ",    processes_nodes,  processes_edges,is_process_graph=True,            height=700 , width=500                     )
-                    aria_button("Close", 'close',on_click=lambda: relation.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                 
-             
-                with ui.dialog() as diag_leptons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Leptons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_leptons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                    plot_particle_graph("Leptons (Fermions)", leptons_nodes, leptons_edges, height=600, width=800)
-
-                with ui.dialog() as diag_quarks, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Quarks and their interactions"'):
-                    aria_button("X", "close", on_click=diag_quarks.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                    plot_particle_graph("Quarks (Fermions)", quarks_nodes, quarks_edges, height=600, width=800)
-
-                with ui.dialog() as diag_bosons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Bosons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_bosons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                    plot_particle_graph("Bosons (Force Carriers & Higgs)", bosons_nodes, bosons_edges, height=600, width=800)
-
-                with ui.dialog() as diag_hadrons, ui.card().style('min-width: 850px; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center overflow-hidden').props('role=dialog aria-label="Hadrons and their interactions"'):
-                    aria_button("X", "close", on_click=diag_hadrons.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                    plot_particle_graph("Hadrons (Baryons & Mesons)", hadrons_nodes, hadrons_edges, height=600, width=800)
-
                 with ui.row().classes('w-full justify-center gap-2'):
                     aria_button("Instructions", "Open instructions", on_click=lambda:instru.open()).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Particles Info ", "Open particle guide", on_click=lambda:[ info_dialog.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    create_mass_conversion_dialog()
                     aria_button(
-                        'Supplementary Materials', 
-                        'Open Introductory Slides: Particles',
-                        on_click=open_particles
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    
+            'Scientific Info', 
+            'Open Comprehensive Particles Dialog', 
+            on_click=lambda: [open_comprehensive_particles_dialog(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                     aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_part.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                     aria_button(
                         '♿ Accessibility Mode', 
@@ -2450,16 +2525,7 @@ def create_page():
                         )
                     ).classes("!bg-red-600 hover:!bg-red-700 text-white font-bold py-2 px-4 rounded shadow-md")
                     
-                with ui.row().classes('w-full justify-center gap-2'):
-                    aria_button(" Leptons", "Open Leptons", on_click=diag_leptons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Quarks", "Open Quarks", on_click=diag_quarks.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Bosons", "Open Bosons", on_click=diag_bosons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Hadrons", "Open Hadrons", on_click=diag_hadrons.open).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-
-                    aria_button("Cosmological Processes","Cosmological Processes",on_click=lambda: relation.open(),).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    
-                    aria_button("Mass Particle plot","Mass Particle plot",on_click=lambda: mass.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    
+               
                     
                 ui.run_javascript('window.particleGameRunning = false; window.particleScore = 0;')
                 timer_state = {'time': 0, 'running': False}
@@ -3902,31 +3968,7 @@ namelength=-1,
     "Analyze the life cycle of stars using the Hertzsprung-Russell diagram to understand stellar evolution and classification."
 ).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                
-                with ui.dialog() as hr_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=hr_title'):
-                    html_info_box(r"""
-        <h3>Hertzsprung–Russell (H–R) Diagram</h3>
-        <p>The <b>Hertzsprung–Russell (H–R)</b> diagram shows stars according to their color or temperature and luminosity (brightness) or absolute magnitude. The diagram reveals distinct groups of stars from GAIA dataset providing information about stellar evolution and properties.</p>
- 
-
-
-        <ul>
-            <li><b>Main Sequence (MS):</b> The longest and most stable phase in a star's lifetime, where it resides in hydrostatic equilibrium. Stars generate energy by fusing hydrogen into helium in their cores. The position of an MS star along the diagonal band is determined by its mass, with high-mass stars residing at the luminous, hot upper-left and low-mass stars at the cooler, dim lower-right.</li>
-            
-            <li><b>Subgiant Branch (SGB):</b> Marks the transition off the Main Sequence after the core hydrogen is exhausted. The star's core begins to contract, heating the surrounding shell, where hydrogen starts burning, while the outer layers start to expand and cool causing it to move horizontally rightward and slightly upward on the H-R diagram.</li>
-            
-            <li><b>Red Giants Branch (RGB):</b> The outer envelope expands, driven by hydrogen shell burning around the helium core and leading to an increase in luminosity and a sharp drop in surface temperature, placing these stars in the upper-right region of the H-R diagram.</li>
-            
-            <li><b>Helium Burning (HeB):</b> When the contracting helium core reaches a critical temperature, helium fusion (the triple-alpha process) ignites, converting helium into carbon and oxygen. This new energy source brings the star to a temporary, stable phase (Red Clump for solar-mass stars) and they settle at a lower luminosity and slightly hotter temperature than the tip of the RGB.</li>
-            
-            <li><b>Asymptotic Giant Branch (AGB):</b> Late evolutionary stage characterized by fusion occurring in two shells: an outer hydrogen shell and an inner helium shell, both surrounding an inert carbon/oxygen core. Stars are highly luminous and the coolest giants, occupying a region above the RGB on the H-R diagram. They undergo episodic mass loss, leading to the formation of a planetary nebula.</li>
-            
-            <li><b>White Dwarfs (WD):</b> The remnants of low to intermediate-mass stars that have shed their outer layers, extremely dense, hot, and small. They have no active fusion and are supported against gravitational collapse solely by electron degeneracy pressure. They appear in the bottom-left corner of the H-R diagram and cool down over cosmic time, eventually becoming black dwarfs.</li>
-        </ul>
-    """)
-                    with ui.row().classes('w-full justify-center gap-2'):
-                        aria_image('/images/H-R_ESO.png', "Image of Hertzsprung–Russell diagram").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                        aria_image('/images/Life-Cycle-of-a-Star.png', "Image of life-cycle of a star").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                    aria_button('Close','close button', on_click=lambda:hr_info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                
                 with ui.dialog() as cur_intro, ui.card().classes('p-4 w-full max-w-[600px]').props('role=dialog aria-modal=true aria-labelledby=curiosities_title'):
                     html_info_box(r"""
                     <h3>Stars vs. Sand</h3>
@@ -4077,37 +4119,79 @@ namelength=-1,
 
 
                     plot.on('plotly_click', lambda e: show_star_dialog(df, e.args['points'][0]['pointIndex']))
-                with ui.dialog() as evolution_graph_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_graph_title'):
-                    aria_button('X', 'Close', on_click=evolution_graph_dialog.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                    plot_star_graph(title="Life Cycle of a Star", nodes=stellar_nodes, edges=stellar_edges, height=600, width=800)
-
+                
              
-                with ui.dialog() as evolution_gif_dialog, ui.card().style('width: fit-content; max-width: 95vw;').classes('p-6 bg-white flex flex-col items-center').props('role=dialog aria-modal=true aria-labelledby=evolution_gif_title'):
-                    aria_button('X', 'Close', on_click=evolution_gif_dialog.close).classes('absolute top-4 right-4 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded')
-                   
+                
 
-                    @ui.refreshable
-                    def render_gif():
-                      
-                        ui.html(f'<img src="/images/hr_diagram_evolution.gif?t={time.time()}" alt="Star evolution HR diagram" class="w-full max-w-[800px] h-auto rounded-lg shadow-lg border border-gray-300">')
-                    
-                    render_gif()
+                 
 
-                def open_animated_gif():
-                   
+              
+                @ui.refreshable
+                def render_gif():
+                    ui.html(f'<img src="/images/hr_diagram_evolution.gif?t={time.time()}" alt="Star evolution HR diagram" class="w-full max-w-[800px] h-auto rounded-lg shadow-lg border border-gray-300 mx-auto block">')
+
+                def open_stellar_info_dialog():
                     render_gif.refresh()
-                   
-                    evolution_gif_dialog.open()
-                with ui.dialog() as data_info, ui.card().classes('w-96').props('role=dialog aria-modal=true aria-labelledby=data_info_title'):
-                    info_box("Dataset Gaia DR3: RA (right ascension),DEC(declination),z (redshift),mag_ur(magnitude in u-band filter, r-band filter). Dataset MIST:logTeff (effective temperature),logL (luminosity),stellar_mass")
-                    reference_box(""" **Dataset reference**: [GAIA SDR3](https://gea.esac.esa.int/archive/), Sysoliatina Kseniia 2022 JJ-model isochrone set: PARSEC MIST and BaSTI stellar evolution, [MIST](https://doi.org/10.11588/DATA/ZCXHOE) """)
-                    aria_button('Close','close button', on_click=data_info.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                    
+                    with ui.dialog() as comp_stellar_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="stellar-title"'):
+                        
+                        with ui.column().classes('w-full h-full bg-white'):
+                            
+                            with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="stellar-title"'):
+                                ui.label('Stellar Evolution').classes('text-xl font-bold').props('id="stellar-title" role=heading aria-level=2 tabindex=0')
+                                aria_button('Close', 'close', on_click=comp_stellar_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                            
+                            with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                t_hr = ui.tab('H-R Diagram Info')
+                                t_graph = ui.tab('Evolution Graph')
+                                t_gif = ui.tab('H-R Animation')
+                              
+
+                            with ui.tab_panels(tabs, value=t_hr).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                
+                                with ui.tab_panel(t_hr):
+                                    html_info_box(r"""
+                                        <h3>Hertzsprung–Russell (H–R) Diagram</h3>
+                                        <p>The <b>Hertzsprung–Russell (H–R)</b> diagram shows stars according to their color or temperature and luminosity (brightness) or absolute magnitude. The diagram reveals distinct groups of stars from GAIA dataset providing information about stellar evolution and properties.</p>
+                                        <ul>
+                                             <li><b>Main Sequence (MS):</b> The longest and most stable phase in a star's lifetime, where it resides in hydrostatic equilibrium. Stars generate energy by fusing hydrogen into helium in their cores. The position of an MS star along the diagonal band is determined by its mass, with high-mass stars residing at the luminous, hot upper-left and low-mass stars at the cooler, dim lower-right.</li>
+            
+            <li><b>Subgiant Branch (SGB):</b> Marks the transition off the Main Sequence after the core hydrogen is exhausted. The star's core begins to contract, heating the surrounding shell, where hydrogen starts burning, while the outer layers start to expand and cool causing it to move horizontally rightward and slightly upward on the H-R diagram.</li>
+            
+            <li><b>Red Giants Branch (RGB):</b> The outer envelope expands, driven by hydrogen shell burning around the helium core and leading to an increase in luminosity and a sharp drop in surface temperature, placing these stars in the upper-right region of the H-R diagram.</li>
+            
+            <li><b>Helium Burning (HeB):</b> When the contracting helium core reaches a critical temperature, helium fusion (the triple-alpha process) ignites, converting helium into carbon and oxygen. This new energy source brings the star to a temporary, stable phase (Red Clump for solar-mass stars) and they settle at a lower luminosity and slightly hotter temperature than the tip of the RGB.</li>
+            
+            <li><b>Asymptotic Giant Branch (AGB):</b> Late evolutionary stage characterized by fusion occurring in two shells: an outer hydrogen shell and an inner helium shell, both surrounding an inert carbon/oxygen core. Stars are highly luminous and the coolest giants, occupying a region above the RGB on the H-R diagram. They undergo episodic mass loss, leading to the formation of a planetary nebula.</li>
+            
+            <li><b>White Dwarfs (WD):</b> The remnants of low to intermediate-mass stars that have shed their outer layers, extremely dense, hot, and small. They have no active fusion and are supported against gravitational collapse solely by electron degeneracy pressure. They appear in the bottom-left corner of the H-R diagram and cool down over cosmic time, eventually becoming black dwarfs.</li>
+                                        </ul>
+                                    """)
+                                    with ui.row().classes('w-full justify-center gap-6 mt-6'):
+                                        aria_image('/images/H-R_ESO.png', "Image of Hertzsprung–Russell diagram").classes('w-full max-w-[500px] h-auto rounded-lg shadow-lg border border-gray-300')
+                                        aria_image('/images/Life-Cycle-of-a-Star.png', "Image of life-cycle of a star").classes('w-full max-w-[500px] h-auto rounded-lg shadow-lg border border-gray-300')
+
+                                with ui.tab_panel(t_graph).classes('flex flex-col items-center justify-start'):
+                                   
+                                    plot_star_graph(title="Life Cycle of a Star", nodes=stellar_nodes, edges=stellar_edges, height=600, width=800)
+
+                                with ui.tab_panel(t_gif).classes('flex flex-col items-center justify-center'):
+                                   
+                                    render_gif()
+                                    info_box("Dataset Gaia DR3: RA (right ascension), DEC(declination), z (redshift), mag_ur(magnitude in u-band filter, r-band filter). Dataset MIST: logTeff (effective temperature), logL (luminosity), stellar_mass")
+                                    reference_box(""" **Dataset reference**: [GAIA SDR3](https://gea.esac.esa.int/archive/), Sysoliatina Kseniia 2022 JJ-model isochrone set: PARSEC MIST and BaSTI stellar evolution, [MIST](https://doi.org/10.11588/DATA/ZCXHOE) """)
+                              
+                                        
+
+                    comp_stellar_dialog.open()
+                
                 with ui.row().classes('w-full justify-center items-center gap-4'):
                     aria_button('Instructions','Introduction to the stars activity', on_click=lambda:[introd.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Info H-R stars','Information about H-R diagram stars', on_click=lambda:[hr_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button('Dataset Info','Datasets info and references', on_click=lambda:[data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Evolution Graph", "Open Graph", on_click=evolution_graph_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" H-R Animation", "Open GIF", on_click=open_animated_gif).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-4 rounded shadow-md")
+                    aria_button(
+            'Scientific Info', 
+            'Open Comprehensive Stellar Information Dialog', 
+            on_click=lambda: [open_stellar_info_dialog(), ui.run_javascript("if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); }")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                     aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_intro.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                 
 
@@ -4257,55 +4341,7 @@ namelength=-1,
                     """)
                     aria_button("Close", "close", on_click=instru.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
 
-                with ui.dialog() as info_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                    html_info_box(r"""
-                    <h3>The Milky Way Context</h3>
-                    <p>The Milky Way is a barred spiral galaxy. Its mass is approx. <b>1.5 trillion solar masses (M☉)</b>.</p>
-                    <p>By analyzing rotation data, astronomers determined the Sun's orbital velocity is approx. <b>220-250 km/s</b>.</p>
-                    <p>Using the keplerian law, we relate velocity (<i>v</i>) to distance (<i>r</i>):</p>
-                    <div class="my-2 py-2 bg-gray-100 text-center rounded">
-                        $$ v = \sqrt{\frac{G \cdot M}{r}} $$
-                    </div>
-                    <p>According to this relation, the velocity corresponds to a distance of roughly <b>8.2 kpc</b> from the center.</p>
-                    <p>Why 8.2 kpc? The Sun is located in the <b>Orion Arm</b>, a minor spiral arm between the Sagittarius and Perseus arms.</p>
-                    """)
-                    aria_button("Close", "close", on_click=info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
-
-                with ui.dialog() as solar_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                    html_info_box(r"""
-                    <h3>Our Solar System</h3>
-                    <p>Our planetary system is located in an outer spiral arm of the Milky Way. It consists of our star, the Sun, and everything bound to it by gravity.</p>
-                    <ul>
-                        <li><b>Inner Terrestrial Planets:</b> Mercury, Venus, Earth, and Mars. These are relatively small, dense, and rocky.</li>
-                        <li><b>Outer Gas/Ice Giants:</b> Jupiter, Saturn, Uranus, and Neptune. Massive planets composed mostly of hydrogen, helium, water, ammonia, and methane.</li>
-                        <li><b>Asteroid Belt & Kuiper Belt:</b> Regions filled with millions of rocky and icy remnants from the system's formation, including dwarf planets like Pluto.</li>
-                    </ul>
-                    """)
-                    aria_button("Close", "close", on_click=solar_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
-
-                with ui.dialog() as exo_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                    html_info_box(r"""
-                    <h3>Exoplanets</h3>
-                    <p>An exoplanet is any planet beyond our solar system. Most orbit other stars, but free-floating "rogue planets" orbit the galactic center directly.</p>
-                    <ul>
-                        <li><b>Detection Methods:</b> We usually find them via the <i>Transit Method</i> (a tiny dip in starlight as the planet passes in front) or the <i>Radial Velocity Method</i> (the star "wobbling" due to the planet's gravity).</li>
-                        <li><b>Habitable Zone:</b> Also known as the "Goldilocks Zone", it's the distance from a star where conditions might be just right (not too hot, not too cold) for liquid water to exist on the surface.</li>
-                    </ul>
-                    """)
-                    aria_button("Close", "close", on_click=exo_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
-
-                with ui.dialog() as milky_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto'):
-                    html_info_box(r"""
-                    <h3>The Milky Way Galaxy</h3>
-                    <p>The Milky Way is our home galaxy, a vast rotating disk of stars, gas, and dust.</p>
-                    <ul>
-                        <li><b>Structure:</b> It is a "barred spiral galaxy", meaning it has a central bar-shaped structure composed of stars, with multiple spiral arms extending outward.</li>
-                        <li><b>Sagittarius A*:</b> At the very heart of our galaxy lies a supermassive black hole, about 4 million times the mass of our Sun.</li>
-                        <li><b>Dark Matter Halo:</b> The visible disk of the Milky Way is embedded in a massive, invisible spherical halo of dark matter that holds the galaxy together.</li>
-                    </ul>
-                    """)
-                    aria_button("Close", "close", on_click=milky_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
-
+                
                 with ui.dialog() as curio_dialog, ui.card().classes('p-4 w-full max-w-[600px]'):
                     html_info_box(r"""
                     <h3>Cosmic Curiosities</h3>
@@ -4315,13 +4351,79 @@ namelength=-1,
                     """)
                     aria_button("Close", "close", on_click=curio_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
 
-              
+                def open_cosmic_neighborhood_dialog():
+                    with ui.dialog() as cosmic_dialog, ui.card().classes('p-0 w-full min-w-[1000px] max-w-[95vw] h-[80vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="cosmic-title"'):
+                        
+                        with ui.column().classes('w-full h-full bg-white'):
+                            
+                            # Header
+                            with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="cosmic-title"'):
+                                ui.label('Our Cosmic Neighborhood').classes('text-xl font-bold').props('id="cosmic-title" role=heading aria-level=2 tabindex=0')
+                                aria_button('Close', 'close', on_click=cosmic_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                            
+                            # Tabs
+                            with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                t_mw_context = ui.tab('Milky Way Context')
+                                t_solar = ui.tab('Solar System')
+                                t_exo = ui.tab('Exoplanets')
+                                t_milky = ui.tab('Milky Way Galaxy')
+
+                            # Tab Panels
+                            with ui.tab_panels(tabs, value=t_mw_context).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                
+                                with ui.tab_panel(t_mw_context):
+                                    html_info_box(r"""
+                                <h3>The Milky Way Context</h3>
+                                <p>The Milky Way is a barred spiral galaxy. Its mass is approx. <b>1.5 trillion solar masses (M☉)</b>.</p>
+                                <p>By analyzing rotation data, astronomers determined the Sun's orbital velocity is approx. <b>220-250 km/s</b>.</p>
+                                <p>Using the keplerian law, we relate velocity (<i>v</i>) to distance (<i>r</i>):</p>
+                                <div class="my-2 py-2 bg-gray-100 text-center rounded">
+                                    $$ v = \sqrt{\frac{G \cdot M}{r}} $$
+                                </div>
+                                <p>According to this relation, the velocity corresponds to a distance of roughly <b>8.2 kpc</b> from the center.</p>
+                                <p>Why 8.2 kpc? The Sun is located in the <b>Orion Arm</b>, a minor spiral arm between the Sagittarius and Perseus arms.</p>
+                                    """)
+
+                                with ui.tab_panel(t_solar):
+                                    html_info_box(r"""
+                                <h3>Our Solar System</h3>
+                                <p>Our planetary system is located in an outer spiral arm of the Milky Way. It consists of our star, the Sun, and everything bound to it by gravity.</p>
+                                <ul>
+                                    <li><b>Inner Terrestrial Planets:</b> Mercury, Venus, Earth, and Mars. These are relatively small, dense, and rocky.</li>
+                                    <li><b>Outer Gas/Ice Giants:</b> Jupiter, Saturn, Uranus, and Neptune. Massive planets composed mostly of hydrogen, helium, water, ammonia, and methane.</li>
+                                    <li><b>Asteroid Belt & Kuiper Belt:</b> Regions filled with millions of rocky and icy remnants from the system's formation, including dwarf planets like Pluto.</li>
+                                </ul>
+                                    """)
+
+                                with ui.tab_panel(t_exo):
+                                    html_info_box(r"""
+                                <h3>Exoplanets</h3>
+                                <p>An exoplanet is any planet beyond our solar system. Most orbit other stars, but free-floating "rogue planets" orbit the galactic center directly.</p>
+                                <ul>
+                                    <li><b>Detection Methods:</b> We usually find them via the <i>Transit Method</i> (a tiny dip in starlight as the planet passes in front) or the <i>Radial Velocity Method</i> (the star "wobbling" due to the planet's gravity).</li>
+                                    <li><b>Habitable Zone:</b> Also known as the "Goldilocks Zone", it's the distance from a star where conditions might be just right (not too hot, not too cold) for liquid water to exist on the surface.</li>
+                                </ul>
+                                    """)
+
+                                with ui.tab_panel(t_milky):
+                                    html_info_box(r"""
+                                <h3>The Milky Way Galaxy</h3>
+                                <p>The Milky Way is our home galaxy, a vast rotating disk of stars, gas, and dust.</p>
+                                <ul>
+                                    <li><b>Structure:</b> It is a "barred spiral galaxy", meaning it has a central bar-shaped structure composed of stars, with multiple spiral arms extending outward.</li>
+                                    <li><b>Sagittarius A*:</b> At the very heart of our galaxy lies a supermassive black hole, about 4 million times the mass of our Sun.</li>
+                                    <li><b>Dark Matter Halo:</b> The visible disk of the Milky Way is embedded in a massive, invisible spherical halo of dark matter that holds the galaxy together.</li>
+                                </ul>
+                                    """)
+                    
+                    cosmic_dialog.open()
                 with ui.row().classes('w-full justify-center gap-4 mt-2'):
                     aria_button("Instructions", "Open instructions", on_click=instru.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Info", "Open info", on_click=lambda: [info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Solar System", "Open solar system info", on_click=solar_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Exoplanets", "Open exoplanets info", on_click=exo_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Milky Way", "Open milky way info", on_click=milky_dialog.open).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded")
+                    aria_button(
+            'Scientific Info', 
+            'Open Comprehensive Information Dialog', 
+            on_click=lambda: [open_cosmic_neighborhood_dialog(), ui.run_javascript("if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); }")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                     aria_button("Curiosity", "Open curiosity", on_click=curio_dialog.open).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                     aria_button('♿ Accessibility Mode', 'Jump to accessibility', on_click=lambda: (
                         acc_solar.open(), 
@@ -4802,49 +4904,7 @@ namelength=-1,
     "Visualize the large-scale structures of the Universe by mapping galaxies in the space to understand their distribution and morphological classification."
 ).classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
 
-                with ui.dialog() as info_morpho, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=morphology_info_title'):
-                    html_info_box(r"""
-        <h3>Morphology Classification</h3>
-        <p>This plot presents a classification of galaxy morphologies based on their color and concentration index using data from the Sloan Digital Sky Survey (SDSS). Galaxies are categorized into four main types: Elliptical, Lenticular, Spiral, and Irregular. The classification is based on the u−r color index and the concentration index (R90/R50), which are indicative of the stellar populations and structural properties of galaxies.</p>
-        
-        
-        <ul>
-            <li><b>Elliptical:</b> Galaxies characterized by red colors and high concentration indices, indicating older stellar populations and a more compact structure.</li>
-            <li><b>Lenticular:</b> Galaxies exhibit intermediate colors and concentration indices, representing a transitional morphology between elliptical and spiral types.</li>
-            <li><b>Spiral:</b> Galaxies tend to have bluer colors and lower concentration indices, reflecting ongoing star formation and a disk-like structure.</li>
-            <li><b>Irregular:</b> Galaxies display very blue colors and low concentration indices, often due to recent or ongoing star formation triggered by interactions or mergers.</li>
-        </ul>
-        
-          <p><b>Galaxy classification is based on the u−r color index and the concentration index (R50/R90), following observational studies from the Sloan Digital Sky Survey (SDSS).</b></p>
-        
-
-        <ul>
-            <li><b>Color (u−r):</b> Measures the difference between the ultraviolet (u) and red (r) magnitudes.
-                <ul>
-                    <li>Bluer galaxies (lower u−r) indicate younger stellar populations and ongoing star formation, typical of Spiral and Irregular galaxies.</li>
-                    <li>Redder galaxies (higher u−r) indicate older stellar populations, characteristic of Elliptical and Lenticular galaxies.</li>
-                </ul>
-            </li>
-            
-            <li><b>Concentration (R50/R90):</b> Ratio of the radius containing 50-percent of the galaxy’s light (R50) to the radius containing 90-percent (R90).
-                <ul>
-                    <li>High concentration values correspond to more centrally concentrated light profiles, typical of Elliptical galaxies.</li>
-                    <li>Lower concentration values indicate more extended disks, typical of Spiral and Irregular galaxies.</li>
-                </ul>
-            </li>
-
-            <li><b>Classification criteria:</b>
-                <ul>
-                    <li><b>Elliptical:</b> red colors (u−r > 2.22) and high concentration (C > 2.6)</li>
-                    <li><b>Lenticular:</b> red colors and intermediate concentration (2.4 ≤ C ≤ 2.6)</li>
-                    <li><b>Spiral:</b> blue colors (u−r < 2.2) and moderate concentration (C < 2.6)</li>
-                    <li><b>Irregular:</b> very blue colors (u−r < 1.8) and low concentration (C < 2.2)</li>
-                </ul>
-            </li>
-        </ul>
-    """).props('tabindex=0 role=document aria-label="Galaxy classification instructions"')
-                    aria_button('Close','close button', on_click=lambda: info_morpho.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                            
+                  
                             
                 with ui.dialog() as info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=morphology_info_title'):
                     html_info_box(r"""
@@ -4941,13 +5001,7 @@ namelength=-1,
                     """).props('tabindex=0 role=document aria-label="Galaxy map instructions"')
                     
                     aria_button('Close', 'close button', on_click=lambda: info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4")
-                with ui.dialog() as data_info, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=data_info_title'):
-                    info_box('Dataset:RA (right ascension),DEC(declination),z(redshift),z_error,subclass').props('tabindex=0 role=document aria-label=Galaxy data')
-                    reference_box(""" **Dataset reference**: [SDSS DR16](https://www.sdss.org/dr16/), [SDSS](https://cdsarc.cds.unistra.fr/ftp/J/A+A/648/A122/), VizieR Online Data Catalog: SDSS galaxies morphological classification (Vavilova+, 2021)""")
-                
-                    
-                    aria_button('Close','close button', on_click=lambda: data_info.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-            
+              
                                 
                 with ui.dialog() as cur_gal, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=cur_gal_title'):
                     html_info_box(r"""
@@ -4958,199 +5012,250 @@ namelength=-1,
                     reference_box("**Source:** [Schawinski (2014)](https://academic.oup.com/mnras/article/440/1/889/1749989)")
                     aria_button("Close", "close", on_click=lambda:cur_gal.close()).classes("!bg-orange-500 text-white font-bold py-2 px-4 rounded")
 
+                    
+                marker_state = {'element': None}
+    
+                def move_marker_on_gif(ra, dec):
+                    if marker_state['element'] is None: return
+                    margin_left_pct = 12.5   
+                    margin_bottom_pct = 11.0 
+                    plot_width_pct = 77.5    
+                    plot_height_pct = 77.0   
+                    norm_ra = (ra - RA_MIN) / RA_SPAN
+                    norm_dec = (dec - DEC_MIN) / DEC_SPAN
+                    left_pos = margin_left_pct + (norm_ra * plot_width_pct)
+                    margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
+                    top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
                 
-              
+                    marker_state['element'].classes(remove='hidden')
+                    marker_state['element'].style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
 
+                @ui.refreshable
+                def render_map_gif():
+                    ui.html(f'<img src="/images/sdss_distribution_z.gif?t={time.time()}" alt="Distribution of galaxies" class="w-full h-auto block m-0 p-0 rounded-lg">')
 
-                with ui.dialog() as galaxy_class_dialog, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_class_title'):
-                    html_info_box(r"""
-        <h3>SDSS Galaxy Subclasses Explained</h3>
-        <p>Galaxies in the Sloan Digital Sky Survey (SDSS) are spectroscopically classified based on their observed spectral lines, which reveal the dominant energy sources within the galaxy.</p>
-        
-        
-        <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
-
-        <h4>Key Subclasses and Activity</h4>
-        
-        <table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em;">
-            <tr style="background-color: #bae6fd; color: #0c4a6e;">
-                <th style="border: 1px solid #0284c7; padding: 8px;">Subclass</th>
-                <th style="border: 1px solid #0284c7; padding: 8px;">Dominant Activity</th>
-                <th style="border: 1px solid #0284c7; padding: 8px;">Spectral Characteristics</th>
-                <th style="border: 1px solid #0284c7; padding: 8px;">Description</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #0284c7; padding: 8px;"><b>STARFORMING</b></td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Normal Star Formation</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Narrow emission lines (e.g., H<span class="math">\(\alpha\)</span>, [O II]), typical of H II regions.</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Galaxies where the primary source of light and energy is the birth of new stars.</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #0284c7; padding: 8px;"><b>STARBURST</b></td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Intense Star Formation</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Very strong emission lines indicating a high rate of star formation, often compressed into a small region.</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Undergoing a brief, rapid burst of star formation, using up gas quickly.</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #0284c7; padding: 8px;"><b>AGN</b></td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Active Galactic Nucleus (Seyfert)</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Narrow emission lines from gas excited by a central supermassive black hole (SMBH).</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">The core luminosity is dominated by the SMBH accretion disk, but the spectral lines are narrow.</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #0284c7; padding: 8px;"><b>BROADLINE</b></td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Active Galactic Nucleus (Quasar/Broadline Seyfert)</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Very wide (broad) emission lines, indicating high-velocity gas close to the central SMBH.</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Often classified as Quasars or the brightest AGNs. The broad lines indicate rapid motion.</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #0284c7; padding: 8px;"><b>COMPOSITE</b></td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Mixed Activity</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">Shows spectral signatures from both Star Formation and an AGN.</td>
-                <td style="border: 1px solid #0284c7; padding: 8px;">A transition stage where both star formation and the central black hole contribute significantly to the total energy output.</td>
-            </tr>
-        </table>
-
-        <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
-
-        <h4>The 'BROADLINE' Distinction</h4>
-        <p>The <b>BROADLINE</b> label (e.g., AGN BROADLINE) signifies that the galaxy's spectrum contains very wide emission lines. This indicates that the gas is moving at high speeds, usually because it is orbiting very close to the supermassive black hole at the galaxy's center. It is generally a classification subset of the most energetic <b>AGNs</b> (often Quasars).</p>
-    """).props('tabindex=0 role=document aria-label="SDSS Galaxy Classification information"')
-                    
-                    
-                    aria_button("Close", 'close', on_click=lambda: galaxy_class_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-
-
-                
-                        
-                with ui.dialog() as img, ui.card().classes('p-4 w-full max-w-[800px] overflow-x-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
-                    galaxy_image_grid(GALAXY_IMAGES)
-                    aria_button('Close','close button', on_click=lambda: img.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as img2, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
-                    aria_image('/images/sdss_gal_z.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                    aria_image('/images/sdss_gal_z3D.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                    aria_button('Close','close button', on_click=lambda: img2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                with ui.dialog() as img3, ui.card().classes('p-4 w-full max-w-4xl h-auto max-h-[90vh] overflow-y-auto').props('role=dialog aria-modal=true aria-labelledby=galaxy_image_title'):
-                    aria_image('/images/mag_gal_redshift.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                    aria_image('/images/mag_gal_z_color.png', "Image of the galaxy morphology magnitude vs color").classes('w-full h-auto rounded-lg shadow-lg border border-gray-300')
-                    aria_button('Close','close button', on_click=lambda: img3.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                
-
-               
-
-               
-                with ui.dialog().props('role=dialog aria-modal="true" aria-labelledby="map_gif_title"') as map_gif_dialog:
-            
-                    
-                    with ui.card().style('width: 850px; max-width: 95vw; max-height: 90vh; overflow-y: auto;').classes('p-6 bg-slate-900 flex flex-col items-center'):
-                        aria_button('X', 'Close', on_click=map_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
-                        
-                    
-                        ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-white').props('id="map_gif_title" tabindex=0')
-                        
-                        marker_state = {'element': None}
-                        
-                        def move_marker_on_gif(ra, dec):
-                            if marker_state['element'] is None: return
-                            margin_left_pct = 12.5   
-                            margin_bottom_pct = 11.0 
-                            plot_width_pct = 77.5    
-                            plot_height_pct = 77.0   
-                            norm_ra = (ra - RA_MIN) / RA_SPAN
-                            norm_dec = (dec - DEC_MIN) / DEC_SPAN
-                            left_pos = margin_left_pct + (norm_ra * plot_width_pct)
-                            margin_top_pct = 100 - margin_bottom_pct - plot_height_pct
-                            top_pos = margin_top_pct + ((1.0 - norm_dec) * plot_height_pct)
-                        
-                            marker_state['element'].classes(remove='hidden')
-                            marker_state['element'].style(f'top: {top_pos}%; left: {left_pos}%; display: block;')
-
-         
-                        with ui.row().classes('w-full justify-center items-center mb-4 z-50 gap-4'):
-                            ui.label("Select a galaxy:").classes('text-lg font-bold text-gray-200')
-                            
-                            local_df = full_df.dropna(subset=['ra_deg','dec_deg','z']).copy()
-                            if len(local_df) > 100:
-                                local_df = local_df.sample(100, random_state=1).reset_index(drop=True)
-                            
-                            local_df['age_gyr'] = local_df['z'].apply(lambda z: cosmo.age(z).value)
-                            local_df['dist_comoving_mpc'] = local_df['z'].apply(lambda z: cosmo.comoving_distance(z).value)
-                            local_df['image_url'] = (
-                                "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?"
-                                "ra=" + local_df['ra_deg'].astype(str) +
-                                "&dec=" + local_df['dec_deg'].astype(str) +
-                                "&scale=0.2&width=100&height=100"
-                            )
-                            local_df['galaxy_name'] = 'Unknown'
-
-                            options = {i: str(row['specobj_id']) for i, row in local_df.iterrows()}
-
-                            def on_select(e):
-                                if e.value is not None and e.value in local_df.index:
-                                    i = e.value
-                                    show_galaxy_dialog(local_df, i)
-                                    row = local_df.loc[i]
-                                    move_marker_on_gif(row['ra_deg'], row['dec_deg'])
-
-                          
-                            ui.select(
-                                options=options,
-                                label='Galaxy ID',
-                                with_input=True,
-                                on_change=on_select
-                            ).classes('w-80').props('dark behavior="menu" aria-label="Galaxy selection dropdown"')
-
-                       
-                        with ui.element('div').classes('w-full max-w-[500px] relative rounded-lg shadow-lg border border-gray-300'):
-                            @ui.refreshable
-                            def render_map_gif():
-                                import time
-                                ui.html(f'<img src="/images/sdss_distribution_z.gif?t={time.time()}" alt="Distribution of galaxies" class="w-full h-auto block m-0 p-0 rounded-lg">')
-                            
-                            render_map_gif()
-                            
-                            marker_state['element'] = ui.element('div').classes(
-                                'absolute w-6 h-6 bg-cyan-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(0,255,255,1)] z-50 hidden'
-                            ).style('transform: translate(-50%, -50%); transition: top 0.5s ease-out, left 0.5s ease-out;')
-
-                def open_map_gif():
+                @ui.refreshable
+                def render_morpho_gif():
+                    ui.html(f'<img src="/images/galaxy_evolution.gif?t={time.time()}" alt="Plot concentration vs color u-r" class="w-full max-w-[800px] h-auto block m-0 p-0 border-none mx-auto">')
+                def open_galaxy_info_dialog():
+                 
                     render_map_gif.refresh()
-                
+                    render_morpho_gif.refresh()
+                    
                     if marker_state['element']:
                         marker_state['element'].classes(add='hidden')
-                    map_gif_dialog.open()
-
-               
-                with ui.dialog().props('role=dialog aria-modal=true aria-labelledby=morpho_gif_title') as morpho_gif_dialog:
-                    with ui.element('div').classes('relative inline-block rounded-xl overflow-hidden shadow-2xl bg-white p-2'):
-                        aria_button('X', 'Close', on_click=morpho_gif_dialog.close).classes('absolute top-2 right-2 z-50 !bg-orange-500 hover:!bg-orange-700 text-white font-bold py-1 px-3 rounded-full cursor-pointer')
                         
-                        @ui.refreshable
-                        def render_morpho_gif():
-                            import time
-                            ui.html(f'<img src="/images/galaxy_evolution.gif?t={time.time()}" alt="Plot concentration vs color u-r" class="w-full max-w-[800px] h-auto block m-0 p-0 border-none">')
-                        render_morpho_gif()
+                    with ui.dialog() as comp_galaxy_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="galaxy-title"'):
+                        
+                        with ui.column().classes('w-full h-full bg-white'):
+                            
+                            
+                            with ui.row().classes('w-full justify-between items-center bg-slate-900 text-white p-4 shrink-0').props('role=dialog aria-modal="true" aria-labelledby="galaxy-title"'):
+                                ui.label('Galaxy Morphology & Classification').classes('text-xl font-bold').props('id="galaxy-title" role=heading aria-level=2 tabindex=0')
+                                aria_button('Close', 'close', on_click=comp_galaxy_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
+                            
+                         
+                            with ui.tabs().classes('w-full text-white bg-slate-700 shrink-0') as tabs:
+                                t_morpho = ui.tab('Morphology Classes')
+                                t_subclass = ui.tab('SDSS Subclasses')
+                                t_images = ui.tab('Galaxy Images')
+                                t_plot_z = ui.tab('Plot z')
+                                t_plot_mag = ui.tab('Plot r-mag')
+                                t_map_gif = ui.tab('Map Animation')
+                                t_morpho_gif = ui.tab('Morpho Animation')
+                             
 
-                def open_morpho_gif():
-                    render_morpho_gif.refresh()
-                    morpho_gif_dialog.open()
-                
+                           
+                            with ui.tab_panels(tabs, value=t_morpho).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
+                                
+                           
+                                with ui.tab_panel(t_morpho):
+                                    html_info_box(r"""
+                    <h3>Morphology Classification</h3>
+                    <p>This plot presents a classification of galaxy morphologies based on their color and concentration index using data from the Sloan Digital Sky Survey (SDSS). Galaxies are categorized into four main types: Elliptical, Lenticular, Spiral, and Irregular. The classification is based on the u−r color index and the concentration index (R90/R50), which are indicative of the stellar populations and structural properties of galaxies.</p>
+                    
+                    <ul>
+                        <li><b>Elliptical:</b> Galaxies characterized by red colors and high concentration indices, indicating older stellar populations and a more compact structure.</li>
+                        <li><b>Lenticular:</b> Galaxies exhibit intermediate colors and concentration indices, representing a transitional morphology between elliptical and spiral types.</li>
+                        <li><b>Spiral:</b> Galaxies tend to have bluer colors and lower concentration indices, reflecting ongoing star formation and a disk-like structure.</li>
+                        <li><b>Irregular:</b> Galaxies display very blue colors and low concentration indices, often due to recent or ongoing star formation triggered by interactions or mergers.</li>
+                    </ul>
+                    
+                    <p><b>Galaxy classification is based on the u−r color index and the concentration index (R50/R90), following observational studies from the Sloan Digital Sky Survey (SDSS).</b></p>
+                    
+                    <ul>
+                        <li><b>Color (u−r):</b> Measures the difference between the ultraviolet (u) and red (r) magnitudes.
+                            <ul>
+                                <li>Bluer galaxies (lower u−r) indicate younger stellar populations and ongoing star formation, typical of Spiral and Irregular galaxies.</li>
+                                <li>Redder galaxies (higher u−r) indicate older stellar populations, characteristic of Elliptical and Lenticular galaxies.</li>
+                            </ul>
+                        </li>
+                        <li><b>Concentration (R50/R90):</b> Ratio of the radius containing 50-percent of the galaxy’s light (R50) to the radius containing 90-percent (R90).
+                            <ul>
+                                <li>High concentration values correspond to more centrally concentrated light profiles, typical of Elliptical galaxies.</li>
+                                <li>Lower concentration values indicate more extended disks, typical of Spiral and Irregular galaxies.</li>
+                            </ul>
+                        </li>
+                        <li><b>Classification criteria:</b>
+                            <ul>
+                                <li><b>Elliptical:</b> red colors (u−r > 2.22) and high concentration (C > 2.6)</li>
+                                <li><b>Lenticular:</b> red colors and intermediate concentration (2.4 ≤ C ≤ 2.6)</li>
+                                <li><b>Spiral:</b> blue colors (u−r < 2.2) and moderate concentration (C < 2.6)</li>
+                                <li><b>Irregular:</b> very blue colors (u−r < 1.8) and low concentration (C < 2.2)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                                    """).props('tabindex=0 role=document aria-label="Galaxy classification instructions"')
+
+                                
+                                with ui.tab_panel(t_subclass):
+                                    html_info_box(r"""
+                    <h3>SDSS Galaxy Subclasses Explained</h3>
+                    <p>Galaxies in the Sloan Digital Sky Survey (SDSS) are spectroscopically classified based on their observed spectral lines, which reveal the dominant energy sources within the galaxy.</p>
+                    
+                    <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
+
+                    <h4>Key Subclasses and Activity</h4>
+                    
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em;">
+                        <tr style="background-color: #bae6fd; color: #0c4a6e;">
+                            <th style="border: 1px solid #0284c7; padding: 8px;">Subclass</th>
+                            <th style="border: 1px solid #0284c7; padding: 8px;">Dominant Activity</th>
+                            <th style="border: 1px solid #0284c7; padding: 8px;">Spectral Characteristics</th>
+                            <th style="border: 1px solid #0284c7; padding: 8px;">Description</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #0284c7; padding: 8px;"><b>STARFORMING</b></td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Normal Star Formation</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Narrow emission lines (e.g., H-alpha, [O II]), typical of H II regions.</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Galaxies where the primary source of light and energy is the birth of new stars.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #0284c7; padding: 8px;"><b>STARBURST</b></td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Intense Star Formation</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Very strong emission lines indicating a high rate of star formation, often compressed into a small region.</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Undergoing a brief, rapid burst of star formation, using up gas quickly.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #0284c7; padding: 8px;"><b>AGN</b></td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Active Galactic Nucleus (Seyfert)</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Narrow emission lines from gas excited by a central supermassive black hole (SMBH).</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">The core luminosity is dominated by the SMBH accretion disk, but the spectral lines are narrow.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #0284c7; padding: 8px;"><b>BROADLINE</b></td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Active Galactic Nucleus (Quasar/Broadline Seyfert)</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Very wide (broad) emission lines, indicating high-velocity gas close to the central SMBH.</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Often classified as Quasars or the brightest AGNs. The broad lines indicate rapid motion.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #0284c7; padding: 8px;"><b>COMPOSITE</b></td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Mixed Activity</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">Shows spectral signatures from both Star Formation and an AGN.</td>
+                            <td style="border: 1px solid #0284c7; padding: 8px;">A transition stage where both star formation and the central black hole contribute significantly to the total energy output.</td>
+                        </tr>
+                    </table>
+
+                    <hr style="margin: 15px 0; border-top: 1px solid #0284c7;">
+
+                    <h4>The 'BROADLINE' Distinction</h4>
+                    <p>The <b>BROADLINE</b> label (e.g., AGN BROADLINE) signifies that the galaxy's spectrum contains very wide emission lines. This indicates that the gas is moving at high speeds, usually because it is orbiting very close to the supermassive black hole at the galaxy's center. It is generally a classification subset of the most energetic <b>AGNs</b> (often Quasars).</p>
+                                    """).props('tabindex=0 role=document aria-label="SDSS Galaxy Classification information"')
+
+                               
+                                with ui.tab_panel(t_images).classes('flex flex-col items-center justify-start'):
+                                    ui.label("Galaxy Image Grid").classes("text-2xl font-bold mb-4 text-slate-800")
+                                    galaxy_image_grid(GALAXY_IMAGES)
+
+                             
+                                with ui.tab_panel(t_plot_z).classes('flex flex-col items-center justify-start gap-4'):
+                                   
+                                    ui.label("Galaxy Redshift (z) Distribution").classes("text-2xl font-bold mb-2 text-slate-800")
+                                    
+                                   
+                                    with ui.row().classes('w-full justify-center gap-6'):
+                                        with ui.column().classes('flex-1 items-center'):
+                                            aria_image('/images/sdss_gal_z.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full max-w-[600px] h-auto rounded-lg shadow-lg border border-gray-300')
+                                        with ui.column().classes('flex-1 items-center'):
+                                            aria_image('/images/sdss_gal_z3D.png', "Image of the distribution of galaxies from SDSS dataset with redshift").classes('w-full max-w-[600px] h-auto rounded-lg shadow-lg border border-gray-300')
+                                            
+                                with ui.tab_panel(t_plot_mag).classes('flex flex-col items-center justify-start gap-4'):
+                       
+                                    ui.label("Magnitude vs Color").classes("text-2xl font-bold mb-2 text-slate-800")
+                                    
+                                    
+                                    with ui.row().classes('w-full justify-center gap-6'):
+                                        with ui.column().classes('flex-1 items-center'):
+                                            aria_image('/images/mag_gal_redshift.png', "Image of the galaxy morphology magnitude vs color").classes('w-full max-w-[600px] h-auto rounded-lg shadow-lg border border-gray-300')
+                                        with ui.column().classes('flex-1 items-center'):
+                                            aria_image('/images/mag_gal_z_color.png', "Image of the galaxy morphology magnitude vs color").classes('w-full max-w-[600px] h-auto rounded-lg shadow-lg border border-gray-300')
+
+                               
+                                with ui.tab_panel(t_map_gif).classes('flex flex-col items-center justify-start gap-4'):
+                                   
+                                    ui.label("Galaxy Distribution Map").classes('text-2xl font-bold mb-2 text-slate-800').props('id="map_gif_title" tabindex=0')
+                                    
+                                   
+                                    with ui.row().classes('w-full justify-center items-center mb-2 z-50 gap-4'):
+                                        ui.label("Select a galaxy:").classes('text-lg font-bold text-slate-800')
+                                        
+                                        local_df = full_df.dropna(subset=['ra_deg','dec_deg','z']).copy()
+                                        if len(local_df) > 100:
+                                            local_df = local_df.sample(100, random_state=1).reset_index(drop=True)
+                                        
+                                        local_df['age_gyr'] = local_df['z'].apply(lambda z: cosmo.age(z).value)
+                                        local_df['dist_comoving_mpc'] = local_df['z'].apply(lambda z: cosmo.comoving_distance(z).value)
+                                        local_df['image_url'] = (
+                                            "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?"
+                                            "ra=" + local_df['ra_deg'].astype(str) +
+                                            "&dec=" + local_df['dec_deg'].astype(str) +
+                                            "&scale=0.2&width=100&height=100"
+                                        )
+                                        local_df['galaxy_name'] = 'Unknown'
+                                        options = {i: str(row['specobj_id']) for i, row in local_df.iterrows()}
+
+                                        def on_select(e):
+                                            if e.value is not None and e.value in local_df.index:
+                                                i = e.value
+                                                show_galaxy_dialog(local_df, i)
+                                                row = local_df.loc[i]
+                                                move_marker_on_gif(row['ra_deg'], row['dec_deg'])
+                                        
+                                        ui.select(
+                                            options=options,
+                                            label='Galaxy ID',
+                                            with_input=True,
+                                            on_change=on_select
+                                        ).classes('w-80 bg-white').props('behavior="menu" aria-label="Galaxy selection dropdown"')
+
+                                  
+                                    with ui.element('div').classes('w-full max-w-[500px] relative rounded-lg shadow-lg border border-gray-300 mx-auto'):
+                                        render_map_gif()
+                                        marker_state['element'] = ui.element('div').classes(
+                                            'absolute w-6 h-6 bg-cyan-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(0,255,255,1)] z-50 hidden'
+                                        ).style('transform: translate(-50%, -50%); transition: top 0.5s ease-out, left 0.5s ease-out;')
+                               
+                                with ui.tab_panel(t_morpho_gif).classes('flex flex-col items-center justify-center'):
+                                    ui.label("Galaxy Morphology Evolution").classes("text-2xl font-bold mb-4 text-slate-800")
+                                    render_morpho_gif()
+                                    info_box('Dataset: RA (right ascension), DEC (declination), z (redshift), z_error, subclass').props('tabindex=0 role=document aria-label=Galaxy data')
+                                    reference_box(""" **Dataset reference**: [SDSS DR16](https://www.sdss.org/dr16/), [SDSS](https://cdsarc.cds.unistra.fr/ftp/J/A+A/648/A122/), VizieR Online Data Catalog: SDSS galaxies morphological classification (Vavilova+, 2021)""")
+
+
+                         
+                               
+                                        
+                    comp_galaxy_dialog.open()
                 with ui.row().classes('w-full items-center justify-center ' ):
                     galaxy_map(GAL_SDSS_PATH,on_galaxy_select=move_marker_on_gif)
                     aria_button("Instructions",label="Read instruction",on_click=lambda:     [info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Dataset Info",label="Read dataset info",on_click=lambda:   [ data_info.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button( "Galaxy Info ", 'Galaxy Classification Info',             on_click=lambda:[ galaxy_class_dialog.open()     ,ui.run_javascript("MathJax.typesetPromise()")   ]    ).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded self-center") 
-        
-                    aria_button("Galaxy Morphology Classes",label="Read galaxy classification",on_click=lambda:    [info_morpho.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-
-                    aria_button("Galaxy Images","Show Galaxy Images",on_click=lambda: img.open()).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
+                    aria_button(
+            'Scientific Info ', 
+            'Open Galaxy Information Dialog', 
+            on_click=lambda: [open_galaxy_info_dialog(), ui.run_javascript("if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); }")]
+        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
                     aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_gal.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                with ui.row().classes('w-full items-center justify-center ' ):
-                    aria_button(" Galaxy Map Animation", "Open Map GIF", on_click=open_map_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button(" Morphology Animation", "Open Morpho GIF", on_click=open_morpho_gif).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Galaxy Plot z","Show Galaxy plot",on_click=lambda: img2.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    aria_button("Galaxy Plot r-mag vs color","Plot r-mag vs u-r",on_click=lambda: img3.open(),).classes("!bg-blue-600 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded")
-                    
+               
                
 
                
