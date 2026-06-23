@@ -23,7 +23,7 @@ else:
 
 FINAL_OUTPUT_NAME = f"{APP_NAME}{os_suffix}"
 
-print(f"🔍 Analisi dipendenze complesse per {current_os}...")
+print(f"Analisi dipendenze complesse per {current_os}...")
 
 # Astroquery e Astropy: Configurazione e citazioni
 astroquery_datas = collect_data_files('astroquery')
@@ -116,10 +116,10 @@ args = [
     '--collect-all=xyz_services',    
 ] + add_data_args + hidden_import_args
 
-print(f"\n🚀 Avvio build completo per {current_os} con supporto per {len(hidden_imports)} librerie critiche...")
+print(f"\nAvvio build completo per {current_os}...")
 
 try:
     PyInstaller.__main__.run(args)
-    print(f"\n✅ SUCCESSO! Trovi il file in: dist/{FINAL_OUTPUT_NAME}{ext}")
+    print(f"\nSUCCESSO! Trovi il file in: dist/{FINAL_OUTPUT_NAME}{ext}")
 except Exception as e:
-    print(f"\n❌ ERRORE: {e}")
+    print(f"\nERRORE: {e}")
