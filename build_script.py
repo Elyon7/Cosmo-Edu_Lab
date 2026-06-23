@@ -2,7 +2,8 @@ import PyInstaller.__main__
 import os
 import platform
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
-
+import sys
+sys.path.append(os.path.abspath("App"))
 APP_NAME = "Cosmo-Edu_Lab"
 
 # Riconoscimento del Sistema Operativo
@@ -104,7 +105,7 @@ for source, dest in all_datas:
 hidden_import_args = [f'--hidden-import={mod}' for mod in hidden_imports]
 
 args = [
-    'main.py',                  
+    'App/main.py',                  
     f'--name={FINAL_OUTPUT_NAME}',       
     '--onefile',                
     '--windowed',      
