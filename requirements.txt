@@ -1,41 +1,33 @@
-numpy
-pandas
-numexpr
-matplotlib
-scipy
-plotly
-astropy
-requests
-python-dotenv
-fastapi
-groq
-google-genai
-nicegui
-networkx
 # Web Framework & UI
 nicegui==2.24.2
 fastapi
-python-dotenv
 uvicorn
+python-dotenv
+
+# Hugging Face & AI APIs
 huggingface_hub
-# Scientific Calculation & Data
+groq
+google-genai
+requests
+
+# Scientific Calculation & Astronomy
 numpy
 pandas
 scipy
 astropy
 astroquery
+pyvo
+regions
+mocpy
 networkx
 
 # Plotting & Imaging
 matplotlib
 plotly
 pillow
+imageio
 
-# AI & API
-groq
-requests
+# Utilities & Parsing
 pypdf
 latex2mathml
-# Utilities (opzionali ma utili)
-numexpr # Decommenta solo se hai errori specifici di pandas
-
+numexpr

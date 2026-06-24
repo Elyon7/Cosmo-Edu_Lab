@@ -6,7 +6,7 @@ APP_NAME = "Cosmo-Edu_Lab"
 
 print("🔍 Analisi dipendenze complesse...")
 
-# --- 1. RACCOLTA DATI LIBRERIE (Fix per FileNotFoundError) ---
+
 # Astroquery e Astropy: Configurazione e citazioni
 astroquery_datas = collect_data_files('astroquery')
 astropy_datas = collect_data_files('astropy')
@@ -19,7 +19,7 @@ latex_datas = collect_data_files('latex2mathml')
 # Imageio: Plugin e risorse
 imageio_datas = collect_data_files('imageio')
 
-# --- 2. LE TUE CARTELLE ---
+
 my_datas = [
     ('static', 'static'),           
     ('images', 'images'),           
@@ -40,12 +40,12 @@ my_datas = [
     ('cosmic_epochs', 'cosmic_epochs'),
 ]
 
-# Uniamo tutto
+
 all_datas = my_datas + astroquery_datas + astropy_datas + plotly_datas + toolkit_datas + latex_datas + imageio_datas
 
-# --- 3. HIDDEN IMPORTS (Fix per ModuleNotFoundError) ---
+
 hidden_imports = [
-    # Scipy (Critico)
+    # Scipy 
     'scipy.special.cython_special',
     'scipy.spatial.transform._rotation_groups',
     'scipy.stats._stats',
@@ -61,23 +61,23 @@ hidden_imports = [
     'networkx',
     'PIL',
     
-    # Matplotlib Backends (CRITICO per i tuoi grafici)
+    # Matplotlib Backends 
     'matplotlib.backends.backend_svg',
     'matplotlib.backends.backend_agg',
     'matplotlib.backends.backend_pdf',
     'matplotlib.backends.backend_ps',
     
     # Altro
-    'pages', # Il tuo pacchetto
+    'pages', 
     'latex2mathml',
     'imageio',
     'nicegui_toolkit',
 ]
-# Aggiungiamo i sottomoduli automatici
+
 hidden_imports += collect_submodules('astroquery')
 hidden_imports += collect_submodules('nicegui_toolkit')
 
-# --- 4. COSTRUZIONE ARGOMENTI ---
+
 add_data_args = []
 separator = ';' if os.name == 'nt' else ':' 
 
@@ -93,14 +93,14 @@ args = [
     'main.py',                  
     f'--name={APP_NAME}',       
     '--onefile',                
-    '--windowed',  # <--- RIMESSO WINDOWED (Togli se vuoi fare debug)             
+    '--windowed',      
     '--clean',                  
     '--optimize=1',
     
-    # --- COLLEZIONI SPECIALI ---
-    '--collect-all=nicegui',          # Essenziale
-    '--collect-all=nicegui_toolkit',  # Essenziale per il toolkit
-    '--collect-all=xyz_services',     # Spesso usato da Plotly/Map
+  
+    '--collect-all=nicegui',          
+    '--collect-all=nicegui_toolkit', 
+    '--collect-all=xyz_services',    
     
 ] + add_data_args + hidden_import_args
 

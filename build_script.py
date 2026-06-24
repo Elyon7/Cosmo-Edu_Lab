@@ -113,7 +113,13 @@ args = [
     '--optimize=1',
     '--collect-all=nicegui',          
     '--collect-all=nicegui_toolkit', 
-    '--collect-all=xyz_services',    
+    '--collect-all=xyz_services',
+    
+   
+    '--collect-all=astropy',
+    '--collect-all=astroquery',
+    '--collect-all=pyvo',
+    
 ] + add_data_args + hidden_import_args
 
 print(f"\nAvvio build completo per {current_os}...")
