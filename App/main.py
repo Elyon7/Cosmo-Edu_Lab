@@ -1,4 +1,7 @@
 
+# Copyright (c) [2026] [Eleonora Panini - UniMoRe]. All rights reserved.
+# This code is for portfolio purposes only and may not be copied, 
+# distributed, or reused without written permission.
 from nicegui import ui, app, client
 import os
 import asyncio

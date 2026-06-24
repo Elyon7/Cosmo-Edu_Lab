@@ -1,4 +1,6 @@
-
+# Copyright (c) [2026] [Eleonora Panini - UniMoRe]. All rights reserved.
+# This code is for portfolio purposes only and may not be copied, 
+# distributed, or reused without written permission.
 
 import os
 import io
@@ -4469,7 +4471,7 @@ def create_page():
             <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); cursor: pointer;" 
                 onmouseover="this.style.backgroundColor='#15803d'" 
                 onmouseout="this.style.backgroundColor='#16a34a'">
-                🔊 Sigma Audio Tools
+                🔊 Audio Tools
                 <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
             

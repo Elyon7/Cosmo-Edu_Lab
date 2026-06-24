@@ -1,3 +1,6 @@
+# Copyright (c) [2026] [Eleonora Panini - UniMoRe]. All rights reserved.
+# This code is for portfolio purposes only and may not be copied, 
+# distributed, or reused without written permission.
 import os
 import io
 import json
@@ -1244,7 +1247,16 @@ def main_layout(title: str):
         **Programming Language:** Python\n\n
         **Platform Hosting:** Hugging Face Spaces\n\n
         **AI Engines:**  Google Gemini & Groq Llama 3.1\n\n
-        **Data Sources:** NASA, ESA, SDSS, Spark, Hubble, Simbad, NIST,Plank\n\n
+        **Data Sources & Datasets:**
+- [NASA Solar System Dynamics (Planets Data)](https://ssd.jpl.nasa.gov/planets/)
+- [SPARC Database (Galaxy Rotation Curves)](http://astroweb.cwru.edu/SPARC/)
+- [SDSS & Kaggle (Coma Cluster Dataset)](https://www.kaggle.com/datasets/mertalkan98/coma-cluster)
+- [Southern Abell Redshift Survey (Clusters Data)](https://vizier.u-strasbg.fr/)
+- [ESA Gaia Archive (Stars & HR Diagram)](https://gea.esac.esa.int/archive/)
+- [ESA Planck Legacy Archive (CMB Data)](https://pla.esac.esa.int/)
+- [Supernova Cosmology Project (Expansion & z)](http://supernova.lbl.gov/Union/)
+- [SIMBAD & Aladin Sky Atlas (ESA/Hubble/CDS)](https://simbad.u-strasbg.fr/)
+- [NIST Atomic Spectra Database (Particles)](https://physics.nist.gov/PhysRefData/ASD/lines_form.html)
         """).classes('text-lg text-white-800').props('role=document aria-live=polite')
 
         with ui.row().classes('w-full justify-end mt-4'):
