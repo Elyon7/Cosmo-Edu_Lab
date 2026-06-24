@@ -3,10 +3,12 @@ import os
 import platform
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 import sys
-sys.path.append(os.path.abspath("App"))
+
+# La cartella in cui si trovano main.py e tutte le sottocartelle (images, static, ecc.)
+APP_DIR = "App"
+sys.path.append(os.path.abspath(APP_DIR))
 
 from astropy.utils import iers
-
 
 os.environ['ASTROPY_SKIP_INTERNET_DOWNLOADS'] = '1'
 os.environ['ASTROPY_ALLOW_INTERNET'] = 'False'
@@ -30,7 +32,7 @@ else:
 
 FINAL_OUTPUT_NAME = f"{APP_NAME}{os_suffix}"
 
-print(f"Analisi dipendenze complesse per {current_os}...")
+print(f"🔍 Analisi dipendenze complesse per {current_os}...")
 
 # Astroquery e Astropy: Configurazione e citazioni
 astroquery_datas = collect_data_files('astroquery')
@@ -44,24 +46,25 @@ latex_datas = collect_data_files('latex2mathml')
 # Imageio: Plugin e risorse
 imageio_datas = collect_data_files('imageio')
 
+# FIX: Aggiungiamo 'App/' (o APP_DIR) davanti a ogni cartella locale
 my_datas = [
-    ('static', 'static'),           
-    ('images', 'images'),           
-    ('data', 'data'),               
-    ('dataset', 'dataset'), 
-    ('galaxy_data', 'galaxy_data'), 
-    ('cluster_data', 'cluster_data'),
-    ('cluster_tables', 'cluster_tables'),
-    ('iso_fe0.01', 'iso_fe0.01'),
-    ('pages', 'pages'),
-    ('galaxy_spectra', 'galaxy_spectra'),
-    ('planet_image', 'planet_image'),
-    ('galaxy_img', 'galaxy_img'),
-    ('cluster_img', 'cluster_img'),
-    ('galaxy_tables', 'galaxy_tables'),
-    ('slides', 'slides'),
-    ('discovery_images', 'discovery_images'),
-    ('cosmic_epochs', 'cosmic_epochs'),
+    (os.path.join(APP_DIR, 'static'), 'static'),           
+    (os.path.join(APP_DIR, 'images'), 'images'),           
+    (os.path.join(APP_DIR, 'data'), 'data'),               
+    (os.path.join(APP_DIR, 'dataset'), 'dataset'), 
+    (os.path.join(APP_DIR, 'galaxy_data'), 'galaxy_data'), 
+    (os.path.join(APP_DIR, 'cluster_data'), 'cluster_data'),
+    (os.path.join(APP_DIR, 'cluster_tables'), 'cluster_tables'),
+    (os.path.join(APP_DIR, 'iso_fe0.01'), 'iso_fe0.01'),
+    (os.path.join(APP_DIR, 'pages'), 'pages'),
+    (os.path.join(APP_DIR, 'galaxy_spectra'), 'galaxy_spectra'),
+    (os.path.join(APP_DIR, 'planet_image'), 'planet_image'),
+    (os.path.join(APP_DIR, 'galaxy_img'), 'galaxy_img'),
+    (os.path.join(APP_DIR, 'cluster_img'), 'cluster_img'),
+    (os.path.join(APP_DIR, 'galaxy_tables'), 'galaxy_tables'),
+    (os.path.join(APP_DIR, 'slides'), 'slides'),
+    (os.path.join(APP_DIR, 'discovery_images'), 'discovery_images'),
+    (os.path.join(APP_DIR, 'cosmic_epochs'), 'cosmic_epochs'),
 ]
 
 all_datas = my_datas + astroquery_datas + astropy_datas + plotly_datas + toolkit_datas + latex_datas + imageio_datas
@@ -101,18 +104,22 @@ hidden_imports += collect_submodules('nicegui_toolkit')
 
 add_data_args = []
 
-separator = ';' if os.name == 'nt' else ':' 
+# Gestione sicura del separatore in base al sistema operativo (Windows usa ';', Unix usa ':')
+separator = ';' if current_os == 'Windows' else ':' 
 
 for source, dest in all_datas:
     if os.path.exists(source):
         add_data_args.append(f'--add-data={source}{separator}{dest}')
     elif os.path.isabs(source) and os.path.exists(source):
         add_data_args.append(f'--add-data={source}{separator}{dest}')
+    else:
+        # Se una cartella manca, ce lo segnala nei log di GitHub invece di ignorarla!
+        print(f"⚠️ WARNING: Data source not found and skipped: {source}")
 
 hidden_import_args = [f'--hidden-import={mod}' for mod in hidden_imports]
 
 args = [
-    'App/main.py',                  
+    os.path.join(APP_DIR, 'main.py'),                  
     f'--name={FINAL_OUTPUT_NAME}',       
     '--onefile',                
     '--windowed',      
@@ -121,18 +128,15 @@ args = [
     '--collect-all=nicegui',          
     '--collect-all=nicegui_toolkit', 
     '--collect-all=xyz_services',
-    
-   
     '--collect-all=astropy',
     '--collect-all=astroquery',
     '--collect-all=pyvo',
-    
 ] + add_data_args + hidden_import_args
 
-print(f"\nAvvio build completo per {current_os}...")
+print(f"\n🚀 Avvio build completo con supporto per {len(hidden_imports)} librerie critiche su {current_os}...")
 
 try:
     PyInstaller.__main__.run(args)
-    print(f"\nSUCCESSO! Trovi il file in: dist/{FINAL_OUTPUT_NAME}{ext}")
+    print(f"\n✅ SUCCESSO! Trovi il file in: dist/{FINAL_OUTPUT_NAME}{ext}")
 except Exception as e:
-    print(f"\nERRORE: {e}")
+    print(f"\n❌ ERRORE: {e}")
