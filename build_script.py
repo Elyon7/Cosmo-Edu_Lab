@@ -4,6 +4,13 @@ import platform
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 import sys
 sys.path.append(os.path.abspath("App"))
+
+from astropy.utils import iers
+
+
+os.environ['ASTROPY_SKIP_INTERNET_DOWNLOADS'] = '1'
+os.environ['ASTROPY_ALLOW_INTERNET'] = 'False'
+iers.conf.auto_download = False
 APP_NAME = "Cosmo-Edu_Lab"
 
 # Riconoscimento del Sistema Operativo
