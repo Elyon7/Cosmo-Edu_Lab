@@ -17,10 +17,86 @@ from core import app_data, save_data, BASE_DIR, DATA_DIR
 from layout import aria_input, aria_button, accessible_notify
 
 
-ACCESS_CODE = os.getenv("APP_ACCESS_CODE", "Cosmology2026")
+#ACCESS_CODE = os.getenv("APP_ACCESS_CODE", "Cosmology2026")
 
 def create_auth_routes():
  
+    
+
+    @ui.page('/login')
+    def login_page():
+     
+        #if not app.storage.user.get('gate_unlocked', False):
+        #    ui.navigate.to('/access')
+        #    return
+
+        ui.run_javascript("setTimeout(() => document.querySelector('h1, .title, .text-2xl')?.focus(), 3600)")
+        
+        def try_login():
+            if app_data['users'].get(username.value) == password.value:
+                app.storage.user['name'] = username.value
+                ui.navigate.to('/main')
+            else:
+                accessible_notify('Invalid username or password', type_='warning')
+                password.value = ""
+                password.run_method('focus')
+
+    
+        with ui.card().classes('absolute-center').props('role=region aria-label="Login Form"'):
+            ui.label(' Login').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
+            username = aria_input('Username',"Insert the username").on('keydown.enter', lambda: password.run_method('focus'))
+            password = aria_input('Password',"Insert the password", password=True).on('keydown.enter', try_login)
+            aria_button('Login', "Log in", on_click=try_login)
+            
+           
+            with ui.row().classes('items-center gap-2 mt-2'):
+                ui.label("Don't have an account?").classes('text-sm text-slate-300').props('tabindex=0')
+                aria_button('Register', "Register", on_click=lambda: ui.navigate.to('/register')).classes('text-xs')
+
+
+    @ui.page('/register')
+    def register_page():
+    
+        #if not app.storage.user.get('gate_unlocked', False):
+        #    ui.navigate.to('/access')
+        #    return
+
+        def do_register():
+            if not new_user.value or not new_pass.value:
+                accessible_notify('Username and password are required.', type_='warning')
+                return
+            if new_user.value in app_data['users']:
+                accessible_notify('This username is already taken.', type_='warning')
+                return
+            app_data['users'][new_user.value] = new_pass.value
+            save_data()
+            accessible_notify('User registered! You can now log in.', type_='success')
+            ui.navigate.to('/login')
+
+        with ui.card().classes('absolute-center').props('role=region aria-label="Registration Form"'):
+            ui.label('Register New Account').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
+            new_user = aria_input('New Username', "Insert the new username")
+            new_pass = aria_input('New Password',"Insert the new password", password=True)
+            aria_button('Register', "Create a new account", on_click=do_register)
+            ui.link("Back to Login", '/login').classes('mt-2 text-sm text-gray-500')
+
+  
+    @ui.page('/')
+    def index_page():
+     
+        #if not app.storage.user.get('gate_unlocked', False):
+        #    ui.navigate.to('/access')
+        #    return
+            
+     
+        if not app.storage.user.get('name'):
+            ui.navigate.to('/login')
+        
+
+        else:
+            ui.navigate.to('/main')
+            
+    '''
     @ui.page('/access')
     def access_page():
        
@@ -55,74 +131,5 @@ def create_auth_routes():
                 
                 aria_button('Unlock App', "Unlock", on_click=check_code).classes('w-full mt-4 !bg-indigo-600 text-white hover:!bg-indigo-500')
 
-
-    @ui.page('/login')
-    def login_page():
-     
-        if not app.storage.user.get('gate_unlocked', False):
-            ui.navigate.to('/access')
-            return
-
-        ui.run_javascript("setTimeout(() => document.querySelector('h1, .title, .text-2xl')?.focus(), 3600)")
-        
-        def try_login():
-            if app_data['users'].get(username.value) == password.value:
-                app.storage.user['name'] = username.value
-                ui.navigate.to('/main')
-            else:
-                accessible_notify('Invalid username or password', type_='warning')
-                password.value = ""
-                password.run_method('focus')
-
+    '''
     
-        with ui.card().classes('absolute-center').props('role=region aria-label="Login Form"'):
-            ui.label(' Login').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
-            username = aria_input('Username',"Insert the username").on('keydown.enter', lambda: password.run_method('focus'))
-            password = aria_input('Password',"Insert the password", password=True).on('keydown.enter', try_login)
-            aria_button('Login', "Log in", on_click=try_login)
-            
-           
-            ui.link("Don't have an account? Register", '/register').classes('mt-2')
-
-
-    @ui.page('/register')
-    def register_page():
-    
-        if not app.storage.user.get('gate_unlocked', False):
-            ui.navigate.to('/access')
-            return
-
-        def do_register():
-            if not new_user.value or not new_pass.value:
-                accessible_notify('Username and password are required.', type_='warning')
-                return
-            if new_user.value in app_data['users']:
-                accessible_notify('This username is already taken.', type_='warning')
-                return
-            app_data['users'][new_user.value] = new_pass.value
-            save_data()
-            accessible_notify('User registered! You can now log in.', type_='success')
-            ui.navigate.to('/login')
-
-        with ui.card().classes('absolute-center').props('role=region aria-label="Registration Form"'):
-            ui.label('Register New Account').classes('text-2xl font-bold').props('role=heading aria-level=2 tabindex=0')
-            new_user = aria_input('New Username', "Insert the new username")
-            new_pass = aria_input('New Password',"Insert the new password", password=True)
-            aria_button('Register', "Create a new account", on_click=do_register)
-            ui.link("Back to Login", '/login').classes('mt-2 text-sm text-gray-500')
-
-  
-    @ui.page('/')
-    def index_page():
-     
-        if not app.storage.user.get('gate_unlocked', False):
-            ui.navigate.to('/access')
-            return
-            
-     
-        if not app.storage.user.get('name'):
-            ui.navigate.to('/login')
-        
-
-        else:
-            ui.navigate.to('/main')

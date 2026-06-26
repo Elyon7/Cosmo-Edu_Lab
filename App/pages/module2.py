@@ -2109,75 +2109,7 @@ def create_page():
                        
                         
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_rot.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
-                        ui.html('''
-        <style>
-            /* Regole CSS per forzare il menu a tendina sull'hover */
-            .audio-menu-wrapper {
-                position: relative;
-                display: inline-block;
-                z-index: 99999; /* Z-index altissimo per sovrapporsi a tutto */
-            }
-            .audio-dropdown-content {
-                display: none; /* Nascosto di default */
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                top: 100%;
-                margin-top: 0.5rem;
-                width: 480px;
-                background-color: #1e293b; /* bg-slate-800 */
-                border: 1px solid #475569; /* border-slate-600 */
-                border-radius: 0.5rem;
-                padding: 1rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-                flex-direction: column;
-                gap: 1rem;
-            }
-            /* Appare magicamente in hover! */
-            .audio-menu-wrapper:hover .audio-dropdown-content {
-                display: flex;
-            }
-        </style>
-
-        <div class="audio-menu-wrapper">
-            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" 
-                onmouseover="this.style.backgroundColor='#15803d'" 
-                onmouseout="this.style.backgroundColor='#16a34a'">
-                🔊 Audio Tools
-                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            
-            <div class="audio-dropdown-content">
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
-                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sonification Controls</span>
-                    <button id="audio-button" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
-                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
-                        Activate Audio
-                    </button>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                    <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (mean)</button>
-                    <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (curve)</button>
-                    
-                    <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (mean)</button>
-                    <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (curve)</button>
-                    
-                    <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (mean)</button>
-                    <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (curve)</button>
-                    
-                    <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (mean)</button>
-                    <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (curve)</button>
-                </div>
-                
-            </div>
-        </div>
-        ''')
                         
-                        ui.label("").props('id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0').classes('text-sm text-gray-700 font-bold')
-                
-                    
                     
                         
                         
@@ -2538,8 +2470,87 @@ def create_page():
                 "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded" )
                                 
                     
+                    
                         with ui.column().classes('w-full justify-between items-center'):
                             mass_plot_container = ui.column().classes("w-full")
+                            with ui.row().classes("w-full justify-center mt-2"):
+                                ui.html('''
+        <style>
+            .audio-menu-wrapper {
+                position: relative;
+                display: inline-block;
+                z-index: 99999; 
+            }
+            .audio-dropdown-content {
+                display: none; 
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 100%;
+                margin-bottom: 0.5rem;
+                width: 480px;
+                background-color: #1e293b; 
+                border: 1px solid #475569; 
+                border-radius: 0.5rem;
+                padding: 1rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            /* --- IL PONTE INVISIBILE PER IL MENU GALASSIE --- */
+            .audio-dropdown-content::after {
+                content: "";
+                position: absolute;
+                top: 100%;  
+                left: 0;
+                width: 100%;
+                height: 1rem; 
+                background: transparent;
+            }
+            
+            .audio-menu-wrapper:hover .audio-dropdown-content {
+                display: flex !important;
+            }
+        </style>
+
+        <div class="audio-menu-wrapper">
+            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" 
+                onmouseover="this.style.backgroundColor='#15803d'" 
+                onmouseout="this.style.backgroundColor='#16a34a'">
+                🔊 Audio Tools
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            
+            <div class="audio-dropdown-content">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
+                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sonification Controls</span>
+                    <button id="audio-button" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
+                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
+                        Activate Audio
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button role="button" aria-label="Play observed velocity curve mean" onclick="playObservedVelMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (mean)</button>
+                    <button role="button" aria-label="Play observed velocity curve" onclick="playObservedVelCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play baryonic velocity curve mean" onclick="playBaryonicVelMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (mean)</button>
+                    <button role="button" aria-label="Play baryonic velocity curve" onclick="playBaryonicVelCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play simulated velocity curve mean" onclick="playSimVelMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (mean)</button>
+                    <button role="button" aria-label="Play simulated velocity curve" onclick="playSimVelCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated Vel (curve)</button>
+                    
+                    <button role="button" aria-label="Play difference velocity curves mean" onclick="playDifferenceVelMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (mean)</button>
+                    <button role="button" aria-label="Play difference velocity curves" onclick="playDifferenceVelCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference (curve)</button>
+                </div>
+            </div>
+        </div>
+        ''').classes('inline-block')
+                        
+                        ui.label("").props('id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0').classes('hidden')
+                
                            
                         with ui.column().classes('w-full justify-between items-center'):
                             chi2_plot_container = ui.column().classes('w-full')
@@ -3479,7 +3490,7 @@ def create_page():
                                 with ui.pyplot(figsize=(6, 5)):
                                     plt.plot(r, mbar/1e9, color='red', lw=2, label='Baryonic Mass')
                                     plt.plot(r, mtot/1e9, color='blue', lw=2, label='Total Mass')
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Mass ($10^9$ $M_\odot$)")
+                                    plt.xlabel("Radius (kpc)"); plt.ylabel(r"Mass ($10^9$ $M_\odot$)")
                                     plt.title("Enclosed Mass", fontweight='bold')
                                     plt.grid(True); plt.legend()
                     
@@ -4433,76 +4444,7 @@ def create_page():
                         
                         
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_clust.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded") 
-                        ui.html('''
-        <style>
-            /* Contenitore principale */
-            .sigma-audio-menu-wrapper { 
-                position: relative; 
-                display: inline-block; 
-                /* Assicura che resti sempre sopra gli altri elementi dell'interfaccia */
-                z-index: 2147483647; 
-            }
-            
-            /* Il contenuto del menu a tendina */
-            .sigma-audio-dropdown-content {
-                display: none; 
-                position: absolute; 
-                left: 50%; 
-                transform: translateX(-50%);
-                top: 100%; /* Si apre verso il basso */
-                margin-top: 0.5rem; 
-                width: 480px; 
-                background-color: #1e293b; /* slate-800 */
-                border: 1px solid #475569; /* slate-600 */
-                border-radius: 0.5rem; 
-                padding: 1rem;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); 
-                flex-direction: column; 
-                gap: 1rem;
-            }
-            
-            /* Appare in hover! (Importante: il display flex sostituisce il none) */
-            .sigma-audio-menu-wrapper:hover .sigma-audio-dropdown-content { 
-                display: flex !important; 
-            }
-        </style>
-        
-        <div class="sigma-audio-menu-wrapper">
-            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); cursor: pointer;" 
-                onmouseover="this.style.backgroundColor='#15803d'" 
-                onmouseout="this.style.backgroundColor='#16a34a'">
-                🔊 Audio Tools
-                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            
-            <div class="sigma-audio-dropdown-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
-                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sigma Sonification</span>
-                    <button id="audio-button-cluster" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
-                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
-                        Activate Audio
-                    </button>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                    <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (mean)</button>
-                    <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (curve)</button>
-                    
-                    <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (mean)</button>
-                    <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (curve)</button>
-                    
-                    <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (mean)</button>
-                    <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (curve)</button>
-                    
-                    <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (mean)</button>
-                    <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (curve)</button>
-                </div>
-            </div>
-        </div>
-        ''')
-
-                        ui.label("").props('id=audio_status role=status aria-live=polite aria-atomic=true tabindex=0').classes('text-sm text-gray-700 font-bold mt-2 w-full text-center')
-                        
+                         
                     
                             
                             
@@ -4871,10 +4813,11 @@ def create_page():
 
                         
                         
-                        with ui.row().classes('w-full items-stretch justify-between no-wrap gap-2 px-2 mt-4'):
-                       
+                        
+                        with ui.row().classes('w-full items-stretch justify-between no-wrap gap-2 px-2'):
+                    
+                      
                             with ui.column().classes('w-[260px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-between overflow-hidden'):
-                                
                             
                                 with ui.column().classes('w-full gap-1 p-0 m-0'):
                                     cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-blue-800 mb-2 whitespace-nowrap")
@@ -4885,7 +4828,7 @@ def create_page():
                                 with ui.row().classes('w-full justify-center mt-2 shrink-0'):
                                     aria_button(" Table", "table", on_click=table_dialog.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded ")
                           
-                            with ui.column().classes('w-full items-center justify-between'):
+                            with ui.column().classes('w-full justify-between items-center'):
                                 plot_container_histo = ui.column().classes('w-full')
                                 with ui.row().classes('w-full justify-center mt-2'):
                                     aria_button(
@@ -4895,14 +4838,93 @@ def create_page():
     ).classes("!bg-green-600 hover:!bg-green-800 text-white font-bold py-2 px-6 rounded shadow-md")
                                     aria_button("Dataset", "Read the info about dataset",on_click=safe_click(lambda: [dataset_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes(
                 "!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded") 
+                                    
                                   
     
                                     
                                     
                                     
-                            with ui.column().classes('w-full items-center justify-between'):
+                            with ui.column().classes('w-full justify-between items-center'):
                                 plot_container_scatter = ui.column().classes('w-full')
-                              
+                                with ui.row().classes('w-full justify-center mt-2'):
+                                    ui.html('''
+        <style>
+            .sigma-audio-menu-wrapper {
+                position: relative;
+                display: inline-block;
+                z-index: 99999; 
+            }
+            .sigma-audio-dropdown-content {
+                display: none;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 100%;
+                margin-bottom: 0.5rem;
+                width: 480px;
+                background-color: #1e293b;
+                border: 1px solid #475569;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            /* --- LA MAGIA: IL PONTE INVISIBILE --- */
+            .sigma-audio-dropdown-content::after {
+                content: "";
+                position: absolute;
+                top: 100%;  /* Si attacca sotto al pannello nero */
+                left: 0;
+                width: 100%;
+                height: 1rem; /* Copre interamente il buco fino al bottone verde */
+                background: transparent;
+            }
+            /* ------------------------------------ */
+
+            .sigma-audio-menu-wrapper:hover .sigma-audio-dropdown-content {
+                display: flex !important;
+            }
+        </style>
+
+        <div class="sigma-audio-menu-wrapper">
+            <button style="background-color: #16a34a; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; padding: 0.5rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" 
+                onmouseover="this.style.backgroundColor='#15803d'" 
+                onmouseout="this.style.backgroundColor='#16a34a'">
+                🔊 Audio Tools
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            
+            <div class="sigma-audio-dropdown-content">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 0.75rem;">
+                    <span style="color: white; font-weight: bold; font-size: 1.125rem;">Sonification Controls</span>
+                    
+                    <button id="audio-button-cluster" role="button" aria-label="activate or deactivate audio" aria-pressed="false" onclick="initAudio()" 
+                        style="background-color: #22c55e; color: black; font-weight: bold; padding: 0.4rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer;">
+                        Activate Audio
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button role="button" aria-label="Play observed dispersion velocity mean" onclick="playObservedSigmaMean()" style="background-color: #2563eb; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (mean)</button>
+                    <button role="button" aria-label="Play observed dispersion velocity" onclick="playObservedSigmaCurve()" style="background-color: #60a5fa; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Observed σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play baryonic dispersion velocity mean" onclick="playBaryonicSigmaMean()" style="background-color: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (mean)</button>
+                    <button role="button" aria-label="Play baryonic dispersion velocity" onclick="playBaryonicSigmaCurve()" style="background-color: #f87171; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Baryonic σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play simulated dispersion velocity mean" onclick="playSimSigmaMean()" style="background-color: #16a34a; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (mean)</button>
+                    <button role="button" aria-label="Play simulated dispersion velocity" onclick="playSimSigmaCurve()" style="background-color: #4ade80; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Simulated σ (curve)</button>
+                    
+                    <button role="button" aria-label="Play differences dispersion velocities mean" onclick="playDifferenceSigmaMean()" style="background-color: #9333ea; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (mean)</button>
+                    <button role="button" aria-label="Play differences dispersion velocities" onclick="playDifferenceSigmaCurve()" style="background-color: #c084fc; color: white; padding: 0.5rem; border-radius: 0.25rem; text-align: left; font-size: 0.875rem; border: none; cursor: pointer;">▶ Difference σ (curve)</button>
+                </div>
+            </div>
+        </div>
+        ''').classes('inline-block')
+
+                            ui.label("").props('id=audio_status_cluster role=status aria-live=polite aria-atomic=true tabindex=0').classes('hidden')
                                 
                                   
                             with ui.column().classes('w-full justify-between items-center'):

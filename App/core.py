@@ -118,11 +118,14 @@ def load_data():
                 repo_type="dataset",
                 token=HF_API_TOKEN,
                 local_dir=BASE_DIR,
-                local_dir_use_symlinks=False,
-                timeout=2
+               
             )
             with open(file_path, 'r') as f:
-                app_data = json.load(f)
+                
+                downloaded_data = json.load(f)
+                app_data.clear() 
+                app_data.update(downloaded_data) 
+                
             print("✅ Success!")
             return 
         except Exception as e:
@@ -131,7 +134,11 @@ def load_data():
     if os.path.exists(LOCAL_DATA_FILE):
         try:
             with open(LOCAL_DATA_FILE, 'r') as f:
-                app_data = json.load(f)
+                
+                local_data = json.load(f)
+                app_data.clear()
+                app_data.update(local_data)
+                
             print("🏠 Data loaded from local disk.")
         except Exception as e:
             print(f"❌ Error loading local data: {e}")
