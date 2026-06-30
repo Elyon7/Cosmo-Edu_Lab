@@ -2281,7 +2281,7 @@ def create_page():
                         t_hadrons = ui.tab('Hadrons')
                         t_processes = ui.tab('Cosmic Processes')
                         t_mass_plot = ui.tab('Mass Plot')
-                        t_materials = ui.tab('Supplementary Materials')
+                        #t_materials = ui.tab('Supplementary Materials')
 
                         tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
                     with ui.tab_panels(tabs, value=t_info).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
@@ -2451,14 +2451,14 @@ def create_page():
                             plot_mass_strip(mass_container, height=400, width=1000)
 
                       
-                        with ui.tab_panel(t_materials).classes('flex flex-col items-center justify-center h-full'):
-                            ui.label("Introductory Slides").classes("text-3xl font-bold text-slate-800 mb-4")
-                            ui.label("Click the button below to view the supplementary PDF presentation about particles.").classes("text-lg text-gray-600 mb-8")
-                            aria_button(
-                                'Open PDF: Particles', 
-                                'Open Introductory Slides about Particles',
-                                on_click=lambda: ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
-                            ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-8 text-lg rounded shadow-lg")
+                       # with ui.tab_panel(t_materials).classes('flex flex-col items-center justify-center h-full'):
+                        #    ui.label("Introductory Slides").classes("text-3xl font-bold text-slate-800 mb-4")
+                         #   ui.label("Click the button below to view the supplementary PDF presentation about particles.").classes("text-lg text-gray-600 mb-8")
+                          #  aria_button(
+                           #     'Open PDF: Particles', 
+                            #    'Open Introductory Slides about Particles',
+                             #   on_click=lambda: ui.run_javascript('window.open("/slides/Particles.pdf", "_blank")')
+                           # ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-8 text-lg rounded shadow-lg")
 
             comp_particles_dialog.open()
         def particle_page(container):
@@ -2983,7 +2983,7 @@ def create_page():
                         explore_btn.set_visibility(False)
                         next_btn.set_visibility(False)
                         q_timer.deactivate()
-                        ui.notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
+                        accessible_notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
                 
                 def next_question():
                     q_state['idx'] += 1
@@ -2997,13 +2997,13 @@ def create_page():
                         q_state['score'] += 1
                         q_state['correct'] = True
                         score_lbl.set_text(f"Score: {q_state['score']}")
-                        ui.notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
+                        accessible_notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
                         explore_btn.set_visibility(True)
                         next_btn.set_visibility(True)
                     else:
                         q_state['score'] -= 0.25
                         score_lbl.set_text(f"Score: {q_state['score']}")
-                        ui.notify('Wrong era! Try again.', color='negative', position='top', icon='cancel')
+                        accessible_notify('Wrong era! Try again.', color='negative', position='top', icon='cancel')
                 
                 def tick():
                     q_state['time'] += 1
@@ -3286,7 +3286,7 @@ def create_page():
                         explore_btn.set_visibility(False)
                         next_btn.set_visibility(False)
                         q_timer.deactivate()
-                        ui.notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
+                        accessible_notify('End Game! You completed the quiz.', color='positive', position='top', icon='emoji_events')
 
                 def next_question():
                     q_state['idx'] += 1
@@ -3300,13 +3300,13 @@ def create_page():
                         q_state['score'] += 1
                         q_state['correct'] = True
                         score_lbl.set_text(f"Score: {q_state['score']}")
-                        ui.notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
+                        accessible_notify('Correct! Great job.', color='positive', position='top', icon='check_circle')
                         explore_btn.set_visibility(True)
                         next_btn.set_visibility(True)
                     else:
                         q_state['score'] -= 0.25
                         score_lbl.set_text(f"Score: {q_state['score']}")
-                        ui.notify('Wrong phase! Try again.', color='negative', position='top', icon='cancel')
+                        accessible_notify('Wrong phase! Try again.', color='negative', position='top', icon='cancel')
                 
                 def tick():
                     q_state['time'] += 1
@@ -4298,14 +4298,14 @@ namelength=-1,
                                 game_state['score'] += 1
                                 game_state['step'] += 1
                                 lbl_score.set_text(f"Score: {game_state['score']}")
-                                ui.notify("Correct evolution!", color="positive", position="top", icon="check_circle")
+                                accessible_notify("Correct evolution!", color="positive", position="top", icon="check_circle")
                                 if game_state['step'] >= len(game_state['path']):
                                     game_state['running'] = False
-                                    ui.notify("End Game! Destiny reached.", color="purple", position="top", icon="emoji_events")
+                                    accessible_notify("End Game! Destiny reached.", color="purple", position="top", icon="emoji_events")
                             else:
                                 game_state['score'] -= 0.25
                                 lbl_score.set_text(f"Score: {game_state['score']}")
-                                ui.notify("Wrong phase! Core destabilized...", color="negative", position="top", icon="warning")
+                                accessible_notify("Wrong phase! Core destabilized...", color="negative", position="top", icon="warning")
                             render_game_ui.refresh()
 
                         with ui.grid(columns=2).classes('w-full max-w-[800px] gap-6'):
@@ -4517,7 +4517,7 @@ namelength=-1,
                                 '''
 
                             interactive_img.content = svg_content
-                            ui.notify(msg, type='positive' if "✅" in status else 'warning')
+                            accessible_notify(msg, type='positive' if "✅" in status else 'warning')
 
                         interactive_img = ui.interactive_image(src_img, on_mouse=on_click, cross=True).classes('w-full h-full object-contain')
 
@@ -4536,7 +4536,7 @@ namelength=-1,
 
                     def check_loc_alt():
                         if not loc_choice.value:
-                            ui.notify('Please select an option first.', type='warning')
+                            accessible_notify('Please select an option first.', type='warning')
                             return
                             
                         if 'Orion Arm' in loc_choice.value:
@@ -5374,10 +5374,10 @@ namelength=-1,
                                 if card1['type'] == card2['type']:
                                     mem_state['matched'].update([id1, id2])
                                     mem_state['score'] += 1
-                                    ui.notify(f"Correct! Found two {card1['type']}.", color='positive', position='top', icon='check_circle')
+                                    accessible_notify(f"Correct! Found two {card1['type']}.", color='positive', position='top', icon='check_circle')
                                 else:
                                     mem_state['score'] -= 0.25
-                                    ui.notify("Wrong pair! Memorize and try again...", color='negative', position='top', icon='cancel')
+                                    accessible_notify("Wrong pair! Memorize and try again...", color='negative', position='top', icon='cancel')
                                     
                                 lbl_score.set_text(f"Score: {mem_state['score']}")
                                 

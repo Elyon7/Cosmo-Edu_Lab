@@ -243,17 +243,19 @@ def plot_info_box_compact(info: dict, title: str = None, compact: bool = True):
                     ui.label(str(lab)).classes("label")
                     ui.label(str(val)).classes("value")
                     
-last_notification_card = None 
-def accessible_notify(text: str, type_: str = "info"):
 
-    global last_notification_card
-    if last_notification_card is not None:
-        try:
-          
-            last_notification_card.delete()
-        except Exception as e:
-     
-            pass 
+
+global_notification_area = None
+
+def accessible_notify(text: str, type_: str = "info"):
+    global global_notification_area
+    
+
+    target_container = global_notification_area if global_notification_area else ui.context.client.layout
+    
+    if global_notification_area:
+        global_notification_area.clear()
+
     color = {
         "info": "!bg-blue-50 text-blue-800 border-blue-400",
         "success": "!bg-green-50 text-green-800 border-green-400",
@@ -261,28 +263,18 @@ def accessible_notify(text: str, type_: str = "info"):
         "error": "!bg-red-50 text-red-800 border-red-400",
     }[type_]
 
-    with ui.card().classes(f"p-3 border rounded-lg shadow-sm mt-2 {color}").props(
-        f'role={"alert" if type_ in ["error","warning"] else "status"} aria-live=polite tabindex=0'
-    ) as notification_card: 
-        ui.label(text)
+    with target_container:
+        with ui.card().classes(f"p-3 border rounded-lg shadow-sm w-full max-w-3xl text-center mx-auto mt-2 {color}").props(
+            f'role={"alert" if type_ in ["error","warning"] else "status"} aria-live=polite tabindex=0'
+        ): 
+            ui.label(text).classes('text-base font-semibold')
 
-    last_notification_card = notification_card
-    
    
     def close_and_reset():
-        global last_notification_card
-       
-        try:
-            notification_card.delete() 
-        except Exception as e:
-           
-            pass 
-     
-        if last_notification_card == notification_card:
-            last_notification_card = None
-            
-    ui.timer(4.0, close_and_reset, once=True)
+        if global_notification_area:
+            global_notification_area.clear()
 
+    ui.timer(4.0, close_and_reset, once=True)
 def enlargeable_plot(plot_func, width_percent=100):
     """
     Crea un container cliccabile. Quando cliccato, apre il grafico in un dialog grande.
@@ -1333,18 +1325,18 @@ def main_layout(title: str):
         ui.label('📝 Supporting Materials').classes('w-full text-left px-6 text-xl font-bold text-gray-300 uppercase tracking-widest')
         
         def open_slides_cosmo():
-            ui.run_javascript('window.open("/slides/Cosmology.pdf", "_blank")')
+            ui.run_javascript('window.open("/slides/Cosmology_Notes.pdf", "_blank")')
         def open_activities():
-            ui.run_javascript('window.open("/slides/Cosmo-Edu-Lab_Activities.pdf", "_blank")')
+            ui.run_javascript('window.open("/slides/activities.pdf", "_blank")')
         def open_astronomy():
-            ui.run_javascript('window.open("/slides/Astronomy.pdf", "_blank")')
+            ui.run_javascript('window.open("/slides/Astrophysics_Notes.pdf", "_blank")')
             
        
         mat_btn_style = 'w-[85%] ml-6 px-6 text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white rounded-r-lg'
             
-        aria_button('📄Cosmology Intro', 'Open Introductory Slides: Cosmology', on_click=open_slides_cosmo).classes(mat_btn_style).props('align="left"')
-        aria_button('📄Astronomy Intro', 'Open Introductory Slides: Astronomy', on_click=open_astronomy).classes(mat_btn_style).props('align="left"')
-        aria_button('🧪Lab Activities', 'Open Cosmo-Edu Lab Activities', on_click=open_activities).classes(mat_btn_style).props('align="left"')
+        aria_button('📄Cosmology Intro', 'Open Introductory material: Cosmology', on_click=open_slides_cosmo).classes(mat_btn_style).props('align="left"')
+        aria_button('📄Astronomy Intro', 'Open Introductory material: Astronomy', on_click=open_astronomy).classes(mat_btn_style).props('align="left"')
+        aria_button('🧪Dark Matter Module', 'Open Dark matter physics', on_click=open_activities).classes(mat_btn_style).props('align="left"')
         
     with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').style('background-color: #0f172a !important; color: white; border: 1px solid #334155;'):
             ui.html(r"""
@@ -1542,3 +1534,4 @@ def main_layout(title: str):
             else:
                 aria_button('Login', "Login", on_click=safe_click(lambda: aria_navigate('/login', 'Login'))).props('icon=login flat round ')
 
+    global_notification_area = ui.row().classes('w-full min-h-[70px] justify-center items-start z-50 pt-2')

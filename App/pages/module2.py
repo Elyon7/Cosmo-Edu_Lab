@@ -1452,10 +1452,15 @@ def create_page():
                                     
                                     with ui.tab_panel(t_resources).classes('flex flex-col items-center justify-start pt-10 gap-8'):
                                        
-                                        
-                                      
-                                        with ui.column().classes('w-full items-center gap-6'):
-                                            
+                                        with ui.column().classes('w-full max-w-[800px] gap-4'):
+                                            with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-green-500'):
+                                                ui.label("Supplementary Materials").classes("text-xl font-bold text-blue-700")
+                                                ui.label("View the introductory presentation slides on Dark Matter.").classes("text-center text-gray-600")
+                                                aria_button('Open DM Slides', 'Open Dark Matter Slides', 
+                                    on_click=lambda: ui.run_javascript('window.open("/slides/Dark_matter.pdf", "_blank")')
+                        ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4")
+                                
+                                                
                                             with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-green-500'):
                                                 ui.label("PhET Interactive Simulation").classes("text-xl font-bold text-green-700")
                                                 ui.label("Explore orbital mechanics with this interactive physics simulator from the University of Colorado.").classes("text-center text-gray-600")
@@ -1465,14 +1470,14 @@ def create_page():
                                                     on_click=lambda: ui.run_javascript("window.open('https://phet.colorado.edu/sims/html/keplers-laws/latest/keplers-laws_all.html', '_blank')")
                                                 ).classes("!bg-green-600 hover:!bg-green-700 text-white font-bold py-3 px-6 rounded shadow")
 
-                                            with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-blue-500'):
-                                                ui.label("Supplementary Materials").classes("text-xl font-bold text-blue-700")
-                                                ui.label("View the introductory presentation slides on Cosmology and Dark Matter.").classes("text-center text-gray-600")
-                                                aria_button(
-                                                    'Open PDF Slides', 
-                                                    'Open Introduction Presentation',
-                                                    on_click=lambda: ui.run_javascript('window.open("/slides/cosmo_dark_matter.pdf", "_blank")')
-                                                ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-6 rounded shadow")
+                                           # with ui.card().classes('p-6 bg-white shadow-md rounded-lg flex flex-col items-center gap-4 w-full max-w-[600px] border-t-4 border-blue-500'):
+                                           #     ui.label("Supplementary Materials").classes("text-xl font-bold text-blue-700")
+                                           #     ui.label("View the introductory presentation slides on Cosmology and Dark Matter.").classes("text-center text-gray-600")
+                                            #    aria_button(
+                                            #        'Open PDF Slides', 
+                                            #        'Open Introduction Presentation',
+                                            #        on_click=lambda: ui.run_javascript('window.open("/slides/cosmo_dark_matter.pdf", "_blank")')
+                                             #   ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-3 px-6 rounded shadow")
 
                         comp_kepler_dialog.open()
                     with ui.row().classes('w-full gap-4 justify-center'):
@@ -5693,10 +5698,7 @@ def create_page():
     </div>
 
 """)
-                                        aria_button('Supplementary Materials', 'Open Dark Matter Slides', 
-                                on_click=lambda: ui.run_javascript('window.open("/slides/Dark_matter.pdf", "_blank")')
-                    ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4")
-                               
+                                        
                                     with ui.tab_panel(t_virial):
                                         html_info_box(r"""
                                                       <style>
