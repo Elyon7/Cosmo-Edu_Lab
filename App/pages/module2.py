@@ -4084,46 +4084,34 @@ def create_page():
 
             <span class="math">\( M_{\mathrm{bar}} = (M/L)\,L_r, \;\; (M/L = 2) \)</span></li>
 
-            <li><b>Step 19:</b> Gas mass (Giodini 2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+            <li><b>Step 19:</b> Gas mass (Giodini 2009 adapted for \(M_{200}\)):<br> <span class="math">\( M_{\mathrm{gas}} = (0.7 M_{200}) \cdot 0.093 \left( \frac{0.7 M_{200}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span></li>
 
-    <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
+   <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
 
-
-
-
-
-            <li><b>Step 21:</b> Total mass (DM + baryonic, linked to slider):<br>
-
-            <span class="math">\( M_{\mathrm{tot}}(i) = M_{\mathrm{bar}}(i) + f \cdot M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) \)</span></li>
-
-
-
-            <li><b>Step 22:</b> Velocity dispersions:
-
+            <li><b>Step 21:</b> Dark Matter Mass (Two Methods):
                 <ul style="margin-top:5px; list-style-type:circle;">
-
-                    <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{bar}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
-
-                    <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
-
+                    <li><b>Method 1 (Virial Subtraction):</b> <span class="math">\( M_{\mathrm{DM\_vir}} = M_{200} - M_{\mathrm{lum}} \)</span></li>
+                    <li><b>Method 2 (NFW Profile):</b> <span class="math">\( M_{\mathrm{NFW}}(r) = M_{200} \cdot \frac{\ln(1+x) - x/(1+x)}{\ln(1+c) - c/(1+c)} \)</span></li>
                 </ul>
-
             </li>
 
+            <li><b>Step 22:</b> Total simulated mass (linked to slider \(f\)):<br>
+            <span class="math">\( M_{\mathrm{tot\_sim}}(i) = M_{\mathrm{lum}} + f \cdot M_{\mathrm{DM}} \)</span></li>
 
-
-            <li><b>Step 21:</b> Plot histograms:
-
+            <li><b>Step 23:</b> Velocity dispersions:
                 <ul style="margin-top:5px; list-style-type:circle;">
+                    <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{lum}}}{3 r_{\mathrm{proj},i}} } \)</span></li>
+                    <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot\_sim}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
+                </ul>
+            </li>
 
+            <li><b>Step 24:</b> Plot histograms:
+                <ul style="margin-top:5px; list-style-type:circle;">
                     <li>Observed histogram: <span class="math">\( \mathrm{plt.hist}(v_{\mathrm{obs}}, bins) \)</span> (blue)</li>
-
-                    <li>Simulated histogram: <span class="math">\( \mathrm{plt.hist}(\sigma_{\mathrm{tot}}, bins) \)</span> (green)</li>
-
+                    <li>Simulated histogram: <span class="math">\( \mathrm{plt.hist}(\sigma_{\mathrm{sim}}, bins) \)</span> (green)</li>
                 </ul>
-
             </li>
-
+        </ul>
         </ul>
 
     """).props('role=dialog aria-modal=true aria-label="Computational notes"')
@@ -4841,9 +4829,11 @@ def create_page():
                         
                         h = 0.7
                         m_vir_global_fixed = np.sum(m_bary_at_gal)
-                        m_500_global_fixed = 0.7 * m_vir_global_fixed
-                        f_gas_global_fixed = 0.093 * ((m_500_global_fixed / 2e14)**0.21)
-                        m_gas_global_fixed = m_500_global_fixed * f_gas_global_fixed
+                        #m_500_global_fixed = 0.7 * m_vir_global_fixed
+                        #f_gas_global_fixed = 0.093 * ((m_500_global_fixed / 2e14)**0.21)
+                        #m_gas_global_fixed = m_500_global_fixed * f_gas_global_fixed
+                        f_gas_global_fixed = 0.093 * (((0.7 * m_vir_global_fixed) / 2e14)**0.21)
+                        m_gas_global_fixed = (0.7 * m_vir_global_fixed) * f_gas_global_fixed
                         ratio_stars_gas_fixed = (m_vir_global_fixed + m_gas_global_fixed) / m_vir_global_fixed
                         m_bary_tot_at_gal_fixed = m_bary_at_gal * ratio_stars_gas_fixed
                         
@@ -5887,7 +5877,7 @@ def create_page():
 
            
 
-<li><b>Step 9:</b> Gas mass (Giodini,2009):<br> <span class="math">\( M_{\mathrm{gas}} = M_{500} \cdot 0.093 \left( \frac{M_{500}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span> (where <span class="math">\( M_{500} \approx 0.7 \cdot M_{\mathrm{tot}} \)</span>)</li>
+<li><b>Step 9:</b> Gas mass (Giodini, 2009 adapted for \(M_{200}\)):<br> <span class="math">\( M_{\mathrm{gas}} = (0.7 M_{200}) \cdot 0.093 \left( \frac{0.7 M_{200}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span></li>
 
     <li><b>Step 10:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
 
@@ -6339,9 +6329,11 @@ def create_page():
                                     sigma_global = np.std(members["RV"] - np.median(members["RV"]))
                                     M_tot_r = (3.0 * sigma_global**2 * R_cum) / G 
                                     h = 0.7  
-                                    m_500_r = 0.7 * M_tot_r
-                                    f_gas_r = 0.093 * ((m_500_r / 2e14)**0.21)
-                                    m_gas_r = m_500_r * f_gas_r
+                                    #m_500_r = 0.7 * M_tot_r
+                                    #f_gas_r = 0.093 * ((m_500_r / 2e14)**0.21)
+                                    #m_gas_r = m_500_r * f_gas_r
+                                    f_gas_r = 0.093 * (((0.7 * M_tot_r) / 2e14)**0.21)
+                                    m_gas_r = (0.7 * M_tot_r) * f_gas_r
                                     M_baryonic_r = M_lum_r + m_gas_r
 
                                     def positive_floor(arr):
