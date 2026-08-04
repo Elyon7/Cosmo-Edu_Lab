@@ -52,7 +52,7 @@ import networkx as nx
 import requests
 from dotenv import load_dotenv
 from fastapi import Request
-#from groq import Groq
+
 #from ipywidgets import interact, FloatSlider
 from nicegui import ui, app, run , client
 #from nicegui_toolkit import inject_layout_tool
@@ -72,6 +72,7 @@ from core import *
 def create_page():
     @ui.page('/module1')
     def introduction():
+        main_layout("Structures of Universe")
     #add CSS styles
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
