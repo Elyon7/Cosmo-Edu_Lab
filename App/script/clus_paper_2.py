@@ -52,13 +52,13 @@ def estimate_M200_R200_from_sigma(sigma_obs, rho_crit_local):
     return M200, R200
 
 def run_cluster_analysis():
-    coma_files = glob.glob("data/coma_data.csv") + glob.glob("coma_data.csv")
+    coma_files = glob.glob("data/Abell1656(Coma).csv") + glob.glob("Abell1656(Coma).csv")
     abell_files = glob.glob("cluster_data/Abell*.txt") + glob.glob("Abell*.txt")
     all_files = list(set(coma_files + abell_files))
     
     # --- CREAZIONE DELLE TRE CARTELLE ---
-    output_dir_original = "cluster_plot_unified"
-    output_dir_comparison = "cluster_plot_methods_comparison"
+    output_dir_original = "cluster_plot_unified2"
+    output_dir_comparison = "cluster_plot_methods_comparison2"
     output_dir_mass_density = "cluster_plot_mass_density"
     
     os.makedirs(output_dir_original, exist_ok=True)
@@ -213,27 +213,24 @@ def run_cluster_analysis():
             padding = 0.15 * x_max
             bins = np.linspace(0, x_max + padding, 50)
             
-            # ==============================================================
-            # PLOT 1: IL TUO GRAFICO ORIGINALE 1x2 (SOVRAPPOSTO)
-            # ==============================================================
             fig1, axs1 = plt.subplots(1, 2, figsize=(14, 6))
-            fig1.suptitle(f"Cluster : {cluster_name}", fontsize=18, fontweight='bold')
+            fig1.suptitle(f"Cluster: {cluster_name}", fontsize=18, fontweight='bold')
             
-            axs1[0].hist(observed_vel_sorted, bins=bins, alpha=1.0, color='blue', orientation='horizontal', label='Observed Data')
-            axs1[0].hist(v_bar, bins=bins, alpha=0.6, color='red', orientation='horizontal', label='Baryonic Component')
-            axs1[0].hist(v_sim_m1, bins=bins, alpha=0.6, color='green', orientation='horizontal', label=' Total (M1)')
-            axs1[0].hist(v_sim_m2, bins=bins, alpha=0.6, color='purple', orientation='horizontal', label=' Total (NFW M2)')
+            axs1[0].hist(observed_vel_sorted, bins=bins, alpha=0.4, color='blue', label='Observed Data')
+            axs1[0].hist(v_bar, bins=bins, histtype='step', linewidth=2, color='red', label='Baryonic Component')
+            axs1[0].hist(v_sim_m1, bins=bins, histtype='step', linewidth=3, color='green', label='Total (M1)')
+            axs1[0].hist(v_sim_m2, bins=bins, histtype='step', linewidth=3, color='purple', label='Total (NFW M2)')
             axs1[0].set_title('Velocity Distribution', fontsize=14, fontweight='bold')
-            axs1[0].set_ylabel('Velocity (km/s)')
-            axs1[0].set_xlabel('Number of Galaxies')
-            axs1[0].set_ylim(0, x_max + padding)
+            axs1[0].set_xlabel('Velocity (km/s)')
+            axs1[0].set_ylabel('Number of Galaxies')
+            axs1[0].set_xlim(0, x_max + padding)
             axs1[0].legend()
-            axs1[0].grid(True, axis='x', linestyle='--', alpha=0.5)
+            axs1[0].grid(True, axis='y', linestyle='--', alpha=0.5)
             
             axs1[1].scatter(r_sorted, observed_vel_sorted, color='blue', s=15, alpha=0.6, label='Observed Data')
             axs1[1].scatter(r_sorted, v_bar, color='red', s=15, alpha=0.6, label='Baryonic Component')
-            axs1[1].scatter(r_sorted, v_sim_m1, color='green', s=15, alpha=0.6, label=' Total (M1)')
-            axs1[1].scatter(r_sorted, v_sim_m2, color='purple', s=15, alpha=0.6, label=' Total (NFW M2)')
+            axs1[1].scatter(r_sorted, v_sim_m1, color='green', s=15, alpha=0.6, label='Total (M1)')
+            axs1[1].scatter(r_sorted, v_sim_m2, color='purple', s=15, alpha=0.6, label='Total (NFW M2)')
             axs1[1].set_title('Cluster Galaxies Velocities', fontsize=14, fontweight='bold')
             axs1[1].set_xlabel('Radius (kpc)')
             axs1[1].set_ylabel('Velocity (km/s)')
@@ -248,25 +245,60 @@ def run_cluster_analysis():
                 ax.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
                 
             plt.tight_layout(rect=[0, 0, 1, 0.95])
-            plt.savefig(os.path.join(output_dir_original, f"{cluster_name}.png"), dpi=300)
+            plt.savefig(os.path.join(output_dir_original, f"{cluster_name}_unified.png"), dpi=300)
             plt.close(fig1)
 
-            # ==============================================================
-            # PLOT 2: GRAFICO DELLE VELOCITÀ 2x2 (SEPARATO)
-            # ==============================================================
+         
+            fig1, axs1 = plt.subplots(1, 2, figsize=(14, 6))
+            fig1.suptitle(f"Cluster: {cluster_name}", fontsize=18, fontweight='bold')
+            
+            
+            axs1[0].hist(observed_vel_sorted, bins=bins, alpha=0.5, color='blue', label='Observed Data')
+            axs1[0].hist(v_bar, bins=bins, alpha=0.5, color='red', label='Baryonic Component')
+            axs1[0].hist(v_sim_m1, bins=bins, alpha=0.5, color='green', label='Total (M1)')
+            axs1[0].hist(v_sim_m2, bins=bins, alpha=0.5, color='purple', label='Total (NFW M2)')
+            axs1[0].set_title('Velocity Distribution', fontsize=14, fontweight='bold')
+            axs1[0].set_xlabel('Velocity (km/s)')
+            axs1[0].set_ylabel('Number of Galaxies')
+            axs1[0].set_xlim(0, x_max + padding)
+            axs1[0].legend()
+            axs1[0].grid(True, axis='y', linestyle='--', alpha=0.5)
+            
+            axs1[1].scatter(r_sorted, observed_vel_sorted, color='blue', s=15, alpha=0.6, label='Observed Data')
+            axs1[1].scatter(r_sorted, v_bar, color='red', s=15, alpha=0.6, label='Baryonic Component')
+            axs1[1].scatter(r_sorted, v_sim_m1, color='green', s=15, alpha=0.6, label='Total (M1)')
+            axs1[1].scatter(r_sorted, v_sim_m2, color='purple', s=15, alpha=0.6, label='Total (NFW M2)')
+            axs1[1].set_title('Cluster Galaxies Velocities', fontsize=14, fontweight='bold')
+            axs1[1].set_xlabel('Radius (kpc)')
+            axs1[1].set_ylabel('Velocity (km/s)')
+            axs1[1].set_ylim(0, x_max + padding)
+            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            axs1[1].legend()
+            axs1[1].grid(True, linestyle='--', alpha=0.5)
+            
+            for ax in axs1:
+                ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                ax.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
+                
+            plt.tight_layout(rect=[0, 0, 1, 0.95])
+            plt.savefig(os.path.join(output_dir_original, f"{cluster_name}_unified.png"), dpi=300)
+            plt.close(fig1)
+
+          
             fig2, axs2 = plt.subplots(2, 2, figsize=(16, 12))
             fig2.suptitle(f"Cluster: {cluster_name} - Velocities Comparison", fontsize=18, fontweight='bold')
             
-            # RIGA 1: METODO 1 (Viriale Sottrazione)
-            axs2[0,0].hist(observed_vel_sorted, bins=bins, alpha=0.4, color='blue', orientation='horizontal', label='Observed Data')
-            axs2[0,0].hist(v_bar, bins=bins, histtype='step', linewidth=2, color='red', orientation='horizontal', label='Baryonic Component')
-            axs2[0,0].hist(v_sim_m1, bins=bins, histtype='step', linewidth=3, color='green', orientation='horizontal', label='Sim. Total (Method 1)')
+         
+            axs2[0,0].hist(observed_vel_sorted, bins=bins, alpha=0.5, color='blue', label='Observed Data')
+            axs2[0,0].hist(v_bar, bins=bins, alpha=0.5, color='red', label='Baryonic Component')
+            axs2[0,0].hist(v_sim_m1, bins=bins, alpha=0.5, color='green', label='Sim. Total (Method 1)')
             axs2[0,0].set_title('Velocity Distribution (Method 1)', fontsize=14, fontweight='bold')
-            axs2[0,0].set_ylabel('Velocity (km/s)')
-            axs2[0,0].set_xlabel('Number of Galaxies')
-            axs2[0,0].set_ylim(0, x_max + padding)
+            axs2[0,0].set_xlabel('Velocity (km/s)')
+            axs2[0,0].set_ylabel('Number of Galaxies')
+            axs2[0,0].set_xlim(0, x_max + padding)
             axs2[0,0].legend()
-            axs2[0,0].grid(True, axis='x', linestyle='--', alpha=0.5)
+            axs2[0,0].grid(True, axis='y', linestyle='--', alpha=0.5)
             
             axs2[0,1].scatter(r_sorted, observed_vel_sorted, color='blue', s=15, alpha=0.4, label='Observed Data')
             axs2[0,1].scatter(r_sorted, v_bar, color='red', s=15, alpha=0.4, label='Baryonic Component')
@@ -279,16 +311,16 @@ def run_cluster_analysis():
             axs2[0,1].legend()
             axs2[0,1].grid(True, linestyle='--', alpha=0.5)
 
-            # RIGA 2: METODO 2 (NFW Profile)
-            axs2[1,0].hist(observed_vel_sorted, bins=bins, alpha=0.4, color='blue', orientation='horizontal', label='Observed Data')
-            axs2[1,0].hist(v_bar, bins=bins, histtype='step', linewidth=2, color='red', orientation='horizontal', label='Baryonic Component')
-            axs2[1,0].hist(v_sim_m2, bins=bins, histtype='step', linewidth=3, color='purple', orientation='horizontal', label='Sim. Total (Method 2 NFW)')
+         
+            axs2[1,0].hist(observed_vel_sorted, bins=bins, alpha=0.5, color='blue', label='Observed Data')
+            axs2[1,0].hist(v_bar, bins=bins, alpha=0.5, color='red', label='Baryonic Component')
+            axs2[1,0].hist(v_sim_m2, bins=bins, alpha=0.5, color='purple', label='Sim. Total (Method 2 NFW)')
             axs2[1,0].set_title('Velocity Distribution (Method 2 NFW)', fontsize=14, fontweight='bold')
-            axs2[1,0].set_ylabel('Velocity (km/s)')
-            axs2[1,0].set_xlabel('Number of Galaxies')
-            axs2[1,0].set_ylim(0, x_max + padding)
+            axs2[1,0].set_xlabel('Velocity (km/s)')
+            axs2[1,0].set_ylabel('Number of Galaxies')
+            axs2[1,0].set_xlim(0, x_max + padding)
             axs2[1,0].legend()
-            axs2[1,0].grid(True, axis='x', linestyle='--', alpha=0.5)
+            axs2[1,0].grid(True, axis='y', linestyle='--', alpha=0.5)
             
             axs2[1,1].scatter(r_sorted, observed_vel_sorted, color='blue', s=15, alpha=0.4, label='Observed Data')
             axs2[1,1].scatter(r_sorted, v_bar, color='red', s=15, alpha=0.4, label='Baryonic Component')
@@ -311,65 +343,41 @@ def run_cluster_analysis():
             plt.savefig(os.path.join(output_dir_comparison, f"{cluster_name}_comparison.png"), dpi=300)
             plt.close(fig2)
 
-            # ==============================================================
-            # PLOT 3: GRAFICO MASSA E DENSITÀ 2x2 (CONFRONTO METODI)
-            # ==============================================================
-            fig3, axs3 = plt.subplots(2, 2, figsize=(16, 12))
-            fig3.suptitle(f"Cluster: {cluster_name} - Mass & Density Profiles", fontsize=18, fontweight='bold')
+            fig_md, axs_md = plt.subplots(1, 2, figsize=(14, 6))
+            fig_md.suptitle(f"Cluster: {cluster_name} - Mass & Density Profiles", fontsize=18, fontweight='bold')
             
-            # RIGA 1: MASS PROFILES
-            # Metodo 1
-            axs3[0,0].plot(r_sorted, M_baryonic_r, 'r-', lw=2, label='Baryonic Mass')
-            axs3[0,0].plot(r_sorted, M_DM_m1_r, 'g-', lw=2.5, label='DM Mass (Method 1)')
-            axs3[0,0].plot(r_sorted, M_tot_r_virial, 'b--', lw=2.5, label='Total Mass (Method 1)')
-            axs3[0,0].set_title('Mass Profile (Method 1)', fontsize=14, fontweight='bold')
-            axs3[0,0].set_xlabel('Radius (kpc)')
-            axs3[0,0].set_ylabel('Mass ($M_\odot$)')
-            axs3[0,0].set_yscale('log')
-            axs3[0,0].set_xscale('log')
-            axs3[0,0].grid(True, which="both", linestyle='--', alpha=0.5)
-            axs3[0,0].legend()
+          
+            axs_md[0].plot(r_sorted, M_baryonic_r, 'r-', lw=2, label='Baryonic Mass')
+            axs_md[0].plot(r_sorted, M_DM_NFW_r, 'purple', lw=2.5, label='DM Mass (NFW)')
+            axs_md[0].plot(r_sorted, M_tot_model_r, 'c--', lw=2.5, label='Total Mass')
+            axs_md[0].set_title('Mass Profile', fontsize=14, fontweight='bold')
+            axs_md[0].set_xlabel('Radius (kpc)')
+            axs_md[0].set_ylabel('Mass ($M_\odot$)')
+            axs_md[0].set_yscale('log')
+            axs_md[0].set_xscale('log')
+            axs_md[0].grid(True, which="both", linestyle='--', alpha=0.5)
+            axs_md[0].legend()
 
-            # Metodo 2
-            axs3[0,1].plot(r_sorted, M_baryonic_r, 'r-', lw=2, label='Baryonic Mass')
-            axs3[0,1].plot(r_sorted, M_DM_NFW_r, 'purple', lw=2.5, label='DM Mass (Method 2 NFW)')
-            axs3[0,1].plot(r_sorted, M_tot_model_r, 'c--', lw=2.5, label='Total Mass (Method 2)')
-            axs3[0,1].set_title('Mass Profile (Method 2 NFW)', fontsize=14, fontweight='bold')
-            axs3[0,1].set_xlabel('Radius (kpc)')
-            axs3[0,1].set_ylabel('Mass ($M_\odot$)')
-            axs3[0,1].set_yscale('log')
-            axs3[0,1].set_xscale('log')
-            axs3[0,1].grid(True, which="both", linestyle='--', alpha=0.5)
-            axs3[0,1].legend()
-
-            # RIGA 2: DENSITY PROFILES
-            # Metodo 1
-            axs3[1,0].plot(r_sorted, rho_bar, 'r-', lw=2, label='Baryonic Density')
-            axs3[1,0].plot(r_sorted, rho_DM_m1, 'g-', lw=2.5, label='DM Density (Method 1)')
-            axs3[1,0].plot(r_sorted, rho_tot_m1, 'b--', lw=2.5, label='Total Density (Method 1)')
-            axs3[1,0].set_title('Density Profile (Method 1)', fontsize=14, fontweight='bold')
-            axs3[1,0].set_xlabel('Radius (kpc)')
-            axs3[1,0].set_ylabel('Density ($M_\odot / kpc^3$)')
-            axs3[1,0].set_yscale('log')
-            axs3[1,0].set_xscale('log')
-            axs3[1,0].grid(True, which="both", linestyle='--', alpha=0.5)
-            axs3[1,0].legend()
-
-            # Metodo 2
-            axs3[1,1].plot(r_sorted, rho_bar, 'r-', lw=2, label='Baryonic Density')
-            axs3[1,1].plot(r_sorted, rho_DM_m2, 'purple', lw=2.5, label='DM Density (Method 2 NFW)')
-            axs3[1,1].plot(r_sorted, rho_tot_m2, 'c--', lw=2.5, label='Total Density (Method 2)')
-            axs3[1,1].set_title('Density Profile (Method 2 NFW)', fontsize=14, fontweight='bold')
-            axs3[1,1].set_xlabel('Radius (kpc)')
-            axs3[1,1].set_ylabel('Density ($M_\odot / kpc^3$)')
-            axs3[1,1].set_yscale('log')
-            axs3[1,1].set_xscale('log')
-            axs3[1,1].grid(True, which="both", linestyle='--', alpha=0.5)
-            axs3[1,1].legend()
+         
+            axs_md[1].plot(r_sorted, rho_bar, 'r-', lw=2, label='Baryonic Density')
+            axs_md[1].plot(r_sorted, rho_DM_m2, 'purple', lw=2.5, label='DM Density (NFW)')
+            axs_md[1].plot(r_sorted, rho_tot_m2, 'c--', lw=2.5, label='Total Density')
+            axs_md[1].set_title('Density Profile', fontsize=14, fontweight='bold')
+            axs_md[1].set_xlabel('Radius (kpc)')
+            axs_md[1].set_ylabel('Density ($M_\odot / kpc^3$)')
+            axs_md[1].set_yscale('log')
+            axs_md[1].set_xscale('log')
+            axs_md[1].grid(True, which="both", linestyle='--', alpha=0.5)
+            axs_md[1].legend()
+            
+            for ax in axs_md:
+                ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                ax.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
             
             plt.tight_layout(rect=[0, 0, 1, 0.96])
             plt.savefig(os.path.join(output_dir_mass_density, f"{cluster_name}_mass_density.png"), dpi=300)
-            plt.close(fig3)
+            plt.close(fig_md)
             
         except Exception as e:
             print(f"Error on {cluster_name}: {str(e)}")

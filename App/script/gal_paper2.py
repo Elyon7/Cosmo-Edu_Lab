@@ -82,7 +82,7 @@ def fit_galaxy_parameters(r, Vobs, errV, Vgas, Vdisk, Vbul):
 
 def run_pipeline():
     input_folder = "galaxy_data"
-    output_folder = "galaxy_plot_paper"
+    output_folder = "galaxy_plot_paper2"
     export_file = "galaxy_best_parameters.csv"
     
     os.makedirs(output_folder, exist_ok=True)
@@ -160,42 +160,61 @@ def run_pipeline():
             rho_nfw_array = rho_s / ((r / r_s) * (1.0 + r / r_s)**2)
             
            
-            fig, axs = plt.subplots(1, 2, figsize=(14, 6))
-            fig.suptitle(f'Galaxy - {gal_name}', fontsize=18, fontweight='bold')
-            
-        
-            axs[0].errorbar(r, Vobs, yerr=errV, fmt='o', color='blue', ecolor='gray',label='Observed Data')
-            axs[0].plot(r, V_bar, '-', color='red', linewidth=2, label=f'Baryonic (\u03A5={y_opt:.2f})')
-            axs[0].plot(r, V_dm, '-', color='purple', linewidth=2, label='Dark Matter (NFW)')
-            axs[0].plot(r, V_sim, '-', color='green', linewidth=2.5, label=' Total ')
-            axs[0].set(title='Velocity Profile', xlabel='Radius (kpc)', ylabel='Velocity (km/s)')
-            axs[0].set_ylim(0, max(max(Vobs), max(V_sim)) * 1.15)
-            axs[0].grid(True, linestyle='--', alpha=0.6)
-            axs[0].legend()
+           
+            fig, ax1 = plt.subplots(figsize=(10, 6))
+            fig.suptitle(f'Galaxy - {gal_name}', fontsize=16, fontweight='bold')
             
            
-            axs[1].plot(r, rho_nfw_array, '-', color='purple', linewidth=2.5, label='NFW Density')
+            ax1.errorbar(r, Vobs, yerr=errV, fmt='o', color='blue', ecolor='gray', label='Observed Data')
+            ax1.plot(r, V_bar, '-', color='red', linewidth=2, label=f'Baryonic Vel (\u03A5={y_opt:.2f})')
+            ax1.plot(r, V_dm, '-', color='purple', linewidth=2, label='DM Vel (NFW)')
+            ax1.plot(r, V_sim, '-', color='green', linewidth=2.5, label='Total Vel')
             
-            info_text = f'$r_s = {r_s:.2f}$ kpc\n$\\rho_s = {rho_s:.2e}$ $M_\\odot/kpc^3$'
-            axs[1].plot([], [], ' ', label=info_text)
-            axs[1].set(title='Dark Matter Density Profile', xlabel='Radius (kpc)', ylabel='Density ($M_\odot / kpc^3$)')
-            axs[1].set_yscale('log')
-            axs[1].set_xscale('log') 
-            axs[1].grid(True, which="both", linestyle='--', alpha=0.6)
-            axs[1].legend()
+            ax1.set_xlabel('Radius (kpc)', fontsize=12)
+            ax1.set_ylabel('Velocity (km/s)', fontsize=12)
+            ax1.set_ylim(0, max(max(Vobs), max(V_sim)) * 1.15)
+            ax1.grid(True, linestyle='--', alpha=0.6)
             
-            plt.tight_layout(rect=[0, 0, 1, 0.95])
-            plt.savefig(os.path.join(output_folder, f"{gal_name}.png"), dpi=300, bbox_inches='tight')
-            plt.close() 
+         
+            ax2 = ax1.twinx()
+            ax2.plot(r, rho_nfw_array, '-', color='darkorange', linewidth=2.5, label='NFW Density')
+            
+            ax2.set_ylabel('DM Density ($M_\odot / kpc^3$)', fontsize=12, color='darkorange')
+            ax2.set_yscale('log')
+            ax2.tick_params(axis='y', labelcolor='darkorange')
+            
+            
+            lines_1, labels_1 = ax1.get_legend_handles_labels()
+            lines_2, labels_2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center right', fontsize=10)
+            
+            plt.tight_layout()
+            plt.savefig(os.path.join(output_folder, f"{gal_name}_combined.png"), dpi=300, bbox_inches='tight')
+            plt.close()
+           
             
         except Exception as e:
             print(f"{gal_name:<10} | error: {str(e)}")
-
+    
     df_results = pd.DataFrame(results_data)
     df_results.to_csv(export_file, index=False, float_format='%.4f')
     print("-" * 110)
    
-   
+    m_tots = [res["M_tot_edge"] for res in results_data]
+    dm_percs = [res["DM_Fraction_Edge"] * 100 for res in results_data]
+    
+    plt.figure(figsize=(8, 6))
+    plt.scatter(m_tots, dm_percs, color='blue', s=60, alpha=0.7, edgecolor='black')
+    
+    plt.xscale('log')
+    plt.xlabel('Total Mass ($M_\odot$)', fontsize=12)
+    plt.ylabel('Dark Matter Fraction (%)', fontsize=12)
+    plt.title('Galaxies: DM Fraction vs Total Mass', fontsize=14, fontweight='bold')
+    plt.grid(True, which="both", linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_folder, "galaxies_DM_vs_Mtot_scatter.png"), dpi=300, bbox_inches='tight')
+    plt.close()
     print("\n" + "="*80)
     print(" Table:")
     print("="*80)
@@ -204,7 +223,7 @@ def run_pipeline():
    
     print(r"\begin{tabular}{lccccccc}") 
     print(r"\hline")
-   
+  
     print(r"Galaxy & $\Upsilon$ & $r_s$ [kpc] & $\rho_s$ [$M_\odot/\text{kpc}^3$] & $\chi^2_{\text{min}}$ & $R_{\text{edge}}$ [kpc] & $M_{\text{tot}}$ [$M_\odot$] & $\% \text{DM}/\text{tot}$ \\")
     print(r"\hline")
     
@@ -213,7 +232,7 @@ def run_pipeline():
         mtot = res["M_tot_edge"]
         perc_dm = res["DM_Fraction_Edge"] * 100
         
-       
+   
         upsilon = res["Upsilon"]
         rs = res["r_s"]
         rhos = res["rho_s"]

@@ -858,9 +858,9 @@ def create_page():
         def get_cluster_data_cached(filename):
            
           
-            if filename.lower() == "coma_data.csv":
+            if filename.lower() == "abell1656(coma).csv":
              
-                return load_coma_dataset("coma_data.csv")
+                return load_coma_dataset("Abell1656(Coma).csv")
 
          
             data_filepath = os.path.join(CLUSTER_DATA_PATH, filename)
@@ -3630,7 +3630,7 @@ def create_page():
                     ui.label("Analyze the velocity distribution to unveil the reason of larger mass in galaxy clusters.").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
                     plot_state = {'id': 0}  
                     cluster_state = {
-                        "select": "coma_data.csv", 
+                        "select": "Abell1656(Coma).csv", 
                         
 "chi2_points": [],
 "chi2_slider_result": "---",
@@ -4194,7 +4194,7 @@ def create_page():
                     
                         select = cluster_state["select"]
 
-                        if select.lower() == "coma_data.csv":
+                        if select.lower() == "abell1656(coma).csv":
                             img_path = os.path.join(CLUSTER_IMG_PATH, "coma_img.jpg")
                         else:
                             img_path = os.path.join(CLUSTER_IMG_PATH, os.path.splitext(select)[0] + ".jpg")
@@ -4231,7 +4231,7 @@ def create_page():
                     
                         select = cluster_state["select"]
                         ui.html("<h5>Cluster Information</h5>")
-                        if select.lower() == "coma_data.csv":
+                        if select.lower() == "abell1656(coma).csv":
                             table_path = os.path.join(CLUSTER_TABLES_PATH, "coma_table.csv")
                         else:
                             table_path = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(select)[0] + ".csv")
@@ -4459,7 +4459,7 @@ def create_page():
                         
                         
                     with ui.row().classes('w-full justify-center gap-8'):
-                        DEFAULT_CLUSTER = "coma_data.csv" 
+                        DEFAULT_CLUSTER = "Abell1656(Coma).csv" 
                         #DEFAULT_CLUSTER = "Abell0080.txt"
                         cluster_name = None
 
@@ -4510,7 +4510,7 @@ def create_page():
 
                     def load_coma_dataset(filename): 
                   
-                        data_path = os.path.join(DATA_DIR, "coma_data.csv")
+                        data_path = os.path.join(DATA_DIR, "Abell1656(Coma).csv")
                         df_coma = pd.read_csv(data_path, skiprows=1)
                         df_coma.columns = ['objid','ra','dec','modelmag_r','modelmagerr_r','extinction_r','redshift','zErr']
                         cluster_state['observed_vel'] = c_light * df_coma['redshift'].dropna().values
@@ -4551,8 +4551,8 @@ def create_page():
                         try:
                             csv_path = os.path.join(dataset_path, 'cluster_best_parameters.csv')
                             df_params = pd.read_csv(csv_path)
-                            # Usa 'coma_data' in load_coma_dataset, usa gal_name in initialize_cluster_from_df
-                            row = df_params[df_params['Cluster'] == 'coma_data'] 
+                            # Usa 'Abell1656(Coma)' in load_coma_dataset, usa gal_name in initialize_cluster_from_df
+                            row = df_params[df_params['Cluster'] == 'abell1656(coma)'] 
                             if not row.empty:
                                 cluster_state['M200'] = float(row.iloc[0]['M200'])
                                 cluster_state['c'] = float(row.iloc[0]['c'])
@@ -4852,7 +4852,7 @@ def create_page():
                         M_DM_csv_tot = np.max(M_dm_virial_arr)
                         M_tot_csv = M_bar_tot_fixed + M_DM_csv_tot
                         true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
-                        if cluster_state.get('select', '').lower() == 'coma_data.csv':
+                        if cluster_state.get('select', '').lower() == 'abell1656(coma).csv':
                             max_progress = 0.99 / true_dm_ratio if true_dm_ratio > 0 else 1.0
                             progress = float(f / S_max) * max_progress
                         else:
@@ -4931,7 +4931,7 @@ def create_page():
                         with ui.row().classes('w-full items-stretch justify-between no-wrap gap-2 px-2'):
                     
                       
-                            with ui.column().classes('w-[260px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-between overflow-hidden'):
+                            with ui.column().classes('w-[300px] flex-shrink-0 p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-between overflow-hidden'):
                             
                                 with ui.column().classes('w-full gap-1 p-0 m-0'):
                                     cluster_title_label = ui.label("Cluster Info: ---").classes("text-xl font-bold text-blue-800 mb-2 whitespace-nowrap")
@@ -5066,7 +5066,7 @@ def create_page():
                     
                 
                         
-                    if DEFAULT_CLUSTER.lower() == "coma_data.csv":
+                    if DEFAULT_CLUSTER.lower() == "abell1656(coma).csv":
                         df = load_coma_dataset(DEFAULT_CLUSTER)
                         cluster_name = DEFAULT_CLUSTER
                         #select = dataset_selector.value
@@ -5090,7 +5090,7 @@ def create_page():
                         cluster_state["select"] = new_value
                         
                         refresh_cluster_chi2_plot()
-                        if new_value.lower() == "coma_data.csv":
+                        if new_value.lower() == "abell1656(coma).csv":
                             df = load_coma_dataset(new_value)
                             new_max_clu = 60.0
                         else:
@@ -5247,7 +5247,7 @@ def create_page():
                             M_dm_at_gal = np.maximum(0.0, M_tot_virial - m_bary_tot_at_gal_fixed)
                             
                             
-                            if cluster_state.get('select', '').lower() == 'coma_data.csv':
+                            if cluster_state.get('select', '').lower() == 'abell1656(coma).csv':
                                 max_progress = 0.99 / true_dm_ratio if true_dm_ratio > 0 else 1.0
                                 progress = float(f / S_max) * max_progress
                             else:
@@ -5364,7 +5364,7 @@ def create_page():
                             # Aggiorna slider ed etichette
                             dm_slider.props(f'label-value="DM / Mₜₒₜ: {dm_ratio_display * 100:.1f}%"')
                             
-                            select_name = cluster_state.get("select", "coma_data.csv")
+                            select_name = cluster_state.get("select", "Abell1656(Coma).csv")
                             clean_name = select_name.removesuffix('.csv').removesuffix('.txt')
                             cluster_title_label.set_text(f"Cluster Info: {clean_name}")
                           
@@ -5383,7 +5383,7 @@ def create_page():
                                     </ul>
                                 """)
                             select_name = cluster_state["select"]
-                            img_name = "coma_img.jpg" if select_name.lower() == "coma_data.csv" else os.path.splitext(select_name)[0] + ".jpg"
+                            img_name = "coma_img.jpg" if select_name.lower() == "abell1656(coma).csv" else os.path.splitext(select_name)[0] + ".jpg"
                             if os.path.exists(os.path.join(CLUSTER_IMG_PATH, img_name)):
                                 cluster_img_display.source = f"/cluster_img/{img_name}"
                             else:
