@@ -4827,16 +4827,19 @@ def create_page():
                         # M_dm_nfw_arr = M_nfw_enclosed(r_safe, rho_s, r_s)
                         
                         h = 0.7
-                        m_vir_global_fixed = np.sum(m_bary_at_gal)
-                        #m_500_global_fixed = 0.7 * m_vir_global_fixed
-                        #f_gas_global_fixed = 0.093 * ((m_500_global_fixed / 2e14)**0.21)
-                        #m_gas_global_fixed = m_500_global_fixed * f_gas_global_fixed
-                        f_gas_global_fixed = 0.093 * (((0.7 * m_vir_global_fixed) / 2e14)**0.21)
-                        m_gas_global_fixed = (0.7 * m_vir_global_fixed) * f_gas_global_fixed
-                        ratio_stars_gas_fixed = (m_vir_global_fixed + m_gas_global_fixed) / m_vir_global_fixed
-                        m_bary_tot_at_gal_fixed = m_bary_at_gal * ratio_stars_gas_fixed
+                        m_stars_tot = np.sum(m_bary_at_gal)
                         
-                        M_bar_tot_fixed = np.sum(m_bary_tot_at_gal_fixed)
+                       
+                        sigma_obs_global = cluster_state['sigma_obs']
+                        M200_val, _ = estimate_M200_R200_from_sigma(sigma_obs_global, cluster_state['rho_crit'])
+                        
+                        f_gas_global_fixed = 0.093 * (((0.7 * M200_val) / 2e14)**0.21)
+                        m_gas_global_fixed = (0.7 * M200_val) * f_gas_global_fixed
+                        
+                        M_bar_tot_fixed = m_stars_tot + m_gas_global_fixed
+                        
+                        ratio_stars_gas_fixed = M_bar_tot_fixed / m_stars_tot
+                        m_bary_tot_at_gal_fixed = m_bary_at_gal * ratio_stars_gas_fixed
                         
                         # --- VECCHIO CALCOLO NFW ---
                         # M_DM_csv_tot = np.max(M_dm_nfw_arr)
@@ -5220,31 +5223,33 @@ def create_page():
                             # M_dm_at_gal = M_nfw_enclosed(r_safe, rho_s, r_s)
 
                             h = 0.7
-                            m_vir_global_fixed = np.sum(m_bary_at_gal)
-                            m_500_global_fixed = 0.7 * m_vir_global_fixed
-                            f_gas_global_fixed = 0.093 * ((m_500_global_fixed / 2e14)**0.21)
-                            m_gas_global_fixed = m_500_global_fixed * f_gas_global_fixed
-                            ratio_stars_gas_fixed = (m_vir_global_fixed + m_gas_global_fixed) / m_vir_global_fixed
+                            m_stars_tot = np.sum(m_bary_at_gal)
                             
+                          
+                            sigma_obs_global = cluster_state['sigma_obs']
+                            M200_val, _ = estimate_M200_R200_from_sigma(sigma_obs_global, cluster_state['rho_crit'])
+                            
+                            f_gas_global_fixed = 0.093 * (((0.7 * M200_val) / 2e14)**0.21)
+                            m_gas_global_fixed = (0.7 * M200_val) * f_gas_global_fixed
+                            
+                            M_bar_tot_fixed = m_stars_tot + m_gas_global_fixed
+                            
+                            ratio_stars_gas_fixed = M_bar_tot_fixed / m_stars_tot
                             m_bary_tot_at_gal_fixed = m_bary_at_gal * ratio_stars_gas_fixed
-                            
-                           
-                            M_bar_tot_fixed = np.sum(m_bary_tot_at_gal_fixed)
                             
                             # --- VECCHIO CALCOLO NFW  ---
                             # M_DM_csv_tot = np.max(M_dm_at_gal)
                             # M_tot_csv = M_bar_tot_fixed + M_DM_csv_tot
                             # true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
 
-                            # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
-                            # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
+                     
                             sigma_obs_global = cluster_state['sigma_obs']
                             M_tot_virial = (3.0 * sigma_obs_global**2 * r_safe) / G_grav
                             
-                            # Lasciamo l'array M_dm_at_gal intatto per calcolare le velocità locali della simulazione
+                   
                             M_dm_at_gal = np.maximum(0.0, M_tot_virial - m_bary_tot_at_gal_fixed)
                             
-                            # Per le percentuali totali del cluster, usiamo l'intero volume M200!
+                         
                             M200_val, _ = estimate_M200_R200_from_sigma(sigma_obs_global, cluster_state['rho_crit'])
                             M_tot_csv = M200_val
                             M_DM_csv_tot = np.maximum(0.0, M_tot_csv - M_bar_tot_fixed)
@@ -5650,10 +5655,18 @@ def create_page():
 
                         sigma_global = np.std(members["RV"] - np.median(members["RV"]))
                         
-                        # Calcolo gas e barioni fino a r_max (dove abbiamo dati ottici)
+                      
+                    
+                        M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                        
+                      
+                        f_gas_global = 0.093 * (((0.7 * M200) / 2e14)**0.21)
+                        M_gas_tot = (0.7 * M200) * f_gas_global
+                        M_bar_tot_R200 = M_lum_r[-1] + M_gas_tot
+                        
+                      
                         M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
-                        f_gas_r = 0.093 * (((0.7 * M_tot_r) / 2e14)**0.21)
-                        m_gas_r = (0.7 * M_tot_r) * f_gas_r
+                        m_gas_r = (0.7 * M_tot_r) * f_gas_global
                         M_baryonic_r = M_lum_r + m_gas_r
                       
                         def positive_floor(arr):
@@ -5664,19 +5677,18 @@ def create_page():
                             return np.where(arr <= 0, floor, arr)
                         M_baryonic_r = positive_floor(M_baryonic_r)
                         
-                        # --- METODO 2 (NFW) valutato fino a R200 ---
-                        M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                       
                         c_val = concentration_duffy2008(M200, z_cluster)
                         rho_s, r_s, _ = rho_s_from_M200_and_c(M200, c_val, rho_crit)
                         
-                        # Generiamo un array di raggi esteso fino a R200
+                       
                         R_ext = np.geomspace(max(1.0, R_cum[0]), R200, 100)
                         
-                        # La massa luminosa resta piatta oltre l'ultima galassia osservata
+                       
                         M_bar_ext = np.interp(R_ext, R_cum, M_baryonic_r)
-                        M_bar_ext[R_ext > R_cum[-1]] = M_baryonic_r[-1]
+                        M_bar_ext[R_ext > R_cum[-1]] = M_bar_tot_R200
                         
-                        # Calcoliamo il profilo NFW per la Dark Matter (Metodo 2)
+                        
                         x_ext = R_ext / r_s
                         M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
                         M_tot_ext = M_bar_ext + M_DM_ext

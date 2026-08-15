@@ -155,16 +155,32 @@ def run_cluster_analysis():
                 if pos.size == 0: return arr + 1e-6
                 return np.where(arr <= 0, np.nanmin(pos) * 1e-3, arr)
 
-            M_tot_r_virial = positive_floor(M_tot_r_virial)
-            M_baryonic_r = positive_floor(M_baryonic_r)
-            
-            M_bar_tot = M_baryonic_r[-1]
             
             M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
             
-           
+          
+            f_gas_global = 0.093 * (((0.7 * M200) / 2e14)**0.21)
+            M_gas_tot = (0.7 * M200) * f_gas_global
+            
+            M_bar_tot = M_lum_r[-1] + M_gas_tot
+            
+            M_tot_r_virial = (3.0 * sigma_global**2 * r_sorted) / G_grav
+            m_gas_r = (0.7 * M_tot_r_virial) * f_gas_global
+            M_baryonic_r = M_lum_r + m_gas_r
+            
+         
+            
+            def positive_floor(arr):
+                pos = arr[np.isfinite(arr) & (arr > 0)]
+                if pos.size == 0: return arr + 1e-6
+                return np.where(arr <= 0, np.nanmin(pos) * 1e-3, arr)
+
+            M_tot_r_virial = positive_floor(M_tot_r_virial)
+            M_baryonic_r = positive_floor(M_baryonic_r)
+            
+        
             M_tot_1 = M200
-            M_DM_1 = M_tot_1 - M_bar_tot
+            M_DM_1 = np.maximum(0.0, M_tot_1 - M_bar_tot)
             perc_DM_1 = (M_DM_1 / M_tot_1) * 100
             
             c_val = concentration_duffy2008(M200, z_cluster)
@@ -349,7 +365,7 @@ def run_cluster_analysis():
     
     plt.tight_layout()
   
-    plt.savefig(os.path.join(output_dir_original, "clusters_DM_vs_Mtot_scatter2.png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir_original, "clusters_DM_vs_Mtot_scatter.png"), dpi=300, bbox_inches='tight')
     plt.close()
     print("  TABLE :")
     print("="*60)
