@@ -3786,36 +3786,35 @@ def create_page():
 
                         """,
 
-                       r"""
+                      r"""
                         <h3>Phase 4: Calculating Cluster Mass</h3>
 
                         <h4>Exercise :</h4>
 
                         <ul>
-
-                            <li>Use the data from the dataset downloadable from the App (radius and average velocities of the galaxies) to calculate the total mass of the cluster and the luminous mass (only stars, dust, gas).</li>
-
+                            <li>Use the data from the dataset to calculate the dynamical mass enclosed within the visible galaxies and the luminous mass (stars, dust, gas).</li>
+                            
                             <li>Download the cluster dataset from the App (module 2 - Cluster panel - dataset). Analyze the data (velocity RV and radius of each galaxy in the cluster) by selecting a cluster dataset from the Excel spreadsheet.</li>
 
-                            <li>To calculate the Total Mass using the formula <span class="math">\( M = \frac{r \cdot \sigma^2}{G} \)</span>, first perform the following steps. Find the maximum radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
+                            <li>To calculate the Dynamical Mass within the observed region using the formula <span class="math">\( M(r) = \frac{3 \cdot r \cdot \sigma^2}{G} \)</span>, first find the maximum visible radius of the cluster by applying the Excel formula <code>=MAX(H2:H108)</code>.</li>
 
-                            <li>Calculate the standard deviation of the velocity using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
+                            <li>Calculate the standard deviation of the velocity (velocity dispersion) using the Excel formula <code>=STDEV.P(C2:C108)</code>.</li>
 
-                            <li>To obtain the total mass of the cluster, multiply the mean radius by the squared standard deviation and divide by the constant G <code>=(L2*K2^2)/I2</code>.</li>
+                            <li>To obtain the dynamical mass, multiply 3 times the maximum radius by the squared standard deviation and divide by the constant G <code>=(3*L2*K2^2)/I2</code>.</li>
+                            
+                            <li style="background-color: #e0f2fe; padding: 10px; border-radius: 5px; margin: 10px 0;"><i><b>Note for astrophysicists:</b> This Excel calculation gives you the mass stopping at the last visible galaxy. In cosmology, the true Total Mass of the cluster (<span class="math">\(M_{200}\)</span>) extends much further into the dark halo! The App will automatically calculate the full <span class="math">\(M_{200}\)</span> for you solving the mathematical equations.</i></li>
 
                             <li>Calculate the total stellar mass of the cluster by summing the values of each galaxy in the Stellar Mass column of the dataset <code>=SUM(G2:G108)</code>.</li>
 
-                            <li>Calculate the gas mass of the cluster using the pre-defined formula in Excel column <code>=(0.7*L2) * 0.093 * (((0.7*L2) / (200000000000000 / 0.7)) ^ 0.21)</code>, where <code>L2</code> is the total mass of the cluster calculated in the previous step.</li>
+                            <li>Calculate the gas mass of the cluster using the pre-defined formula in Excel column <code>=(0.7*L2) * 0.093 * (((0.7*L2) / (200000000000000 / 0.7)) ^ 0.21)</code>, where <code>L2</code> is the mass calculated in the previous step.</li>
 
                             <li>Calculate the Luminous Mass (stars, gas) by summing the total stellar mass and the gas mass. </li>
 
-                            <li>Compare the results of the luminous mass and total mass. Calculate the ratio: Total Mass / Luminous Mass. What value do you get? Which of the two masses is larger and why?</li>
+                            <li>Compare the results of the luminous mass and dynamical mass. Calculate the ratio: Mass / Luminous Mass. What value do you get? Which of the two masses is larger and why?</li>
 
                             <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
 
                         </ul>
-
-                        
 
                         """,
                          r"""
@@ -4845,12 +4844,17 @@ def create_page():
                         # true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
 
                         # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
+                        # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
                         sigma_obs_global = cluster_state['sigma_obs']
                         M_tot_virial = (3.0 * sigma_obs_global**2 * r_safe) / G_grav
-                        M_dm_virial_arr = np.maximum(0.0, M_tot_virial - m_bary_tot_at_gal_fixed)
                         
-                        M_DM_csv_tot = np.max(M_dm_virial_arr)
-                        M_tot_csv = M_bar_tot_fixed + M_DM_csv_tot
+                        # Lasciamo l'array M_dm_at_gal intatto per calcolare le velocità locali della simulazione
+                        M_dm_at_gal = np.maximum(0.0, M_tot_virial - m_bary_tot_at_gal_fixed)
+                        
+                        # Per le percentuali totali del cluster, usiamo l'intero volume M200!
+                        M200_val, _ = estimate_M200_R200_from_sigma(sigma_obs_global, cluster_state['rho_crit'])
+                        M_tot_csv = M200_val
+                        M_DM_csv_tot = np.maximum(0.0, M_tot_csv - M_bar_tot_fixed)
                         true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
                         if cluster_state.get('select', '').lower() == 'abell1656(coma).csv':
                             max_progress = 0.99 / true_dm_ratio if true_dm_ratio > 0 else 1.0
@@ -5233,12 +5237,17 @@ def create_page():
                             # true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
 
                             # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
+                            # --- NUOVO CALCOLO SOTTRAZIONE VIRIALE ---
                             sigma_obs_global = cluster_state['sigma_obs']
                             M_tot_virial = (3.0 * sigma_obs_global**2 * r_safe) / G_grav
+                            
+                            # Lasciamo l'array M_dm_at_gal intatto per calcolare le velocità locali della simulazione
                             M_dm_at_gal = np.maximum(0.0, M_tot_virial - m_bary_tot_at_gal_fixed)
                             
-                            M_DM_csv_tot = np.max(M_dm_at_gal)
-                            M_tot_csv = M_bar_tot_fixed + M_DM_csv_tot
+                            # Per le percentuali totali del cluster, usiamo l'intero volume M200!
+                            M200_val, _ = estimate_M200_R200_from_sigma(sigma_obs_global, cluster_state['rho_crit'])
+                            M_tot_csv = M200_val
+                            M_DM_csv_tot = np.maximum(0.0, M_tot_csv - M_bar_tot_fixed)
                             true_dm_ratio = (M_DM_csv_tot / M_tot_csv) if M_tot_csv > 0 else 0.0
 
                             
@@ -5474,9 +5483,9 @@ def create_page():
                                             
                                             
 
-                                            plt.xlim(0, r_max + r_padding)
+                                            plt.xlim(0, cluster_state['R200'] * 1.1)
+                                            #plt.axvline(cluster_state['R200'], color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
                                             plt.ylim(0, ylim_max)
-
 
                                             plt.xlabel("Radius [kpc]",fontsize=10)
                                             plt.ylabel("Velocity [km/s]",fontsize=10)
@@ -5594,8 +5603,6 @@ def create_page():
 
                         df = get_cluster_data_cached(selected_file)
 
-                        
-
                         H0 = 70.0
                         G = 4.302e-6
                         M_sun_B = 5.48
@@ -5619,6 +5626,8 @@ def create_page():
                             return
 
                         cluster_distance = float(FIXED_DISTANCE_MPC) if FIXED_DISTANCE_MPC else np.median(members["RV"]) / H0
+                        z_cluster = np.nanmedian(members["RV"] / c_light)
+                        rho_crit = rho_crit_Msunkpc3(H0)
 
                         mean_ra, mean_dec = members["RAdeg"].mean(), members["DEdeg"].mean()
                         ang_sep = np.sqrt(((members["RAdeg"] - mean_ra) * np.cos(np.radians(mean_dec)))**2 +
@@ -5640,11 +5649,11 @@ def create_page():
                         M_lum_r = MLR_B * L_cum
 
                         sigma_global = np.std(members["RV"] - np.median(members["RV"]))
+                        
+                        # Calcolo gas e barioni fino a r_max (dove abbiamo dati ottici)
                         M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
-                        h = 0.7  
-                        m_500_r = 0.7 * M_tot_r
-                        f_gas_r = 0.093 * ((m_500_r / 2e14)**0.21)
-                        m_gas_r = m_500_r * f_gas_r
+                        f_gas_r = 0.093 * (((0.7 * M_tot_r) / 2e14)**0.21)
+                        m_gas_r = (0.7 * M_tot_r) * f_gas_r
                         M_baryonic_r = M_lum_r + m_gas_r
                       
                         def positive_floor(arr):
@@ -5653,36 +5662,52 @@ def create_page():
                                 return arr + 1e-6
                             floor = np.nanmin(pos) * 1e-3
                             return np.where(arr <= 0, floor, arr)
-
-                        M_tot_r = positive_floor(M_tot_r)
                         M_baryonic_r = positive_floor(M_baryonic_r)
                         
-                       
-                        M_DM_r = np.maximum(0.0, M_tot_r - M_baryonic_r)
+                        # --- METODO 2 (NFW) valutato fino a R200 ---
+                        M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                        c_val = concentration_duffy2008(M200, z_cluster)
+                        rho_s, r_s, _ = rho_s_from_M200_and_c(M200, c_val, rho_crit)
+                        
+                        # Generiamo un array di raggi esteso fino a R200
+                        R_ext = np.geomspace(max(1.0, R_cum[0]), R200, 100)
+                        
+                        # La massa luminosa resta piatta oltre l'ultima galassia osservata
+                        M_bar_ext = np.interp(R_ext, R_cum, M_baryonic_r)
+                        M_bar_ext[R_ext > R_cum[-1]] = M_baryonic_r[-1]
+                        
+                        # Calcoliamo il profilo NFW per la Dark Matter (Metodo 2)
+                        x_ext = R_ext / r_s
+                        M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
+                        M_tot_ext = M_bar_ext + M_DM_ext
 
-                        rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
-                        rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
-                        rho_DM_cum = M_DM_r / ((4.0/3.0) * np.pi * R_cum**3)
+                        # Densità estese
+                        Vol_ext = (4.0/3.0) * np.pi * R_ext**3
+                        rho_lum_ext = M_bar_ext / Vol_ext
+                        rho_DM_ext = M_DM_ext / Vol_ext
+                        rho_tot_ext = M_tot_ext / Vol_ext
 
                         with cluster_popup_container:
                             with ui.row().classes('w-full justify-center gap-8 flex-wrap'):
                                 with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_cum, M_baryonic_r/1e9, label="Luminous Mass", color="red", lw=2)
-                                    plt.plot(R_cum, M_DM_r/1e9, label="Dark Matter Mass", color="green", lw=2)
-                                    plt.plot(R_cum, M_tot_r/1e9, label="Total Mass", color="blue", lw=2)
+                                    plt.plot(R_ext, M_bar_ext/1e9, label="Luminous Mass", color="red", lw=2)
+                                    plt.plot(R_ext, M_DM_ext/1e9, label="Dark Matter (NFW)", color="green", lw=2)
+                                    plt.plot(R_ext, M_tot_ext/1e9, label="Total Mass", color="blue", lw=2)
+                                    #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
                                     plt.xscale("log"); plt.yscale("log")
                                     plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
-                                    plt.title(f"Mass Profile — {selected_file}",fontweight='bold')
+                                    plt.title(f"Mass Profile — {selected_file}", fontweight='bold')
                                     plt.grid(True, which="both", ls="--")
                                     plt.legend()
 
                                 with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_cum, rho_lum_cum, label="Luminous Density", color="red")
-                                    plt.plot(R_cum, rho_DM_cum, label="Dark Matter Density", color="green")
-                                    plt.plot(R_cum, rho_tot_cum, label="Total Density", color="blue")
+                                    plt.plot(R_ext, rho_lum_ext, label="Luminous Density", color="red")
+                                    plt.plot(R_ext, rho_DM_ext, label="Dark Matter Density", color="green")
+                                    plt.plot(R_ext, rho_tot_ext, label="Total Density", color="blue")
+                                    #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
                                     plt.xscale("log"); plt.yscale("log")
                                     plt.xlabel("Radius (kpc)"); plt.ylabel("Density (M☉/kpc³)")
-                                    plt.title(f"Density Profile — {selected_file}",fontweight='bold')
+                                    plt.title(f"Density Profile — {selected_file}", fontweight='bold')
                                     plt.grid(True, which="both", ls="--")
                                     plt.legend()
                     def open_cluster_analysis_dialog():
@@ -6256,14 +6281,11 @@ def create_page():
                                 cluster_plot_container.clear()
                                 return
 
-                       
                             image_filepath = cluster_file_map.get(selected_file)
-                            
                             cluster_plot_container.clear()
 
                             with cluster_plot_container:
                                 try:
-                                    
                                     df = get_cluster_data_cached(selected_file)
 
                                     H0 = 70.0
@@ -6272,7 +6294,6 @@ def create_page():
                                     MLR_B = 5.0
                                     FIXED_DISTANCE_MPC = None  
 
-                                
                                     members = df.copy()
                                     for _ in range(5):
                                         v_rel = members["RV"] - np.median(members["RV"])
@@ -6288,13 +6309,10 @@ def create_page():
                                         ui.label(f"Not enough valid galaxies in {selected_file}.").classes('text-orange-500')
                                         return
 
-                            
-                                    if FIXED_DISTANCE_MPC is not None:
-                                        cluster_distance = float(FIXED_DISTANCE_MPC)
-                                    else:
-                                        cluster_distance = np.median(members["RV"]) / H0
+                                    cluster_distance = float(FIXED_DISTANCE_MPC) if FIXED_DISTANCE_MPC else np.median(members["RV"]) / H0
+                                    z_cluster = np.nanmedian(members["RV"] / c_light)
+                                    rho_crit = rho_crit_Msunkpc3(H0)
 
-                                
                                     mean_ra, mean_dec = members["RAdeg"].mean(), members["DEdeg"].mean()
                                     ang_sep = np.sqrt(((members["RAdeg"] - mean_ra) * np.cos(np.radians(mean_dec)))**2 +
                                                     (members["DEdeg"] - mean_dec)**2)
@@ -6303,35 +6321,21 @@ def create_page():
                                     members = members[members["r_kpc"] <= 3000]
                                     r = members["r_kpc"].values
 
-                                
                                     D_pc = cluster_distance * 1e6
                                     dist_mod = 5*np.log10(D_pc) - 5
                                     M_abs = members["bmag"] - dist_mod
                                     L_B = 10**(-0.4*(M_abs - M_sun_B))
                                     L_B_np = L_B.values
 
-                                
                                     order = np.argsort(r)
                                     R_cum = r[order]
                                     L_cum = np.cumsum(L_B_np[order])
                                     M_lum_r = MLR_B * L_cum
 
-                                
-                                    rmin = max(10.0, np.percentile(r, 2))
-                                    rmax = np.percentile(r, 98)
-                                    if rmax <= rmin:
-                                        rmin = max(1.0, np.min(r)*0.9)
-                                        rmax = np.max(r)*1.1
-                                    n_bins = min(25, max(10, len(r)//8))
-                                    edges = np.geomspace(rmin, rmax, n_bins + 1)
-                                    R_mid = 0.5 * (edges[:-1] + edges[1:])
-
                                     sigma_global = np.std(members["RV"] - np.median(members["RV"]))
+                                    
+                                    # Calcolo massa luminosa
                                     M_tot_r = (3.0 * sigma_global**2 * R_cum) / G 
-                                    h = 0.7  
-                                    #m_500_r = 0.7 * M_tot_r
-                                    #f_gas_r = 0.093 * ((m_500_r / 2e14)**0.21)
-                                    #m_gas_r = m_500_r * f_gas_r
                                     f_gas_r = 0.093 * (((0.7 * M_tot_r) / 2e14)**0.21)
                                     m_gas_r = (0.7 * M_tot_r) * f_gas_r
                                     M_baryonic_r = M_lum_r + m_gas_r
@@ -6342,52 +6346,57 @@ def create_page():
                                             return arr + 1e-6
                                         floor = np.nanmin(pos) * 1e-3
                                         return np.where(arr <= 0, floor, arr)
-
-                                    M_tot_r = positive_floor(M_tot_r)
                                     M_baryonic_r = positive_floor(M_baryonic_r)
                                     
+                                    # --- METODO 2 (NFW) esteso fino a R200 ---
+                                    M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                                    c_val = concentration_duffy2008(M200, z_cluster)
+                                    rho_s, r_s, _ = rho_s_from_M200_and_c(M200, c_val, rho_crit)
                                     
-                                    M_DM_r = np.maximum(0.0, M_tot_r - M_baryonic_r)
+                                    R_ext = np.geomspace(max(1.0, R_cum[0]), R200, 100)
+                                    
+                                    # La massa luminosa resta piatta oltre r_max
+                                    M_bar_ext = np.interp(R_ext, R_cum, M_baryonic_r)
+                                    M_bar_ext[R_ext > R_cum[-1]] = M_baryonic_r[-1]
+                                    
+                                    # Massa NFW per DM
+                                    x_ext = R_ext / r_s
+                                    M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
+                                    M_tot_ext = M_bar_ext + M_DM_ext
 
                                     with ui.column().classes('flex-1 items-center'):  
                                         with ui.pyplot(figsize=(8,6)):
-                                    
-                                            mask_lum = M_baryonic_r > 0
-                                            plt.plot(R_cum[mask_lum], M_baryonic_r[mask_lum], label='Luminous Mass', color='red')
-                                            plt.plot(R_cum, M_DM_r, label='Dark Matter Mass', color='green')
-                                            plt.plot(R_cum, M_tot_r, label='Total Mass (Virial)', color='blue')
+                                            mask_lum = M_bar_ext > 0
+                                            plt.plot(R_ext[mask_lum], M_bar_ext[mask_lum], label='Luminous Mass', color='red')
+                                            plt.plot(R_ext, M_DM_ext, label='Dark Matter (NFW)', color='green')
+                                            plt.plot(R_ext, M_tot_ext, label='Total Mass', color='blue')
+                                            #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
                                             plt.xscale('log'); plt.yscale('log')
                                             plt.xlabel('Radius (kpc)'); plt.ylabel('Mass ($M_\\odot$)')
-                                            plt.title(f'Mass Profile {os.path.splitext(selected_file)[0]}',fontweight='bold')
+                                            plt.title(f'Mass Profile {os.path.splitext(selected_file)[0]}', fontweight='bold')
                                             plt.grid(True, which="both", ls="--"); plt.legend()
-                                            ui.element('div').props(
-        'role=img tabindex=0 aria-label=Plot showing the mass profile (in solar mass) in function to the radius (in kpc) of the selected galaxy cluster, comparing luminous mass and total mass'
-    )
+                                            ui.element('div').props('role=img tabindex=0 aria-label=Plot showing the mass profile comparing luminous mass and total mass up to R200')
                                 
-                                        rho_lum_cum = M_baryonic_r / ((4.0/3.0) * np.pi * R_cum**3)
-                                        rho_tot_cum = M_tot_r / ((4.0/3.0) * np.pi * R_cum**3)
-                                        rho_DM_cum = M_DM_r / ((4.0/3.0) * np.pi * R_cum**3)
+                                    Vol_ext = (4.0/3.0) * np.pi * R_ext**3
+                                    rho_lum_ext = M_bar_ext / Vol_ext
+                                    rho_tot_ext = M_tot_ext / Vol_ext
+                                    rho_DM_ext = M_DM_ext / Vol_ext
                                         
                                     with ui.column().classes('flex-1 items-center'):
                                         with ui.pyplot(figsize=(8,6)):
-                                        
-                                            plt.plot(R_cum, rho_lum_cum, label=' Luminous Density', color='red')
-                                            plt.plot(R_cum, rho_DM_cum, label=' Dark Matter Density', color='green')
-                                            plt.plot(R_cum, rho_tot_cum, label=' Total Density', color='blue')
+                                            plt.plot(R_ext, rho_lum_ext, label=' Luminous Density', color='red')
+                                            plt.plot(R_ext, rho_DM_ext, label=' Dark Matter Density', color='green')
+                                            plt.plot(R_ext, rho_tot_ext, label=' Total Density', color='blue')
+                                            #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
                                             plt.xscale('log'); plt.yscale('log')
                                             plt.xlabel('Radius (kpc)')
                                             plt.ylabel('Density ($M_\\odot$ / kpc³)')
-                                            plt.title(f'Density Profile {os.path.splitext(selected_file)[0]}',fontweight='bold')
+                                            plt.title(f'Density Profile {os.path.splitext(selected_file)[0]}', fontweight='bold')
                                             plt.grid(True, which="both", ls="--")
                                             plt.legend()
-                                            ui.element('div').props(
-        'role=img tabindex=0 aria-label=Plot showing the mass density profile in function to the radius of the selected galaxy cluster, comparing luminous mass and total mass'
-    )
-
+                                            ui.element('div').props('role=img tabindex=0 aria-label=Plot showing the mass density profile comparing luminous mass and total mass up to R200')
 
                                     with ui.row().classes('w-full gap-4 justify-start'):
-
-    
                                         with ui.column().classes('flex-1 items-center '):
                                             if image_filepath and os.path.exists(image_filepath):
                                                 file_name = os.path.basename(image_filepath)
@@ -6401,13 +6410,9 @@ def create_page():
     """).classes('w-full text-center text-base  italic mt-2')
                                             else:
                                                 ui.label("Image not found").classes('text-red-500')
-
             
                                         with ui.column().classes('flex-1 items-center '):
-                                            table_filepath = os.path.join(
-                    CLUSTER_TABLES_PATH,
-                    os.path.splitext(selected_file)[0] + ".csv"
-                )
+                                            table_filepath = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(selected_file)[0] + ".csv")
                                             if os.path.exists(table_filepath):
                                                 df_table = pd.read_csv(table_filepath)
                                                 ui.table.from_pandas(df_table).props('aria-label=Table of the selected galaxy cluster characteristics role=table').classes('w-full max-w-xl')

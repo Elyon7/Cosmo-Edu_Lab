@@ -56,7 +56,7 @@ def run_cluster_analysis():
     abell_files = glob.glob("cluster_data/Abell*.txt") + glob.glob("Abell*.txt")
     all_files = list(set(coma_files + abell_files))
     
-    # --- CREAZIONE DELLE TRE CARTELLE ---
+  
     output_dir_original = "cluster_plot_unified2"
     output_dir_comparison = "cluster_plot_methods_comparison2"
     output_dir_mass_density = "cluster_plot_mass_density"
@@ -146,7 +146,7 @@ def run_cluster_analysis():
             else:
                 sigma_global = np.std(observed_vel_sorted - np.median(observed_vel_sorted))
                 
-            # --- CALCOLO MASSE ---
+          
             M_tot_r_virial = (3.0 * sigma_global**2 * r_sorted) / G_grav
             f_gas_r = 0.093 * (((0.7 * M_tot_r_virial) / 2e14)**0.21)
             m_gas_r = (0.7 * M_tot_r_virial) * f_gas_r
@@ -161,25 +161,27 @@ def run_cluster_analysis():
             M_baryonic_r = positive_floor(M_baryonic_r)
             M_bar_tot = M_baryonic_r[-1]
             
-            # Arrays per Metodo 1
+           
+            M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+            
+          
             M_DM_m1_r = np.maximum(0.0, M_tot_r_virial - M_baryonic_r)
-            M_tot_1 = M_tot_r_virial[-1]
+            M_tot_1 = M200
             M_DM_1 = M_tot_1 - M_bar_tot
             perc_DM_1 = (M_DM_1 / M_tot_1) * 100
             
-            # Arrays per Metodo 2
-            M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+   
             c_val = concentration_duffy2008(M200, z_cluster)
             rho_s, r_s, r200_nfw = rho_s_from_M200_and_c(M200, c_val, rho_crit)
             x = r_sorted / r_s
             M_DM_NFW_r = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x) - x / (1.0 + x))
             M_tot_model_r = M_baryonic_r + M_DM_NFW_r
             
-            M_tot_2 = M_tot_model_r[-1]
-            M_DM_2 = M_DM_NFW_r[-1]
+            M_DM_2 = M200
+            M_tot_2 = M_bar_tot + M_DM_2
             perc_DM_2 = (M_DM_2 / M_tot_2) * 100
             
-            # --- CALCOLO DENSITÀ ---
+           
             Vol = (4.0 / 3.0) * np.pi * r_sorted**3
             rho_bar = M_baryonic_r / Vol
             rho_tot_m1 = M_tot_r_virial / Vol
@@ -196,7 +198,7 @@ def run_cluster_analysis():
             
             print(f"{cluster_name:<12} | {M_tot_1:<12.2e} | {perc_DM_1:<12.1f}% | {perc_DM_2:.1f}%")
             
-            # --- GENERAZIONE VELOCITÀ ---
+            
             v_mean_obs = np.mean(observed_vel_sorted)
             sigma_mean_obs = np.std(observed_vel_sorted)
             rng = np.random.default_rng(seed=42)
@@ -235,7 +237,9 @@ def run_cluster_analysis():
             axs1[1].set_xlabel('Radius (kpc)')
             axs1[1].set_ylabel('Velocity (km/s)')
             axs1[1].set_ylim(0, x_max + padding)
-            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            #axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            axs1[1].set_xlim(0, R200 * 1.1)
+            #axs1[1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs1[1].legend()
             axs1[1].grid(True, linestyle='--', alpha=0.5)
             
@@ -272,7 +276,9 @@ def run_cluster_analysis():
             axs1[1].set_xlabel('Radius (kpc)')
             axs1[1].set_ylabel('Velocity (km/s)')
             axs1[1].set_ylim(0, x_max + padding)
-            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            #axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            axs1[1].set_xlim(0, R200 * 1.1)
+            #axs1[1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs1[1].legend()
             axs1[1].grid(True, linestyle='--', alpha=0.5)
             
@@ -307,7 +313,9 @@ def run_cluster_analysis():
             axs2[0,1].set_xlabel('Radius (kpc)')
             axs2[0,1].set_ylabel('Velocity (km/s)')
             axs2[0,1].set_ylim(0, x_max + padding)
-            axs2[0,1].set_xlim(0, r_sorted.max() * 1.1)
+            #axs2[0,1].set_xlim(0, r_sorted.max() * 1.1)
+            axs2[0,1].set_xlim(0, R200 * 1.1)
+            #axs2[0,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs2[0,1].legend()
             axs2[0,1].grid(True, linestyle='--', alpha=0.5)
 
@@ -329,7 +337,9 @@ def run_cluster_analysis():
             axs2[1,1].set_xlabel('Radius (kpc)')
             axs2[1,1].set_ylabel('Velocity (km/s)')
             axs2[1,1].set_ylim(0, x_max + padding)
-            axs2[1,1].set_xlim(0, r_sorted.max() * 1.1)
+            #axs2[1,1].set_xlim(0, r_sorted.max() * 1.1)
+            axs2[1,1].set_xlim(0, R200 * 1.1)
+            #axs2[1,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs2[1,1].legend()
             axs2[1,1].grid(True, linestyle='--', alpha=0.5)
             
@@ -343,13 +353,32 @@ def run_cluster_analysis():
             plt.savefig(os.path.join(output_dir_comparison, f"{cluster_name}_comparison.png"), dpi=300)
             plt.close(fig2)
 
+         
+            R_ext = np.geomspace(max(1.0, r_sorted[0]), R200, 100)
+            
+   
+            M_bar_ext = np.interp(R_ext, r_sorted, M_baryonic_r)
+            M_bar_ext[R_ext > r_sorted[-1]] = M_bar_tot
+            
+           
+            x_ext = R_ext / r_s
+            M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
+            M_tot_ext = M_bar_ext + M_DM_ext
+            
+        
+            Vol_ext = (4.0 / 3.0) * np.pi * R_ext**3
+            rho_bar_ext = M_bar_ext / Vol_ext
+            rho_DM_ext = M_DM_ext / Vol_ext
+            rho_tot_ext = M_tot_ext / Vol_ext
+
             fig_md, axs_md = plt.subplots(1, 2, figsize=(14, 6))
             fig_md.suptitle(f"Cluster: {cluster_name} - Mass & Density Profiles", fontsize=18, fontweight='bold')
             
-          
-            axs_md[0].plot(r_sorted, M_baryonic_r, 'r-', lw=2, label='Baryonic Mass')
-            axs_md[0].plot(r_sorted, M_DM_NFW_r, 'purple', lw=2.5, label='DM Mass (NFW)')
-            axs_md[0].plot(r_sorted, M_tot_model_r, 'c--', lw=2.5, label='Total Mass')
+         
+            axs_md[0].plot(R_ext, M_bar_ext, 'r-', lw=2, label='Baryonic Mass')
+            axs_md[0].plot(R_ext, M_DM_ext, 'purple', lw=2.5, label='DM Mass (NFW)')
+            axs_md[0].plot(R_ext, M_tot_ext, 'c--', lw=2.5, label='Total Mass')
+            #axs_md[0].axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
             axs_md[0].set_title('Mass Profile', fontsize=14, fontweight='bold')
             axs_md[0].set_xlabel('Radius (kpc)')
             axs_md[0].set_ylabel('Mass ($M_\odot$)')
@@ -358,10 +387,11 @@ def run_cluster_analysis():
             axs_md[0].grid(True, which="both", linestyle='--', alpha=0.5)
             axs_md[0].legend()
 
-         
-            axs_md[1].plot(r_sorted, rho_bar, 'r-', lw=2, label='Baryonic Density')
-            axs_md[1].plot(r_sorted, rho_DM_m2, 'purple', lw=2.5, label='DM Density (NFW)')
-            axs_md[1].plot(r_sorted, rho_tot_m2, 'c--', lw=2.5, label='Total Density')
+           
+            axs_md[1].plot(R_ext, rho_bar_ext, 'r-', lw=2, label='Baryonic Density')
+            axs_md[1].plot(R_ext, rho_DM_ext, 'purple', lw=2.5, label='DM Density (NFW)')
+            axs_md[1].plot(R_ext, rho_tot_ext, 'c--', lw=2.5, label='Total Density')
+            #axs_md[1].axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
             axs_md[1].set_title('Density Profile', fontsize=14, fontweight='bold')
             axs_md[1].set_xlabel('Radius (kpc)')
             axs_md[1].set_ylabel('Density ($M_\odot / kpc^3$)')

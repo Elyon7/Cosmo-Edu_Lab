@@ -145,7 +145,7 @@ def run_cluster_analysis():
                 
             M_tot_r_virial = (3.0 * sigma_global**2 * r_sorted) / G_grav
             
-            # Formula di Giodini con M200
+            
             f_gas_r = 0.093 * (((0.7 * M_tot_r_virial) / 2e14)**0.21)
             m_gas_r = (0.7 * M_tot_r_virial) * f_gas_r
             M_baryonic_r = M_lum_r + m_gas_r
@@ -160,11 +160,13 @@ def run_cluster_analysis():
             
             M_bar_tot = M_baryonic_r[-1]
             
-            M_tot_1 = M_tot_r_virial[-1]
+            M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+            
+           
+            M_tot_1 = M200
             M_DM_1 = M_tot_1 - M_bar_tot
             perc_DM_1 = (M_DM_1 / M_tot_1) * 100
             
-            M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
             c_val = concentration_duffy2008(M200, z_cluster)
             rho_s, r_s, r200_nfw = rho_s_from_M200_and_c(M200, c_val, rho_crit)
             
@@ -172,25 +174,16 @@ def run_cluster_analysis():
             M_DM_NFW_r = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x) - x / (1.0 + x))
             M_tot_model_r = M_baryonic_r + M_DM_NFW_r
             
-            M_tot_2 = M_tot_model_r[-1]
-            M_DM_2 = M_DM_NFW_r[-1]
+          
+            M_DM_2 = M200
+            M_tot_2 = M_bar_tot + M_DM_2
             perc_DM_2 = (M_DM_2 / M_tot_2) * 100
             
-            results_data.append({
-                "Cluster": cluster_name,
-                "M_tot_1": M_tot_1,
-                "Perc_DM_1": perc_DM_1,
-                "Perc_DM_2": perc_DM_2
-            })
-            
-            print(f"{cluster_name:<12} | {M_tot_1:<12.2e} | {perc_DM_1:<12.1f}% | {perc_DM_2:.1f}%")
-            
-        
+          
             v_mean_obs = np.mean(observed_vel_sorted)
             sigma_mean_obs = np.std(observed_vel_sorted)
             rng = np.random.default_rng(seed=42)
             
-          
             sigma_bar_local = np.sqrt(np.maximum(1e-6, G_grav * M_baryonic_r / (3.0 * r_sorted)))
             v_bar = rng.normal(loc=sigma_bar_local, scale=sigma_mean_obs, size=len(r_sorted))
             
@@ -202,11 +195,34 @@ def run_cluster_analysis():
             x_max = observed_vel_sorted.max()
             padding = 0.15 * x_max
             bins = np.linspace(0, x_max + padding, 50)
+
+         
+            obs_counts, _ = np.histogram(observed_vel_sorted, bins=bins)
+            sim_counts_m2, _ = np.histogram(v_sim_m2, bins=bins)
+            err_obs = np.sqrt(obs_counts)
+            err_obs[err_obs == 0] = 1.0  
+            
+            chi2_val = np.sum(((obs_counts - sim_counts_m2) / err_obs)**2)
+            dof = max(1, len(obs_counts[obs_counts > 0]) - 2) 
+            chi2_red = chi2_val / dof
+            
+        
+            results_data.append({
+                "Cluster": cluster_name,
+                "M_tot_1": M_tot_1,
+                "Perc_DM_1": perc_DM_1,
+                "Perc_DM_2": perc_DM_2,
+                "r_s": r_s,
+                "rho_s": rho_s,
+                "chi2_red": chi2_red
+            })
+            
+            print(f"{cluster_name:<12} | {M_tot_1:<12.2e} | {perc_DM_1:<12.1f}% | {perc_DM_2:.1f}% | chi2/dof: {chi2_red:.2f}")
             
        
     
             fig1, axs1 = plt.subplots(1, 2, figsize=(14, 6))
-            fig1.suptitle(f"Cluster: {cluster_name} - Unified View", fontsize=18, fontweight='bold')
+            fig1.suptitle(f"Cluster: {cluster_name} ", fontsize=18, fontweight='bold')
             
            
             axs1[0].hist(observed_vel_sorted, bins=bins, alpha=0.4, color='blue', label='Observed Data')
@@ -229,7 +245,8 @@ def run_cluster_analysis():
             axs1[1].set_xlabel('Radius (kpc)')
             axs1[1].set_ylabel('Velocity (km/s)')
             axs1[1].set_ylim(0, x_max + padding)
-            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
+            axs1[1].set_xlim(0, R200 * 1.1)
+            #axs1[1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs1[1].legend()
             axs1[1].grid(True, linestyle='--', alpha=0.5)
             
@@ -264,7 +281,9 @@ def run_cluster_analysis():
             axs2[0,1].set_xlabel('Radius (kpc)')
             axs2[0,1].set_ylabel('Velocity (km/s)')
             axs2[0,1].set_ylim(0, x_max + padding)
-            axs2[0,1].set_xlim(0, r_sorted.max() * 1.1)
+            axs2[0,1].set_xlim(0, R200 * 1.1)
+            #axs2[0,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
+            #axs2[0,1].set_xlim(0, r_sorted.max() * 1.1)
             axs2[0,1].legend()
             axs2[0,1].grid(True, linestyle='--', alpha=0.5)
 
@@ -286,7 +305,9 @@ def run_cluster_analysis():
             axs2[1,1].set_xlabel('Radius (kpc)')
             axs2[1,1].set_ylabel('Velocity (km/s)')
             axs2[1,1].set_ylim(0, x_max + padding)
-            axs2[1,1].set_xlim(0, r_sorted.max() * 1.1)
+            #axs2[1,1].set_xlim(0, r_sorted.max() * 1.1)
+            axs2[1,1].set_xlim(0, R200 * 1.1)
+            #axs2[1,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs2[1,1].legend()
             axs2[1,1].grid(True, linestyle='--', alpha=0.5)
             
@@ -328,15 +349,15 @@ def run_cluster_analysis():
     
     plt.tight_layout()
   
-    plt.savefig(os.path.join(output_dir_original, "clusters_DM_vs_Mtot_scatter.png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir_original, "clusters_DM_vs_Mtot_scatter2.png"), dpi=300, bbox_inches='tight')
     plt.close()
     print("  TABLE :")
     print("="*60)
     print(r"\begin{table}[h!]")
     print(r"\centering")
-    print(r"\begin{tabular}{lccc}")
+    print(r"\begin{tabular}{lcccccc}")
     print(r"\hline")
-    print(r"Cluster & $M_{\text{tot}} \ [M_\odot]$ & $\% M_{\text{DM}}/\text{tot}_1$ & $\% M_{\text{DM}}/\text{tot}_2$ \\")
+    print(r"Cluster & $M_{\text{tot}} \ [M_\odot]$ & $\% M_{\text{DM},1}$ & $\% M_{\text{DM},2}$ & $r_s \ [\text{kpc}]$ & $\rho_s \ [M_\odot/\text{kpc}^3]$ & $\chi^2_{\nu}$ \\")
     print(r"\hline")
     
     for res in results_data:
@@ -344,15 +365,21 @@ def run_cluster_analysis():
         mtot = res["M_tot_1"]
         perc1 = res["Perc_DM_1"]
         perc2 = res["Perc_DM_2"]
+        rs = res["r_s"]
+        rhos = res["rho_s"]
+        chi2 = res["chi2_red"]
         
-        base, exp = f"{mtot:.2e}".split("e")
-        mtot_latex = f"{base} \\times 10^{{{int(exp)}}}"
+        base_m, exp_m = f"{mtot:.2e}".split("e")
+        mtot_latex = f"{base_m} \\times 10^{{{int(exp_m)}}}"
         
-        print(f"{cluster} & ${mtot_latex}$ & {perc1:.1f}\\% & {perc2:.1f}\\% \\\\")
+        base_rho, exp_rho = f"{rhos:.2e}".split("e")
+        rhos_latex = f"{base_rho} \\times 10^{{{int(exp_rho)}}}"
+        
+        print(f"{cluster} & ${mtot_latex}$ & {perc1:.1f}\\% & {perc2:.1f}\\% & {rs:.2f} & ${rhos_latex}$ & {chi2:.2f} \\\\")
         
     print(r"\hline")
     print(r"\end{tabular}")
-    print(r"\caption{Total mass and DM fraction (Method 1: Virial subtraction, Method 2: NFW profile) for each cluster.}")
+    print(r"\caption{Total mass, DM fraction, structural parameters ($r_s, \rho_s$), and reduced $\chi^2$ from velocity histograms.}")
     print(r"\label{tab:clusters_dm}")
     print(r"\end{table}")
     print("="*60 + "\n")
