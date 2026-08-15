@@ -5483,7 +5483,7 @@ def create_page():
                                             
                                             
 
-                                            plt.xlim(0, cluster_state['R200'] * 1.1)
+                                            plt.xlim(0, r_max + r_padding)
                                             #plt.axvline(cluster_state['R200'], color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
                                             plt.ylim(0, ylim_max)
 

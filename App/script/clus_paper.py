@@ -57,8 +57,8 @@ def run_cluster_analysis():
     all_files = list(set(coma_files + abell_files))
     
  
-    output_dir_original = "cluster_plot_unified"
-    output_dir_comparison = "cluster_plot_methods_comparison"
+    output_dir_original = "cluster_plot1"
+    output_dir_comparison = "cluster_plot1bis"
     os.makedirs(output_dir_original, exist_ok=True)
     os.makedirs(output_dir_comparison, exist_ok=True)
     
@@ -245,7 +245,7 @@ def run_cluster_analysis():
             axs1[1].set_xlabel('Radius (kpc)')
             axs1[1].set_ylabel('Velocity (km/s)')
             axs1[1].set_ylim(0, x_max + padding)
-            axs1[1].set_xlim(0, R200 * 1.1)
+            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
             #axs1[1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs1[1].legend()
             axs1[1].grid(True, linestyle='--', alpha=0.5)
@@ -281,7 +281,7 @@ def run_cluster_analysis():
             axs2[0,1].set_xlabel('Radius (kpc)')
             axs2[0,1].set_ylabel('Velocity (km/s)')
             axs2[0,1].set_ylim(0, x_max + padding)
-            axs2[0,1].set_xlim(0, R200 * 1.1)
+            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
             #axs2[0,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             #axs2[0,1].set_xlim(0, r_sorted.max() * 1.1)
             axs2[0,1].legend()
@@ -306,7 +306,7 @@ def run_cluster_analysis():
             axs2[1,1].set_ylabel('Velocity (km/s)')
             axs2[1,1].set_ylim(0, x_max + padding)
             #axs2[1,1].set_xlim(0, r_sorted.max() * 1.1)
-            axs2[1,1].set_xlim(0, R200 * 1.1)
+            axs1[1].set_xlim(0, r_sorted.max() * 1.1)
             #axs2[1,1].axvline(R200, color='gray', linestyle='--', alpha=0.7, label='$R_{200}$')
             axs2[1,1].legend()
             axs2[1,1].grid(True, linestyle='--', alpha=0.5)
