@@ -411,9 +411,7 @@ def load_project_context():
     # --- NUOVA LISTA ALLEGGERITA ---
     # Carichiamo solo le Activities per non superare il limite di 250.000 token/minuto di Gemini Free Tier.
     # L'AI conosce già la teoria di base per via del suo addestramento interno.
-    pdf_files = [
-        "Cosmo-Edu-Lab_Activities.pdf", "Dark_matter.pdf"
-    ]
+    #pdf_files = [        "Cosmo-Edu-Lab_Activities.pdf", "Dark_matter.pdf"    ]
     
     #code_files = [  "module1.py", "module2.py", "module3.py", "module4.py",   "home.py"]
     code_files = [  "module1.py", "module2.py"]
@@ -1447,16 +1445,14 @@ def main_layout(title: str):
         
         mat_btn_style = 'w-[85%] ml-6 px-6 text-lg font-bold mb-3 !bg-blue-600 hover:!bg-blue-500 border-l-4 border-blue-300 text-white rounded-r-lg'
         aria_button(
-    "📚OER & Bibliography ", 
+    "📚Bibliography ", 
     "View Open Educational Resources on Cosmology and Dark Matter", 
     on_click=show_bibliography_dialog
 ).classes(mat_btn_style).props('align="left"')
-        aria_button('📄Cosmology Intro', 'Open Introductory material: Cosmology', on_click=open_slides_cosmo).classes(mat_btn_style).props('align="left"')
-        aria_button('📄Astronomy Intro', 'Open Introductory material: Astronomy', on_click=open_astronomy).classes(mat_btn_style).props('align="left"')
-        aria_button('🧪Dark Matter Module', 'Open Dark matter physics', on_click=open_activities).classes(mat_btn_style).props('align="left"')
-        aria_button(' 🧪DM Slides', 'Open Dark Matter Slides', 
-                                    on_click=DM_slides
-                        ).classes(mat_btn_style).props('align="left"')
+        #aria_button('📄Cosmology Intro', 'Open Introductory material: Cosmology', on_click=open_slides_cosmo).classes(mat_btn_style).props('align="left"')
+        #aria_button('📄Astronomy Intro', 'Open Introductory material: Astronomy', on_click=open_astronomy).classes(mat_btn_style).props('align="left"')
+        #aria_button('🧪Dark Matter Module', 'Open Dark matter physics', on_click=open_activities).classes(mat_btn_style).props('align="left"')
+        #aria_button(' 🧪DM Slides', 'Open Dark Matter Slides',                on_click=DM_slides       ).classes(mat_btn_style).props('align="left"')
                                 
     with ui.dialog() as intro, ui.card().classes('p-4 w-full text-lg max-w-[1200px] overflow-x-auto').style('background-color: #0f172a !important; color: white; border: 1px solid #334155;'):
             ui.html(r"""

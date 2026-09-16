@@ -194,7 +194,12 @@ def create_page():
         enclosed = 4.0 * np.pi * rho_s * r_s**3 * (np.log(1.0 + x) - x / (1.0 + x))
         enclosed = np.where(r > 0, enclosed, 0.0)
         return enclosed
-
+    def M_burkert_enclosed(r, rho_s, r_s):
+        r = np.asarray(r, dtype=float)
+        x = r / r_s
+        enclosed = 2.0 * np.pi * rho_s * (r_s**3) * (0.5 * np.log(1.0 + x**2) + np.log(1.0 + x) - np.arctan(x))
+        enclosed = np.where(r > 0, enclosed, 0.0)
+        return enclosed
 
     #function for cluster
         
@@ -826,31 +831,39 @@ def create_page():
             return f"{mantissa} &times; 10<sup>{exp}</sup>"
         @lru_cache(maxsize=32) 
         def get_galaxy_data_cached(filename):
-           
-            if not filename:
-                return None
-
+            if not filename: return None
             path = os.path.join(GALAXY_DATA_PATH, filename)
-
             if not os.path.exists(path):
                 print(f"File not found: {path}")
                 return None
-
             try:
+                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                    lines = f.readlines()
                 
-                df = pd.read_csv(path, comment='#', sep=r'\s+', header=0, engine='python')
-
+                data_lines = []
+                header_line = None
                 
-                df.columns = df.columns.astype(str).str.strip().str.replace('\ufeff','', regex=False)
-
-        
-                if all(col.replace('.','',1).isdigit() for col in df.columns):
+                for line in lines:
+                    sline = line.strip()
+                    if not sline: continue
+                    clean_line = sline.lstrip('#').strip()
+                    # Riconosce la riga di intestazione anche se non ha il #
+                    if 'Rad' in clean_line and 'Vobs' in clean_line:
+                        header_line = clean_line + '\n'
+                    else:
+                        data_lines.append(clean_line + '\n')
+                
+                if header_line is None:
+                    header_line = "Rad Vobs errV Vgas Vdisk Vbul SBdisk SBbul\n"
                     
-                    df = pd.read_csv(path, comment='#', sep=r'\s+', header=None, engine='python')
-                    df.columns = ['Rad','Vobs','errV','Vgas','Vdisk','Vbul','SBdisk','SBbul']
-
+                full_data_str = header_line + "".join(data_lines)
+                df = pd.read_csv(io.StringIO(full_data_str), sep=r'\s+')
+                
+                # Forza i numeri e butta via le righe corrotte o doppie intestazioni
+                df['Rad'] = pd.to_numeric(df['Rad'], errors='coerce')
+                df = df.dropna(subset=['Rad'])
+                
                 return df
-
             except Exception as ex:
                 print(f"Error loading galaxy {filename}: {ex}")
                 return None
@@ -1633,20 +1646,19 @@ def create_page():
     </ul>
     <hr class="my-4">
 
-    <h3>The NFW Dark Matter Profile</h3>
-    <p>To simulate the halo, we use the <b>Navarro-Frenk-White (NFW) profile</b>, which describes how the density of cold dark matter varies with distance from the center:</p>
+    <h3>The Burkert Dark Matter Profile</h3>
+    <p>To simulate the halo, we use the <b>Burkert profile</b>, which describes the density of dark matter with a cored center:</p>
     
     <div style="text-align:center; margin: 15px 0;">
-        <span class="math">$$ \rho_{NFW}(r) = \frac{\rho_{s}}{(r/r_{s})(1+r/r_{s})^{2}} $$</span>
+        <span class="math">$$ \rho_{Burkert}(r) = \frac{\rho_s}{\left(1 + \frac{r}{r_s}\right)\left(1 + \left(\frac{r}{r_s}\right)^2\right)} $$</span>
     </div>
 
-    <p>Where <span class="math">\(\rho_s\)</span> is the characteristic density and <span class="math">\(r_s\)</span> is the scale radius.</p>
-
+    <p>Where <span class="math">\(\rho_s\)</span> is the central density and <span class="math">\(r_s\)</span> is the core radius.</p>
     <h4>Adapted to the Dataset</h4>
     <p>The values for <span class="math">\(\rho_s\)</span> and <span class="math">\(r_s\)</span> are not arbitrary; they are <b>adapted to the specific galaxy dataset</b> (Observational Matching):</p>
     <ul style="list-style-type: disc; margin-left: 20px;">
         <li>We calculate the "required" dark matter density <span class="math">\(\rho_{DM}\)</span> derived directly from the observed velocity data at a specific outer radius (<span class="math">\(r_{match}\)</span>), where the dark matter effect is dominant.</li>
-        <li>We force the NFW model to match this observation: <span class="math">\(\rho_{NFW}(r_{match}) = \rho_{DM}(r_{match})\)</span>.</li>
+        <li>We force the Burkert model to match this observation: <span class="math">\(\rho_{Burkert}(r_{match}) = \rho_{DM}(r_{match})\)</span>.</li>
     </ul>
     <p>This ensures that the halo structure (defined by its virial mass <span class="math">\(M_{200}\)</span> and concentration <span class="math">\(c\)</span>) is physically consistent with the real galaxy properties you are analyzing.</p>
     <hr class="my-4">
@@ -1679,7 +1691,7 @@ def create_page():
     <h4>References</h4>
     <div style="font-size: 0.9em; line-height: 1.4; color: #444;">
         <p style="margin-bottom: 5px;"><b> Derivation of DM Distribution:</b> Karukes, Salucci & Gentile (2015), "The Dark Matter Distribution in the Spiral NGC 3198 out to 0.22 R_vir".</p>
-        <p style="margin-bottom: 5px;"><b>NFW Profile:</b> Navarro, Frenk, White (1996), "The Structure of Cold Dark Matter Halos".</p>
+        <p style="margin-bottom: 5px;"><b>Burkert Profile:</b> Burkert (1995), "The Structure of Dark Matter Halos in Dwarf Galaxies".</p>
         <p style="margin-bottom: 5px;"><b> Mass Models:</b> Lelli F. et al. (2016), "SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry...".</p>
         <p style="margin-bottom: 5px;"><b> Halo Density:</b> Li et al. (2019), "A constant characteristic volume density of dark matter haloes from SPARC rotation curves".</p>
         <p style="margin-bottom: 5px;"><b> Rotation Curve:</b> Karukes E. V., Salucci P. (2016), "The Universal Rotation Curve of Dwarf Disk Galaxies".</p>
@@ -1856,10 +1868,10 @@ def create_page():
                                                 <span class="math">\( \rho_{\mathrm{DM}}(r) = \frac{1}{4 \pi G r^2} \, \frac{d}{dr} \Bigg[ r^2 \Big( \frac{v_{\mathrm{obs}}^2(r) - v_{\mathrm{bar}}^2(r)}{r} \Big) \Bigg] \)</span>
                                             </li>
                                             
-                                            <li>
-                                                <b>Step 5:</b> NFW dark matter profile<br>
-                                                <span class="math">\( \rho_{\mathrm{NFW}}(r) = \frac{\rho_s}{\left(\tfrac{r}{r_s}\right)\left(1 + \tfrac{r}{r_s}\right)^2} \)</span> 
-                                            </li>
+                                           <li>
+    <b>Step 5:</b> Burkert dark matter profile<br>
+    <span class="math">\( \rho_{\mathrm{Burkert}}(r) = \frac{\rho_s}{\left(1 + \tfrac{r}{r_s}\right)\left(1 + \left(\tfrac{r}{r_s}\right)^2\right)} \)</span> 
+</li>
                                             
                                             <li>
                                                 <b>Step 6:</b> Global Fit parameters<br>
@@ -1867,9 +1879,9 @@ def create_page():
                                             </li>
                                             
                                             <li>
-                                                <b>Step 7:</b> Enclosed dark matter mass (NFW)<br>
-                                                <span class="math">\( M_{\mathrm{DM}}(r) = 4 \pi \rho_s r_s^3 \left[\ln(1+x) - \frac{x}{1+x}\right], \;\; x = \tfrac{r}{r_s} \)</span>
-                                            </li>
+    <b>Step 7:</b> Enclosed dark matter mass (Burkert)<br>
+    <span class="math">\( M_{\mathrm{DM}}(r) = 2 \pi \rho_s r_s^3 \left[0.5 \ln(1+x^2) + \ln(1+x) - \arctan(x)\right], \;\; x = \tfrac{r}{r_s} \)</span>
+</li>
                                             
                                             <li>
                                                 <b>Step 8:</b> Dark matter rotational velocity<br>
@@ -2181,30 +2193,33 @@ def create_page():
                             if gal_state['r_ngc'].size > 0:
                                 gal_name = os.path.splitext(filename)[0]
                                
-                                try:
-                                  
-                                    csv_path = os.path.join(dataset_path, 'galaxy_best_parameters.csv')
-                                    df_params = pd.read_csv(csv_path)
-                                    row = df_params[df_params['Galaxy'] == gal_name]
+                                gal_name_clean = gal_name.lower().replace('_rotmod', '').strip().upper()
+                        
+                                
+                                csv_path = os.path.join(dataset_path, 'galaxy_best_parameters.csv')
+                                if not os.path.exists(csv_path):
+                                    csv_path = os.path.join(dataset_path, 'galaxy_best_parameters_2.csv')
                                     
-                                    if not row.empty:
-                                        rho_s = float(row.iloc[0]['rho_s'])
-                                        r_s = float(row.iloc[0]['r_s'])
-                                        y_opt = float(row.iloc[0]['Upsilon'])
-                                    else:
-                                        accessible_notify(f"Error: Parameters for {gal_name} not found in CSV!", type_='error')
-                                        gal_state['DATA_LOADED'] = False
-                                        return False 
-                                except Exception as e:
-                                    accessible_notify(f"CSV Read Error: {e}", type_='error')
-                                    gal_state['DATA_LOADED'] = False
+                                df_params = pd.read_csv(csv_path)
+                                
+                            
+                                df_params['Clean_Galaxy'] = df_params['Galaxy'].astype(str).str.lower().str.replace('_rotmod', '').str.strip().str.upper()
+                                
+                                row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
+                                
+                                if not row.empty:
+                                    y_opt = float(row.iloc[0]['Upsilon'])
+                                    r_s = float(row.iloc[0]['r_s'])
+                                    rho_s = float(row.iloc[0]['rho_s'])
+                                else:
+                                    accessible_notify(f"Error: Parameters for {gal_name} not found in CSV!", type_='error')
                                     return False
 
                                 gal_state['base_rho_s'] = rho_s
                                 gal_state['base_r_s'] = r_s
                                 gal_state['upsilon'] = y_opt
                                 
-                                gal_state['base_M_dm_grid'] = M_nfw_enclosed(gal_state['r_ngc'], rho_s, r_s)
+                                gal_state['base_M_dm_grid'] = M_burkert_enclosed(gal_state['r_ngc'], rho_s, r_s)
                                 
                                 gal_state['DATA_LOADED'] = True
                                 return True
@@ -2635,7 +2650,7 @@ def create_page():
                             dm_ratio_gal = (M_dm_tot / val_m_tot) if val_m_tot > 0 else 0.0
                             # -----------------------------------------------------
                             
-                            clean_name = current_galaxy_name.removesuffix('.txt').removesuffix('.csv')
+                            clean_name = current_galaxy_name.removesuffix('.txt').removesuffix('.csv').removesuffix('.dat')
                             galaxy_title_label.set_text(f"Galaxy Info: {clean_name}")
                            
                             galaxy_info_content.clear()
@@ -2695,12 +2710,13 @@ def create_page():
                                     
                                     plt.xlabel('Radius (kpc)', fontsize=10)
                                     plt.ylabel('Rotation Speed (km/s)', fontsize=10)
-                                    galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
+                                    galaxy_name_for_title = current_galaxy_name.removesuffix('.txt').removesuffix('.dat')
                                     plt.title('Galaxy rotation curve', fontsize=12,fontweight='bold')
                                 
-                                    max_vel_plot = np.nanmax([np.nanmax(v_obs_ngc + v_err_ngc), np.nanmax(v_total_curve), np.nanmax(v_baryonic)])
+                                    max_vel_plot = np.nanmax([np.nanmax(v_obs_ngc + v_err_ngc), np.nanmax(v_total_curve), np.nanmax(v_baryonic)]) if len(v_obs_ngc) > 0 else 300
+                                    max_rad_plot = np.nanmax(r_ngc) if len(r_ngc) > 0 and not np.isnan(np.nanmax(r_ngc)) else 10.0
                                     plt.ylim(0, max(300, 1.1 * max_vel_plot))
-                                    plt.xlim(0, r_ngc.max() * 1.1)
+                                    plt.xlim(0, max_rad_plot * 1.1)
                                     plt.grid(True)
                                     plt.legend(loc='upper left', fontsize=10)
                                     plt.tight_layout()
@@ -2764,7 +2780,7 @@ def create_page():
 
                                     plt.xlabel("Radius (kpc)", fontsize=10)
                                     plt.ylabel("Mass ($M_\\odot$)", fontsize=10)
-                                    galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
+                                    galaxy_name_for_title = current_galaxy_name.removesuffix('.txt').removesuffix('.dat')
                                     plt.title("Galaxy mass ", fontsize=12,fontweight='bold')
 
                                     plt.legend(loc='upper left', fontsize=10)
@@ -2861,7 +2877,7 @@ def create_page():
                                         ax.set_aspect('equal', 'box')
                                         ax.set_xlabel("x [kpc]",fontsize=14)
                                         ax.set_ylabel("y [kpc]",fontsize=14)
-                                        galaxy_name_for_title = current_galaxy_name.removesuffix('.txt')
+                                        galaxy_name_for_title = current_galaxy_name.removesuffix('.txt').removesuffix('.dat')
                                         ax.set_title(f"Galaxy structure (top-view): {galaxy_name_for_title}",fontsize=16,fontweight='bold')
 
                                         ax.legend(loc='upper right',fontsize=14)
@@ -3130,7 +3146,7 @@ def create_page():
                                         update_plots_popup()
                                         
                                       
-                                        update_plots_popup()
+                                      
                                         info_box("**Dataset variables**: Rad (radius), Vobs (observed velocity), errV (velocity error), Vgas (gas velocity), Vdisk (disk velocity), Vbul (bulge velocity), SBdisk (surface brightness disk), SBbul (surface brightness bulge)")
                                         reference_box("""**Dataset reference**: Lelli F. et al., *SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves*.""").classes('text-base italic')
 
@@ -3164,14 +3180,7 @@ def create_page():
                                                 <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2}{G} \)</span>
                                             </li>
                                             
-                                            <li style="margin-top: 10px;">
-                                                <b>Step 4 (Plotting):</b>
-                                                <ul style="margin-top:5px; list-style-type: circle;">
-                                                    <li><b>X-axis:</b> radius (data)</li>
-                                                    <li><b>Y-axis Velocities:</b> \( v_{\mathrm{bar}} \) (red), \( v_{\mathrm{obs}} \) (blue)</li>
-                                                    <li><b>Y-axis Masses:</b> \( M_{\mathrm{bar}} \) (red), \( M_{\mathrm{tot}} \) (blue)</li>
-                                                </ul>
-                                            </li>
+                                          
                                         </ul>
                                         """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the steps to compute baryonic velocity and mass"')
 
@@ -3313,7 +3322,7 @@ def create_page():
         }
     </style>
 ''')
-                    vars_options = ['v_bar', 'v_obs', 'rad', 'g', 'm_tot', 'm_bar', 'v_gas', 'v_disk', 'v_bulge']
+                    vars_options_gal = ['v_bar', 'v_obs', 'rad', 'g', 'm_tot', 'm_bar', 'v_gas', 'v_disk', 'v_bulge']
                     answer_vb, answer_vo,answer_rad,answer_g,answer_Mtot,answer_Mbar,answer_vgas,answer_vdisk,answer_vbulge = {}, {},{},{},{},{},{},{},{}
                     @ui.refreshable
                     def show_galaxy_pseudocode():
@@ -3336,11 +3345,11 @@ def create_page():
                                     
                                     with ui.row().classes('sqrt-box items-center no-wrap gap-2'):
                                         ui.label('[').classes('math-text')
-                                        answer_vgas['el'] = aria_select_input(vars_options, "...").classes('compact-select').props('dense hide-bottom-space')
+                                        answer_vgas['el'] = aria_select_input(vars_options_gal, "...").classes('compact-select').props('dense hide-bottom-space')
                                         ui.label('· |Vgas| + ϒ · (').classes('math-text')
-                                        answer_vdisk['el'] = aria_select_input(vars_options, "...").classes('compact-select').props('dense hide-bottom-space')
+                                        answer_vdisk['el'] = aria_select_input(vars_options_gal, "...").classes('compact-select').props('dense hide-bottom-space')
                                         ui.label('· |Vdisk| + ').classes('math-text')
-                                        answer_vbulge['el'] = aria_select_input(vars_options, "...").classes('compact-select').props('dense hide-bottom-space')
+                                        answer_vbulge['el'] = aria_select_input(vars_options_gal, "...").classes('compact-select').props('dense hide-bottom-space')
                                         ui.label('· |Vbul|) ]').classes('math-text')
 
                                 ui.label("3) Compute Luminous Mass").classes('text-blue-200 font-bold text-lg')
@@ -3349,11 +3358,11 @@ def create_page():
                                     with ui.column().classes('fraction'):
                                         with ui.row().classes('numerator items-center gap-1'):
                                             ui.html('(')
-                                            answer_vb['el'] = aria_select_input(vars_options, "Select variable for baryonic velocity")
+                                            answer_vb['el'] = aria_select_input(vars_options_gal, "Select variable for baryonic velocity")
                                             ui.html(')<span class="math-sup">2</span> &middot; ')
-                                            answer_rad['el'] = aria_select_input(vars_options, "Select variable for radius in luminous mass")
+                                            answer_rad['el'] = aria_select_input(vars_options_gal, "Select variable for radius in luminous mass")
                                         with ui.row().classes('denominator w-full justify-center'):
-                                            answer_g['el'] = aria_select_input(vars_options, "Select variable for gravitational constant")
+                                            answer_g['el'] = aria_select_input(vars_options_gal, "Select variable for gravitational constant")
 
 
                           
@@ -3365,25 +3374,20 @@ def create_page():
                                     with ui.column().classes('fraction'):
                                         with ui.row().classes('numerator items-center gap-1'):
                                             ui.html('(')
-                                            answer_vo['el'] = aria_select_input(vars_options, "Select variable for observed velocity")
+                                            answer_vo['el'] = aria_select_input(vars_options_gal, "Select variable for observed velocity")
                                             ui.html(')<span class="math-sup">2</span> &middot; ')
-                                            answer_rad['el2'] = aria_select_input(vars_options, "Select variable for radius in total mass")
+                                            answer_rad['el2'] = aria_select_input(vars_options_gal, "Select variable for radius in total mass")
                                         with ui.row().classes('denominator w-full justify-center'):
-                                            answer_rad['el2'] = aria_select_input(vars_options, "Select variable for radius in total mass")
+                                            answer_rad['el2'] = aria_select_input(vars_options_gal, "Select variable for radius in total mass")
 
                                 ui.label("5) Compute Dark Matter Mass").classes('text-blue-200 font-bold text-lg')
                                 with ui.row().classes('items-center gap-1 mt-1 math-text'):
                                     ui.html('M<span class="math-sub">DM</span> = ')
-                                    answer_Mtot['el'] = aria_select_input(vars_options, "Select variable for total mass")
+                                    answer_Mtot['el'] = aria_select_input(vars_options_gal, "Select variable for total mass")
                                     ui.html('&minus;')
-                                    answer_Mbar['el'] = aria_select_input(vars_options, "Select variable for baryonic mass")
+                                    answer_Mbar['el'] = aria_select_input(vars_options_gal, "Select variable for baryonic mass")
 
-                                ui.label("6) Plot Results").classes('text-blue-200 font-bold text-lg')
-                                with ui.column().classes('bg-gray-800 p-3 rounded font-mono text-sm text-green-300 w-auto inline-block border border-gray-700'):
-                                    ui.html('plt.plot(R, M<sub>bar</sub>, label="Baryonic mass")')
-                                    ui.html('plt.plot(R, M<sub>tot</sub>, label="Total mass")')
-                                    ui.html('plt.plot(R, V<sub>bar</sub>, label="Baryonic velocity")')
-                                    ui.html('plt.plot(R, V<sub>obs</sub>, label="Observed velocity")')
+                                
                     show_galaxy_pseudocode()
                     galaxy_select.on('update:model-value', lambda e: show_galaxy_pseudocode.refresh())
 
@@ -3394,81 +3398,73 @@ def create_page():
                     plots_and_image_container = ui.column().classes('w-full items-center')
                     @ui.refreshable
                     def update_galaxy_mass_analysis():
-                        selected_file = galaxy_select.value
-                        if not selected_file:
-                            plots_and_image_container.clear()
-                            return
-
-                       
-                        image_filepath = galaxy_file_map.get(selected_file)
                         plots_and_image_container.clear()
                         
-                        try:
-                                data_ngc = get_galaxy_data_cached(selected_file) 
-
-                                if data_ngc is None:
-                                    with plots_and_image_container:
-                                        ui.label(f"Error loading {selected_file}").classes("text-red-500")
-                                    return
-                                r_ngc = pd.to_numeric(data_ngc['Rad'], errors='coerce').values
-                                v_obs_ngc = pd.to_numeric(data_ngc['Vobs'], errors='coerce').values
-                                v_gas_ngc = pd.to_numeric(data_ngc['Vgas'], errors='coerce').values
-                                v_disk_ngc = pd.to_numeric(data_ngc['Vdisk'], errors='coerce').values
-                                v_bul_ngc = pd.to_numeric(data_ngc['Vbul'], errors='coerce').values
-                                v_err_ngc = pd.to_numeric(data_ngc['errV'], errors='coerce').values
-
+                        with plots_and_image_container:
+                            try:
+                                results_data = []
+                                csv_path = os.path.join(dataset_path, 'galaxy_best_parameters.csv')
+                                if not os.path.exists(csv_path):
+                                    csv_path = os.path.join(dataset_path, 'galaxy_best_parameters_2.csv')
                                 
+                                df_params = pd.read_csv(csv_path)
+                                df_params['Clean_Galaxy'] = df_params['Galaxy'].astype(str).str.replace('_rotmod', '', case=False).str.strip().str.upper()
+
                                
-                                gal_name = os.path.splitext(selected_file)[0]
-                                try:
-                                    csv_path = os.path.join(dataset_path, 'galaxy_best_parameters.csv')
-                                    df_params = pd.read_csv(csv_path)
-                                    row = df_params[df_params['Galaxy'] == gal_name]
-                                    if not row.empty:
-                                        y_opt = float(row.iloc[0]['Upsilon'])
-                                    else:
-                                        accessible_notify(f"Error: Parameters for {gal_name} not found in CSV!", type_='error')
-                                        return
-                                except Exception as e:
-                                    accessible_notify(f"CSV Read Error: {e}", type_='error')
-                                    return
+                                for file in galaxy_files:
+                                    gal_name = os.path.splitext(file)[0]
+                                    gal_name_clean = gal_name.replace('_rotmod', '').strip().upper()
+                                    
+                                    row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
+                                    if row.empty: continue
+                                    
+                                    y_opt = float(row.iloc[0]['Upsilon'])
+                                    r_s = float(row.iloc[0]['r_s'])
+                                    rho_s = float(row.iloc[0]['rho_s'])
 
-                                V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
-                                v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
-                                m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
-                                m_total    = (v_obs_ngc**2 * r_ngc) / G_grav
-                                with plots_and_image_container:
-                                    with ui.row().classes('w-full justify-center gap-4'):
-                                        with ui.column().classes('flex-1 items-center'):
-                                            with ui.pyplot(figsize=(8, 6)):
+                                    data_ngc = get_galaxy_data_cached(file)
+                                    if data_ngc is None or data_ngc.empty: continue
                                         
-                                                
-                                                plt.errorbar(r_ngc, v_obs_ngc, yerr=v_err_ngc, fmt='o', ms=4, color='blue', ecolor='lightblue', capsize=2, label=f'Observed ({selected_file})', zorder=5)
-                                                plt.plot(r_ngc, v_baryonic, color='red', lw=2, label='Baryonic Velocity')
-                                                plt.xlabel('Radius (kpc)'); plt.ylabel('Velocity (km/s)'); plt.title(f'{os.path.splitext(selected_file)[0]} Rotation Curve',fontweight='bold')
-                                                plt.ylim(0, max(np.nanmax(v_obs_ngc+v_err_ngc), np.nanmax(v_baryonic))*1.1); plt.xlim(0, np.nanmax(r_ngc)*1.1); plt.grid(True); plt.legend()
-                                                ui.element('div').props(
-    'role=img tabindex=0 aria-label=Rotational velocity curve of the selected galaxy (from data) compared with the baryonic velocity'
-    )
+                                    r = pd.to_numeric(data_ngc['Rad'], errors='coerce').values
+                                    vgas = pd.to_numeric(data_ngc['Vgas'], errors='coerce').values if 'Vgas' in data_ngc.columns else np.zeros_like(r)
+                                    vdisk = pd.to_numeric(data_ngc['Vdisk'], errors='coerce').values if 'Vdisk' in data_ngc.columns else np.zeros_like(r)
+                                    vbul = pd.to_numeric(data_ngc['Vbul'], errors='coerce').values if 'Vbul' in data_ngc.columns else np.zeros_like(r)
+                                    
+                                    V_bar_sq = vgas * np.abs(vgas) + y_opt * (vdisk * np.abs(vdisk) + vbul * np.abs(vbul))
+                                    M_bar = (r * V_bar_sq) / G_grav
+                                    
+                                    # Massa Dark Matter con BURKERT
+                                    x_arr = r / r_s
+                                    M_dm = 2.0 * np.pi * rho_s * (r_s**3) * (0.5 * np.log(1.0 + x_arr**2) + np.log(1.0 + x_arr) - np.arctan(x_arr))
+                                    
+                                    M_tot = M_bar + M_dm
+                                    
+                                    if len(M_tot) > 0 and M_tot[-1] > 0:
+                                        dm_fraction = M_dm[-1] / M_tot[-1]
+                                        results_data.append({
+                                            "Galaxy": gal_name_clean,
+                                            "M_tot_edge": M_tot[-1],
+                                            "DM_Perc": dm_fraction * 100.0
+                                        })
+                                
+                                
+                                if results_data:
+                                    df_res = pd.DataFrame(results_data)
+                                    fig = px.scatter(df_res, x="M_tot_edge", y="DM_Perc", hover_name="Galaxy",
+                                                     log_x=True, color_discrete_sequence=['royalblue'],
+                                                     labels={"M_tot_edge": "Total Mass (M_sun)", "DM_Perc": "Dark Matter Fraction (%)"},
+                                                     title="Galaxies: Dark Matter Fraction vs Total Mass")
+                                    fig.update_traces(marker=dict(size=12, line=dict(width=1, color='black')), opacity=0.8)
+                                    ui.plotly(fig).classes('w-full max-w-4xl h-96')
+                                    ui.element('div').props('role=img tabindex=0 aria-label="Interactive scatter plot showing the dark matter fraction vs total mass for all analyzed galaxies"')
 
+                                # Mostra Immagine e Tabella della singola galassia selezionata
+                                selected_file = galaxy_select.value
+                                if selected_file:
+                                    image_filepath = galaxy_file_map.get(selected_file)
+                                    with ui.row().classes('w-full gap-4 justify-start mt-6'):
                                         with ui.column().classes('flex-1 items-center'):
-                                            with ui.pyplot(figsize=(8, 6)):
-                                            
-                                                plt.plot(r_ngc, m_baryonic/1e9, color='red', lw=2, label='Baryonic Mass')
-                                                plt.plot(r_ngc, m_total/1e9,    color='blue', lw=2, label='Total Mass')
-                                                plt.xlabel('Radius (kpc)'); plt.ylabel(' Mass ($10^9$ $M_\\odot$)'); plt.title(f'{os.path.splitext(selected_file)[0]} Enclosed Mass',fontweight='bold')
-                                                max_m = np.nanmax([np.nanmax(m_total/1e9), np.nanmax(m_baryonic/1e9)])
-                                                plt.ylim(0, max_m*1.2 if not np.isnan(max_m) and max_m>0 else 500); plt.xlim(0, np.nanmax(r_ngc)*1.1 if not np.isnan(np.nanmax(r_ngc)) else 50); plt.grid(True); plt.legend()
-                                                ui.element('div').props(
-    'role=img tabindex=0 aria-label=Total mass and baryonic mass of the selected galaxy (from data)'
-    )
-
-                                        
-                                    if image_filepath and os.path.exists(image_filepath):
-                                        with ui.row().classes('w-full gap-4 justify-start'):
-                    
-            
-                                            with ui.column().classes('flex-1 items-center'):
+                                            if image_filepath and os.path.exists(image_filepath):
                                                 file_name = os.path.basename(image_filepath)
                                                 web_path = f'/galaxy_img/{file_name}'
                                                 aria_image(web_path, f"Image of the selected galaxy {selected_file}").classes('w-full max-w-xl')
@@ -3476,28 +3472,26 @@ def create_page():
     **Image reference:**  
     - [ESA Hubble](https://esahubble.org/)
     """).classes('w-full text-center text-base italic mt-2')
+                                            else:
+                                                ui.label("Image not found").classes('text-red-500')
 
-            
-                                            with ui.column().classes('flex-1 items-center '):
-                                                table_filepath = os.path.join(                    GALAXY_TABLES_PATH,                    os.path.splitext(selected_file)[0] + ".csv"                )
-                                                if os.path.exists(table_filepath):
-                                                    df_table = pd.read_csv(table_filepath)
-                                                    ui.table.from_pandas(df_table).props('aria-label=Table of selected galaxy characteristics role=table').classes('w-full max-w-xl')
-                                                    reference_box("""
+                                        with ui.column().classes('flex-1 items-center'):
+                                            table_filepath = os.path.join(GALAXY_TABLES_PATH, os.path.splitext(selected_file)[0] + ".csv")
+                                            if os.path.exists(table_filepath):
+                                                df_table = pd.read_csv(table_filepath)
+                                                ui.table.from_pandas(df_table).props('aria-label=Table of selected galaxy characteristics role=table').classes('w-full max-w-xl')
+                                                reference_box("""
     **Galaxy information references:**  
     - [The Sky Live](https://theskylive.com/sky)  
     - [Wikipedia: List of NGC objects](https://en.wikipedia.org/wiki/List_of_NGC_objects)
     """).classes('w-full text-center text-base italic mt-2')
-                                                else:
-                                                    ui.label("Table not found").classes('text-red-500')
-                        except Exception as e:
-                            with plots_and_image_container:
-                                warning_box(f"Error processing {selected_file}: {e}").classes('text-red-500')
-
+                                            else:
+                                                ui.label("Table not found").classes('text-red-500')
+                            except Exception as e:
+                                warning_box(f"Error processing galaxies: {e}").classes('text-red-500')
                     
                     @ui.refreshable
                     def update_plots_popup():
-                        
                         global plots_popup_container 
                         plots_popup_container.clear()
                         
@@ -3506,21 +3500,33 @@ def create_page():
                             return
                         
                         data_ngc = get_galaxy_data_cached(selected_file)
+                        if data_ngc is None or data_ngc.empty: return
                        
                         r = pd.to_numeric(data_ngc['Rad'], errors='coerce').values
                         vobs = pd.to_numeric(data_ngc['Vobs'], errors='coerce').values
                         verr = pd.to_numeric(data_ngc['errV'], errors='coerce').values
-                        vgas = pd.to_numeric(data_ngc['Vgas'], errors='coerce').values
-                        vdisk = pd.to_numeric(data_ngc['Vdisk'], errors='coerce').values
-                        vbul = pd.to_numeric(data_ngc['Vbul'], errors='coerce').values
+                        vgas = pd.to_numeric(data_ngc['Vgas'], errors='coerce').values if 'Vgas' in data_ngc.columns else np.zeros_like(r)
+                        vdisk = pd.to_numeric(data_ngc['Vdisk'], errors='coerce').values if 'Vdisk' in data_ngc.columns else np.zeros_like(r)
+                        vbul = pd.to_numeric(data_ngc['Vbul'], errors='coerce').values if 'Vbul' in data_ngc.columns else np.zeros_like(r)
 
                         gal_name = os.path.splitext(selected_file)[0]
+                        gal_name_clean = gal_name.replace('_rotmod', '').strip().upper()
+                        
                         try:
+                            # Cerca di leggere il primo o il secondo csv
                             csv_path = os.path.join(dataset_path, 'galaxy_best_parameters.csv')
+                            if not os.path.exists(csv_path):
+                                csv_path = os.path.join(dataset_path, 'galaxy_best_parameters_2.csv')
+                            
                             df_params = pd.read_csv(csv_path)
-                            row = df_params[df_params['Galaxy'] == gal_name]
+                            df_params['Clean_Galaxy'] = df_params['Galaxy'].astype(str).str.replace('_rotmod', '', case=False).str.strip().str.upper()
+                            
+                            row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
+                            
                             if not row.empty:
                                 y_opt = float(row.iloc[0]['Upsilon'])
+                                r_s = float(row.iloc[0]['r_s'])
+                                rho_s = float(row.iloc[0]['rho_s'])
                             else:
                                 accessible_notify(f"Error: Parameters for {gal_name} not found in CSV!", type_='error')
                                 return
@@ -3528,31 +3534,50 @@ def create_page():
                             accessible_notify(f"CSV Read Error: {e}", type_='error')
                             return
 
+                     
                         V_bar_sq = vgas * np.abs(vgas) + y_opt * (vdisk * np.abs(vdisk) + vbul * np.abs(vbul))
-                        v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
-                        m_baryonic = (v_baryonic**2 * r) / G_grav
-                        mtot = (vobs**2 * r) / G_grav
+                        V_bar = np.sqrt(np.maximum(V_bar_sq, 0))
+                        
+                       
+                        x_arr = r / r_s
+                        M_dm_grid = 2.0 * np.pi * rho_s * (r_s**3) * (0.5 * np.log(1.0 + x_arr**2) + np.log(1.0 + x_arr) - np.arctan(x_arr))
+                        V_dm_sq = (G_grav * M_dm_grid) / r
+                        V_dm = np.sqrt(np.maximum(V_dm_sq, 0))
+                        
+                       
+                        V_sim = np.sqrt(np.maximum(V_bar_sq + V_dm_sq, 0))
+                        
+                     
+                        rho_burkert_array = rho_s / ((1.0 + r / r_s) * (1.0 + (r / r_s)**2))
 
                         with plots_popup_container:
-                          
                             with ui.row().classes('w-full justify-center gap-8 flex-wrap'):
-                                
-                                
-                                with ui.pyplot(figsize=(6, 5)):
-                                    plt.errorbar(r, vobs, yerr=verr, fmt='o', color='blue', ms=4,
-                                                ecolor='lightblue', capsize=2, label='Observed')
-                                    plt.plot(r, v_baryonic, color='red', lw=2, label='Baryonic')
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Velocity (km/s)")
-                                    plt.title("Rotation Curve", fontweight='bold')
-                                    plt.grid(True); plt.legend()
-
-                                
-                                with ui.pyplot(figsize=(6, 5)):
-                                    plt.plot(r, m_baryonic/1e9, color='red', lw=2, label='Baryonic Mass')
-                                    plt.plot(r, mtot/1e9, color='blue', lw=2, label='Total Mass')
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel(r"Mass ($10^9$ $M_\odot$)")
-                                    plt.title("Enclosed Mass", fontweight='bold')
-                                    plt.grid(True); plt.legend()
+                                with ui.pyplot(figsize=(10, 6)):
+                                    fig = plt.gcf()
+                                    ax1 = plt.gca()
+                                    
+                                    ax1.errorbar(r, vobs, yerr=verr, fmt='o', color='blue', ecolor='gray', label='Observations')
+                                    ax1.plot(r, V_bar, '-', color='red', linewidth=2, label='Baryonic')
+                                    ax1.plot(r, V_dm, '-', color='purple', linewidth=2, label='Dark Matter')
+                                    ax1.plot(r, V_sim, '-', color='green', linewidth=2.5, label='Total Simulated')
+                                    
+                                    ax1.set_xlabel('Radius (kpc)', fontsize=12)
+                                    ax1.set_ylabel('Velocity (km/s)', fontsize=12)
+                                    ax1.set_ylim(0, max(np.nanmax(vobs), np.nanmax(V_sim)) * 1.15)
+                                    ax1.grid(True, linestyle='--', alpha=0.6)
+                                    
+                                    ax2 = ax1.twinx()
+                                    ax2.plot(r, rho_burkert_array, '-', color='darkorange', linewidth=2.5, label='Burkert Density')
+                                    ax2.set_ylabel(r'DM Density ($M_\odot / kpc^3$)', fontsize=12, color='darkorange')
+                                    ax2.set_yscale('log')
+                                    ax2.tick_params(axis='y', labelcolor='darkorange')
+                                    
+                                    plt.title(f"{gal_name_clean} Rotation Curve & DM Density", fontweight='bold', fontsize=14)
+                                    
+                                    lines_1, labels_1 = ax1.get_legend_handles_labels()
+                                    lines_2, labels_2 = ax2.get_legend_handles_labels()
+                                    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center right', fontsize=10)
+                                    plt.tight_layout()
                     
                  
                     galaxy_select.on('update:model-value', lambda e: [update_plots_popup.refresh(), update_galaxy_mass_analysis.refresh()])
@@ -3673,7 +3698,7 @@ def create_page():
     <p>The <b>Green Histogram</b> represents the theoretical velocity distribution of galaxies within the cluster. It is constructed using a Gaussian distribution whose width (velocity dispersion, <span class="math">\(\sigma_{sim}\)</span>) depends on the total mass.</p>
 
     <h4>The Virial Connection</h4>
-    <p>We assume the cluster is in virial equilibrium. According to the <b>NFW Dark Matter profile</b> applied to clusters, the velocity dispersion is related to the total mass <span class="math">\(M_{tot}\)</span> and the virial radius <span class="math">\(R_{200}\)</span> by:</p>
+    <p>We assume the cluster is in virial equilibrium. According to the <b>Virial Theorem</b> applied to clusters, the velocity dispersion is related to the total mass <span class="math">\(M_{tot}\)</span> and the virial radius <span class="math">\(R_{200}\)</span> by:</p>
     
     <div style="text-align:center; margin: 15px 0;">
         <span class="math">$$ \sigma_{sim} = \sqrt{\frac{G M_{tot}}{3 R_{200}}} $$</span>
@@ -3710,15 +3735,11 @@ def create_page():
     <h4>References</h4>
     <div style="font-size: 0.9em; line-height: 1.4; color: #444;">
         <p style="margin-bottom: 5px;"><b>Distance Measures:</b> Hogg, D. W. (1999), "Distance measures in cosmology". (Used for comoving/angular distances).</p>
-        <p style="margin-bottom: 5px;"><b>NFW Profile:</b> Navarro, Frenk & White (1996/97), "A Universal Density Profile from Hierarchical Clustering".</p>
         <p style="margin-bottom: 5px;"><b>Coma Kinematics:</b> Lokas & Mamon (2003), "Dark matter distribution in the Coma cluster from galaxy kinematics".</p>
         <p style="margin-bottom: 5px;"><b>Virial Mass Estimators:</b> Mamon & Łokas (2005), "Dark matter in elliptical galaxies - II. Estimating the mass within the virial radius".</p>
-        <p style="margin-bottom: 5px;"><b>Halo Concentrations:</b> Duffy et al. (2008), "Dark matter halo concentrations in the WMAP5 cosmology".</p>
-    <p style="margin-bottom: 5px;"><b>Baryon Fractions:</b> Giodini, S. et al. (2009), "Stellar and Total Baryon Mass Fractions in Groups and Clusters Since Redshift 1", The Astrophysical Journal, 703:982-993. </p>
+        <p style="margin-bottom: 5px;"><b>Baryon Fractions:</b> Giodini, S. et al. (2009), "Stellar and Total Baryon Mass Fractions in Groups and Clusters Since Redshift 1", The Astrophysical Journal, 703:982-993. </p>
     </div>
 """).props('aria-label="Descriptive text about galaxy cluster activity"')
-                        aria_button("Close","Close the box", on_click=lambda:instruction_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                  
                     combined_cluster_state = {'step': 0}
 
                     combined_cluster_html = [
@@ -3812,7 +3833,7 @@ def create_page():
 
                             <li>Compare the results of the luminous mass and dynamical mass. Calculate the ratio: Mass / Luminous Mass. What value do you get? Which of the two masses is larger and why?</li>
 
-                            <li>Visualize the total and luminous-only mass and density (Mass/spherical_volume) plots in the App (Cluster Mass & DM panel – 'Open Cluster Plots') after selecting a cluster from the dropdown menu.</li>
+                           
 
                         </ul>
 
@@ -3975,144 +3996,72 @@ def create_page():
         </style>
                                         <h3>Computational Notes</h3>
 
-       
-
         <ul>
-
             <li><b>Step 1:</b> Velocity of each galaxy from redshift data:<br>
-
             <span class="math">\( v_i = c \cdot z_i \)</span></li>
-
-
 
             <li><b>Step 2:</b> Number of observed galaxies: <span class="math">\( N \)</span></li>
 
-
-
             <li><b>Step 3:</b> Compute the mean velocity:<br>
-
             <span class="math">\( \bar{v} = \frac{1}{N} \sum_i v_i \)</span></li>
 
-
-
             <li><b>Step 4:</b> Observed velocity dispersion:<br>
-
             <span class="math">\( \sigma_{\mathrm{obs}} = \sqrt{ \frac{1}{N} \sum_i (v_i - \bar{v})^2 } \)</span></li>
 
-
-
             <li><b>Step 5:</b> Comoving distance:<br>
-
             <span class="math">\( \chi(z) = \frac{c}{H_0} \int_0^z \frac{dz'}{\sqrt{\Omega_m (1+z')^3 + (1-\Omega_m)}} \)</span></li>
 
-
-
             <li><b>Step 6:</b> Angular diameter distance:<br>
-
             <span class="math">\( D_A(z) = \frac{\chi(z)}{1+z} \)</span></li>
 
-
-
             <li><b>Step 7:</b> Define cluster center from BCG or median RA/DEC:<br>
-
             <span class="math">\( (\mathrm{center\_ra}, \mathrm{center\_dec}) = (ra[idx_{bcg}], dec[idx_{bcg}]) \;\; \mathrm{or} \;\; (\mathrm{median}(ra), \mathrm{median}(dec)) \)</span></li>
 
-
-
             <li><b>Step 8:</b> Angular separation between galaxies:<br>
-
             <span class="math">\( \theta = \arccos(\sin \delta_1 \sin \delta_2 + \cos \delta_1 \cos \delta_2 \cos(\alpha_1 - \alpha_2)) \)</span></li>
 
-
-
             <li><b>Step 9:</b> Critical density:<br>
-
             <span class="math">\( \rho_{\mathrm{crit}} = \frac{3 H_0^2}{8 \pi G} \)</span></li>
 
-
-
             <li><b>Step 10:</b> Projected radius:<br>
-
             <span class="math">\( r_{\mathrm{proj},i} = \max(\theta_i \cdot D_A) \)</span></li>
 
-
-
-            <li><b>Step 11:</b> Virial theorem and <span class="math">\( M_{200} \)</span>:<br>
-
+            <li><b>Step 11:</b> Virial theorem and total mass <span class="math">\( M_{200} \)</span>:<br>
             <span class="math">\( \sigma_{\mathrm{obs}}^2 = \frac{G M_{200}}{3 R_{200}}, \;\; M_{200} = \frac{4}{3} \pi 200 \rho_{\mathrm{crit}} R_{200}^3 \)</span></li>
 
-
-
-            <li><b>Step 12:</b> Concentration parameter:<br>
-
-            <span class="math">\( c = A \left(\frac{M_{200}}{M_{\mathrm{pivot}}}\right)^B (1+z)^C \)</span></li>
-
-
-
-            <li><b>Step 13:</b> NFW density factor:<br>
-
-            <span class="math">\( \delta_c(c) = \frac{200}{3} \frac{c^3}{\ln(1+c) - c/(1+c)} \)</span></li>
-
-
-
-            <li><b>Step 14:</b> Characteristic radius and density:<br>
-
-            <span class="math">\( r_{200} = \left(\frac{3M_{200}}{4 \pi 200 \rho_{\mathrm{crit}}}\right)^{1/3}, \;\; r_s = \frac{r_{200}}{c}, \;\; \rho_s = \delta_c(c)\,\rho_{\mathrm{crit}} \)</span></li>
-
-
-
-            <li><b>Step 15:</b> Dark matter mass (NFW):<br>
-
-            <span class="math">\( M_{\mathrm{NFW}}(r_{\mathrm{proj},i}) = M_{200} \cdot \frac{\ln(1+x_i) - x_i/(1+x_i)}{\ln(1+c) - c/(1+c)}, \;\; x_i = \frac{r_{\mathrm{proj},i}}{r_s} \)</span></li>
-
-
-
-            <li><b>Step 16:</b> Luminosity distance and distance modulus:<br>
-
+            <li><b>Step 12:</b> Luminosity distance and distance modulus:<br>
             <span class="math">\( D_L \approx \frac{c \cdot z_{\mathrm{cluster}}}{H_0}, \;\; \mathrm{distmod} = 5 \log_{10}(D_L) - 5 \)</span></li>
 
-
-
-            <li><b>Step 17:</b> Magnitude and luminosity:<br>
-
+            <li><b>Step 13:</b> Magnitude and luminosity:<br>
             <span class="math">\( M_r = m_r - A_r - (5 \log_{10}(D_L/10\,pc)), \;\; L_r = 10^{0.4(M_{r,\odot} - M_r)} \)</span></li>
 
-
-
-            <li><b>Step 18:</b> Stellar/baryonic mass:<br>
-
+            <li><b>Step 14:</b> Stellar/baryonic mass:<br>
             <span class="math">\( M_{\mathrm{bar}} = (M/L)\,L_r, \;\; (M/L = 2) \)</span></li>
 
-            <li><b>Step 19:</b> Gas mass (Giodini 2009 adapted for \(M_{200}\)):<br> <span class="math">\( M_{\mathrm{gas}} = (0.7 M_{200}) \cdot 0.093 \left( \frac{0.7 M_{200}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span></li>
+            <li><b>Step 15:</b> Gas mass (Giodini 2009 adapted for \(M_{200}\)):<br> <span class="math">\( M_{\mathrm{gas}} = (0.7 M_{200}) \cdot 0.093 \left( \frac{0.7 M_{200}}{2 \cdot 10^{14} / h} \right)^{0.21} \)</span></li>
 
-   <li><b>Step 20:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
+            <li><b>Step 16:</b> Total Baryonic Mass:<br> <span class="math">\( M_{\mathrm{lum}} = M_{\mathrm{stars}} + M_{\mathrm{gas}} \)</span></li>
 
-            <li><b>Step 21:</b> Dark Matter Mass (Two Methods):
-                <ul style="margin-top:5px; list-style-type:circle;">
-                    <li><b>Method 1 (Virial Subtraction):</b> <span class="math">\( M_{\mathrm{DM\_vir}} = M_{200} - M_{\mathrm{lum}} \)</span></li>
-                    <li><b>Method 2 (NFW Profile):</b> <span class="math">\( M_{\mathrm{NFW}}(r) = M_{200} \cdot \frac{\ln(1+x) - x/(1+x)}{\ln(1+c) - c/(1+c)} \)</span></li>
-                </ul>
-            </li>
+            <li><b>Step 17:</b> Dark Matter Mass (Virial Subtraction):<br>
+            <span class="math">\( M_{\mathrm{DM\_vir}} = M_{200} - M_{\mathrm{lum}} \)</span></li>
 
-            <li><b>Step 22:</b> Total simulated mass (linked to slider \(f\)):<br>
-            <span class="math">\( M_{\mathrm{tot\_sim}}(i) = M_{\mathrm{lum}} + f \cdot M_{\mathrm{DM}} \)</span></li>
+            <li><b>Step 18:</b> Total simulated mass (linked to slider \(f\)):<br>
+            <span class="math">\( M_{\mathrm{tot\_sim}}(i) = M_{\mathrm{lum}} + f \cdot M_{\mathrm{DM\_vir}} \)</span></li>
 
-            <li><b>Step 23:</b> Velocity dispersions:
+            <li><b>Step 19:</b> Velocity dispersions:
                 <ul style="margin-top:5px; list-style-type:circle;">
                     <li>Baryonic: <span class="math">\( \sigma_{\mathrm{bar}}(i) = \sqrt{ \frac{G M_{\mathrm{lum}}}{3 r_{\mathrm{proj},i}} } \)</span></li>
                     <li>Total (simulated): <span class="math">\( \sigma_{\mathrm{sim}}(i) = \sqrt{ \frac{G M_{\mathrm{tot\_sim}}(i)}{3 r_{\mathrm{proj},i}} } \)</span></li>
                 </ul>
             </li>
 
-            <li><b>Step 24:</b> Plot histograms:
+            <li><b>Step 20:</b> Plot histograms:
                 <ul style="margin-top:5px; list-style-type:circle;">
                     <li>Observed histogram: <span class="math">\( \mathrm{plt.hist}(v_{\mathrm{obs}}, bins) \)</span> (blue)</li>
                     <li>Simulated histogram: <span class="math">\( \mathrm{plt.hist}(\sigma_{\mathrm{sim}}, bins) \)</span> (green)</li>
                 </ul>
             </li>
         </ul>
-        </ul>
-
     """).props('role=dialog aria-modal=true aria-label="Computational notes"')
 
                                    
@@ -5379,7 +5328,7 @@ def create_page():
                             dm_slider.props(f'label-value="DM / Mₜₒₜ: {dm_ratio_display * 100:.1f}%"')
                             
                             select_name = cluster_state.get("select", "Abell1656(Coma).csv")
-                            clean_name = select_name.removesuffix('.csv').removesuffix('.txt')
+                            clean_name = select_name.removesuffix('.csv').removesuffix('.txt').removesuffix('.dat')
                             cluster_title_label.set_text(f"Cluster Info: {clean_name}")
                           
                             cluster_info_content.clear()
@@ -5568,7 +5517,7 @@ def create_page():
                 with ui.tab_panel('clusdm').props('role=tabpanel'):
                     #with ui.card().classes("p-4 !bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow-lg"):
                     ui.label("Explore how virial theorem reveals dark matter in galaxy clusters. ").classes('font-bold text-3xl text-blue-100 mt-4 drop-shadow-md text-center whitespace-pre-wrap w-full').props('role=heading aria-level=2 tabindex=0')
-                    with ui.dialog() as inst_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Instructions for cluster mass and density activities'):
+                    with ui.dialog() as inst_dialog, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label=Instructions for cluster mass activities'):
                         html_info_box(r"""
         <h3>Cluster Mass Analysis</h3>
         <p>Imagine analyzing a <b>galaxy cluster</b> to reveal dark matter.</p>
@@ -5577,7 +5526,7 @@ def create_page():
             <li>Click <b>Run Analysis</b> to compare <b>luminous mass</b> vs <b>total (virial) mass</b>.</li>
             <li>Review the additional information provided in the "Additional Information: Numerical Explanation" PDF. This document offers a detailed numerical explanation of the concepts related to the dark matter.</li>
         </ul>
-    """).props('aria-label="Descriptive text about galaxy cluster mass and density activities"')
+    """).props('aria-label="Descriptive text about galaxy cluster mass activities"')
                         aria_button("Close", "Close the box",on_click=lambda:inst_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
                     
                     with ui.dialog() as cur_el_gordo, ui.card().classes('p-4 w-full max-w-[600px]').props('aria-label="Information about El Gordo galaxy cluster"'):
@@ -5617,6 +5566,9 @@ def create_page():
                         members = df.copy()
                         # sigma clipping
                         for _ in range(5):
+                            if "RV" not in members.columns and "redshift" in members.columns:
+                                members["RV"] = members["redshift"] * c_light
+                            
                             v_rel = members["RV"] - np.median(members["RV"])
                             mad = np.median(np.abs(v_rel))
                             sigma = 1.4826 * mad if mad > 0 else np.std(v_rel)
@@ -5626,7 +5578,7 @@ def create_page():
                                 break
                             members = new_members
 
-                        if len(members) < 10:
+                        if len(members) < 5:
                             ui.label(f"Not enough valid galaxies in {selected_file}.").classes('text-orange-500')
                             return
 
@@ -5639,89 +5591,72 @@ def create_page():
                                         (members["DEdeg"] - mean_dec)**2)
                         r_kpc = cluster_distance * 1000 * np.radians(ang_sep)
                         members = members.assign(r_kpc=r_kpc).replace([np.inf, -np.inf], np.nan).dropna(subset=["r_kpc"])
-                        members = members[members["r_kpc"] <= 3000]
+                        
                         r = members["r_kpc"].values
 
                         D_pc = cluster_distance * 1e6
                         dist_mod = 5*np.log10(D_pc) - 5
-                        M_abs = members["bmag"] - dist_mod
-                        L_B = 10**(-0.4*(M_abs - M_sun_B))
-                        L_B_np = L_B.values
+                        
+                        # Supporto sia per Coma (modelmag_r) che Abell (bmag)
+                        mag_col = 'modelmag_r' if 'modelmag_r' in members.columns else 'bmag'
+                        ext_val = members['extinction_r'].values if 'extinction_r' in members.columns else 0.0
+                        ref_mag = 4.67 if "coma" in selected_file.lower() else 5.48
+                        MLR = 2.0 if "coma" in selected_file.lower() else 5.0
+                        
+                        M_abs = members[mag_col].values - ext_val - dist_mod
+                        L_B_np = 10**(-0.4*(M_abs - ref_mag))
 
                         order = np.argsort(r)
-                        R_cum = r[order]
+                        r_sorted = r[order]
+                        observed_vel_sorted = members["RV"].values[order]
+
                         L_cum = np.cumsum(L_B_np[order])
-                        M_lum_r = MLR_B * L_cum
+                        M_lum_r = MLR * L_cum
 
-                        sigma_global = np.std(members["RV"] - np.median(members["RV"]))
+                        if "coma" in selected_file.lower():
+                            sigma_global = np.std(observed_vel_sorted)
+                        else:
+                            sigma_global = np.std(observed_vel_sorted - np.median(observed_vel_sorted))
                         
-                      
-                    
                         M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                        M_tot = M200
                         
-                      
-                        f_gas_global = 0.093 * (((0.7 * M200) / 2e14)**0.21)
-                        M_gas_tot = (0.7 * M200) * f_gas_global
-                        M_bar_tot_R200 = M_lum_r[-1] + M_gas_tot
+                        f_gas_global = 0.093 * (((0.7 * M_tot) / 2e14)**0.21)
+                        m_gas_r_local = (0.7 * (3.0 * sigma_global**2 * r_sorted) / G) * f_gas_global
+                        M_baryonic_r = M_lum_r + m_gas_r_local
                         
-                      
-                        M_tot_r = (3.0 * sigma_global**2 * R_cum) / G
-                        m_gas_r = (0.7 * M_tot_r) * f_gas_global
-                        M_baryonic_r = M_lum_r + m_gas_r
-                      
-                        def positive_floor(arr):
-                            pos = arr[np.isfinite(arr) & (arr > 0)]
-                            if pos.size == 0:
-                                return arr + 1e-6
-                            floor = np.nanmin(pos) * 1e-3
-                            return np.where(arr <= 0, floor, arr)
-                        M_baryonic_r = positive_floor(M_baryonic_r)
+                        # Generazione distribuzioni normali simulate
+                        rng = np.random.default_rng(seed=42)
+                        v_mean_obs = np.mean(observed_vel_sorted)
+                        sigma_mean_obs = np.std(observed_vel_sorted)
                         
-                       
-                        c_val = concentration_duffy2008(M200, z_cluster)
-                        rho_s, r_s, _ = rho_s_from_M200_and_c(M200, c_val, rho_crit)
-                        
-                       
-                        R_ext = np.geomspace(max(1.0, R_cum[0]), R200, 100)
-                        
-                       
-                        M_bar_ext = np.interp(R_ext, R_cum, M_baryonic_r)
-                        M_bar_ext[R_ext > R_cum[-1]] = M_bar_tot_R200
-                        
-                        
-                        x_ext = R_ext / r_s
-                        M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
-                        M_tot_ext = M_bar_ext + M_DM_ext
+                        sigma_bar_local = np.sqrt(np.maximum(1e-6, G * M_baryonic_r / (3.0 * r_sorted)))
+                        v_bar = rng.normal(loc=sigma_bar_local, scale=sigma_mean_obs, size=len(r_sorted))
+                        v_sim_tot = rng.normal(loc=v_mean_obs, scale=sigma_global, size=len(r_sorted))
 
-                        # Densità estese
-                        Vol_ext = (4.0/3.0) * np.pi * R_ext**3
-                        rho_lum_ext = M_bar_ext / Vol_ext
-                        rho_DM_ext = M_DM_ext / Vol_ext
-                        rho_tot_ext = M_tot_ext / Vol_ext
+                        x_max = observed_vel_sorted.max()
+                        padding = 0.15 * x_max
+                        bins = np.linspace(0, x_max + padding, 50)
 
                         with cluster_popup_container:
                             with ui.row().classes('w-full justify-center gap-8 flex-wrap'):
                                 with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_ext, M_bar_ext/1e9, label="Luminous Mass", color="red", lw=2)
-                                    plt.plot(R_ext, M_DM_ext/1e9, label="Dark Matter (NFW)", color="green", lw=2)
-                                    plt.plot(R_ext, M_tot_ext/1e9, label="Total Mass", color="blue", lw=2)
-                                    #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
-                                    plt.xscale("log"); plt.yscale("log")
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Mass (10^9 M☉)")
-                                    plt.title(f"Mass Profile — {selected_file}", fontweight='bold')
-                                    plt.grid(True, which="both", ls="--")
-                                    plt.legend()
-
-                                with ui.pyplot(figsize=(8, 6)):
-                                    plt.plot(R_ext, rho_lum_ext, label="Luminous Density", color="red")
-                                    plt.plot(R_ext, rho_DM_ext, label="Dark Matter Density", color="green")
-                                    plt.plot(R_ext, rho_tot_ext, label="Total Density", color="blue")
-                                    #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
-                                    plt.xscale("log"); plt.yscale("log")
-                                    plt.xlabel("Radius (kpc)"); plt.ylabel("Density (M☉/kpc³)")
-                                    plt.title(f"Density Profile — {selected_file}", fontweight='bold')
-                                    plt.grid(True, which="both", ls="--")
-                                    plt.legend()
+                                    import matplotlib.ticker as ticker
+                                    ax = plt.gca()
+                                    ax.hist(observed_vel_sorted, bins=bins, alpha=0.4, color='blue', label='Observations')
+                                    ax.hist(v_bar, bins=bins, histtype='step', linewidth=2, color='red', label='Baryonic')
+                                    ax.hist(v_sim_tot, bins=bins, histtype='step', linewidth=3, color='green', label='Total Simulated')
+                                    
+                                    ax.set_title(f"{os.path.splitext(selected_file)[0]}", fontsize=14, fontweight='bold')
+                                    ax.set_xlabel('Velocity (km/s)', fontsize=12)
+                                    ax.set_ylabel('Number of Galaxies', fontsize=12)
+                                    ax.set_xlim(0, x_max + padding)
+                                    ax.legend(fontsize=11)
+                                    ax.grid(True, axis='y', linestyle='--', alpha=0.5)
+                                    
+                                    ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                                    ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+                                    ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
                     def open_cluster_analysis_dialog():
                         global cluster_popup_container
                         
@@ -5948,7 +5883,7 @@ def create_page():
 
 
 
-        <h4>Cluster Mass & Density</h4>
+        <h4>Cluster Mass </h4>
 
         <ul>
 
@@ -5957,14 +5892,6 @@ def create_page():
             <li><b>Step 18:</b> 3-D velocity dispersion (isotropic): <span class="math">\( \sigma_{3D} = \sqrt{3} \, \sigma_v \)</span></li>
 
             <li><b>Step 19:</b> Total cluster mass: <span class="math">\( M_{\mathrm{tot}} = \frac{3 \, \sigma_v^2 \, r}{G} \)</span></li>
-
-            <li><b>Step 20:</b> Cluster volume: <span class="math">\( V = \tfrac{4}{3} \pi r^3 \)</span></li>
-
-            <li><b>Step 21:</b> Luminous density: <span class="math">\( \rho_{\mathrm{lum}} = \frac{M_{\mathrm{lum}}}{V} \)</span></li>
-
-            <li><b>Step 22:</b> Total density: <span class="math">\( \rho_{\mathrm{tot}} = \frac{M_{\mathrm{tot}}}{V} \)</span></li>
-
-            <li><b>Step 23 (Plot):</b> X-axis: radius. Y-axis: <span class="math">\( M_{\mathrm{lum}}, M_{\mathrm{tot}}, \rho_{\mathrm{lum}}, \rho_{\mathrm{tot}} \)</span></li>
 
         </ul>
 
@@ -6130,7 +6057,7 @@ def create_page():
                         vars_options = [
     'sigma_v', 'r', 'G', 'G*m/r', '0.5*m*v^2', '-G*m/r',
     'G*m/r^2', 'm*v^2/r', 'K', 'U', 'v^2*r/G',
-    'M_abs', 'L_B', 'L(r)', 'd*1e6', 'd_pc', 'bmag', 'rv'
+    'M_abs', 'L_B', 'L(r)', 'd*1e6', 'd_pc', 'bmag', 'rv','(v^2)*r/g'
 ]
                         answer_sigma,answer_r,answer_g2,answer_vel,answer_vel_mean = {}, {},{},{},{}
                         ans_U, ans_Fg, ans_Fc, ans_K, ans_v2 = {}, {}, {}, {}, {}
@@ -6275,11 +6202,7 @@ def create_page():
                                             answer_Mlum['el'] = aria_select_input(vars_options, "Select variable for total luminosity")
                                             ui.html('+ M<span class="math-sub">gas</span>(r); ')
 
-                                        # 18) PLOT
-                                        ui.label("18) Compare mass and density profiles").classes('text-blue-200 font-bold text-lg')
-                                        with ui.column().classes('bg-gray-800 p-2 rounded font-mono text-md text-green-300 w-auto inline-block border border-gray-700'):
-                                            ui.html('plot(r, M<sub>lum</sub> and M<sub>total</sub>, label="Luminous and Total Mass")')
-                                            ui.html('plot(r, D<sub>lum</sub>=M<sub>lum</sub>/V and D<sub>tot</sub>=M<sub>tot</sub>/V, label="Luminous and Total Density")')
+                                      
                                                         
                         show_cluster_pseudocode()
                         cluster_select.on('update:model-value', lambda e: show_cluster_pseudocode.refresh())
@@ -6288,159 +6211,131 @@ def create_page():
                         cluster_plot_container = ui.row().classes('w-full gap-4 justify-center')
                         @ui.refreshable
                         def update_cluster_mass_profile():
-                            selected_file = cluster_select.value
-                            if not selected_file:
-                                cluster_plot_container.clear()
-                                return
-
-                            image_filepath = cluster_file_map.get(selected_file)
                             cluster_plot_container.clear()
-
+                            
                             with cluster_plot_container:
                                 try:
-                                    df = get_cluster_data_cached(selected_file)
-
-                                    H0 = 70.0
-                                    G = 4.302e-6
-                                    M_sun_B = 5.48
-                                    MLR_B = 5.0
-                                    FIXED_DISTANCE_MPC = None  
-
-                                    members = df.copy()
-                                    for _ in range(5):
-                                        v_rel = members["RV"] - np.median(members["RV"])
-                                        mad = np.median(np.abs(v_rel))
-                                        sigma = 1.4826 * mad if mad > 0 else np.std(v_rel)
-                                        mask = np.abs(v_rel) <= 3 * sigma
-                                        new_members = members[mask]
-                                        if len(new_members) == len(members):
-                                            break
-                                        members = new_members
-
-                                    if len(members) < 10:
-                                        ui.label(f"Not enough valid galaxies in {selected_file}.").classes('text-orange-500')
-                                        return
-
-                                    cluster_distance = float(FIXED_DISTANCE_MPC) if FIXED_DISTANCE_MPC else np.median(members["RV"]) / H0
-                                    z_cluster = np.nanmedian(members["RV"] / c_light)
-                                    rho_crit = rho_crit_Msunkpc3(H0)
-
-                                    mean_ra, mean_dec = members["RAdeg"].mean(), members["DEdeg"].mean()
-                                    ang_sep = np.sqrt(((members["RAdeg"] - mean_ra) * np.cos(np.radians(mean_dec)))**2 +
-                                                    (members["DEdeg"] - mean_dec)**2)
-                                    r_kpc = cluster_distance * 1000 * np.radians(ang_sep)
-                                    members = members.assign(r_kpc=r_kpc).replace([np.inf, -np.inf], np.nan).dropna(subset=["r_kpc"])
-                                    members = members[members["r_kpc"] <= 3000]
-                                    r = members["r_kpc"].values
-
-                                    D_pc = cluster_distance * 1e6
-                                    dist_mod = 5*np.log10(D_pc) - 5
-                                    M_abs = members["bmag"] - dist_mod
-                                    L_B = 10**(-0.4*(M_abs - M_sun_B))
-                                    L_B_np = L_B.values
-
-                                    order = np.argsort(r)
-                                    R_cum = r[order]
-                                    L_cum = np.cumsum(L_B_np[order])
-                                    M_lum_r = MLR_B * L_cum
-
-                                    sigma_global = np.std(members["RV"] - np.median(members["RV"]))
-                                    
-                                    # Calcolo massa luminosa
-                                    M_tot_r = (3.0 * sigma_global**2 * R_cum) / G 
-                                    f_gas_r = 0.093 * (((0.7 * M_tot_r) / 2e14)**0.21)
-                                    m_gas_r = (0.7 * M_tot_r) * f_gas_r
-                                    M_baryonic_r = M_lum_r + m_gas_r
-
-                                    def positive_floor(arr):
-                                        pos = arr[np.isfinite(arr) & (arr > 0)]
-                                        if pos.size == 0:
-                                            return arr + 1e-6
-                                        floor = np.nanmin(pos) * 1e-3
-                                        return np.where(arr <= 0, floor, arr)
-                                    M_baryonic_r = positive_floor(M_baryonic_r)
-                                    
-                                    # --- METODO 2 (NFW) esteso fino a R200 ---
-                                    M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
-                                    c_val = concentration_duffy2008(M200, z_cluster)
-                                    rho_s, r_s, _ = rho_s_from_M200_and_c(M200, c_val, rho_crit)
-                                    
-                                    R_ext = np.geomspace(max(1.0, R_cum[0]), R200, 100)
-                                    
-                                    # La massa luminosa resta piatta oltre r_max
-                                    M_bar_ext = np.interp(R_ext, R_cum, M_baryonic_r)
-                                    M_bar_ext[R_ext > R_cum[-1]] = M_baryonic_r[-1]
-                                    
-                                    # Massa NFW per DM
-                                    x_ext = R_ext / r_s
-                                    M_DM_ext = 4.0 * np.pi * rho_s * (r_s**3) * (np.log(1.0 + x_ext) - x_ext / (1.0 + x_ext))
-                                    M_tot_ext = M_bar_ext + M_DM_ext
-
-                                    with ui.column().classes('flex-1 items-center'):  
-                                        with ui.pyplot(figsize=(8,6)):
-                                            mask_lum = M_bar_ext > 0
-                                            plt.plot(R_ext[mask_lum], M_bar_ext[mask_lum], label='Luminous Mass', color='red')
-                                            plt.plot(R_ext, M_DM_ext, label='Dark Matter (NFW)', color='green')
-                                            plt.plot(R_ext, M_tot_ext, label='Total Mass', color='blue')
-                                            #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
-                                            plt.xscale('log'); plt.yscale('log')
-                                            plt.xlabel('Radius (kpc)'); plt.ylabel('Mass ($M_\\odot$)')
-                                            plt.title(f'Mass Profile {os.path.splitext(selected_file)[0]}', fontweight='bold')
-                                            plt.grid(True, which="both", ls="--"); plt.legend()
-                                            ui.element('div').props('role=img tabindex=0 aria-label=Plot showing the mass profile comparing luminous mass and total mass up to R200')
-                                
-                                    Vol_ext = (4.0/3.0) * np.pi * R_ext**3
-                                    rho_lum_ext = M_bar_ext / Vol_ext
-                                    rho_tot_ext = M_tot_ext / Vol_ext
-                                    rho_DM_ext = M_DM_ext / Vol_ext
+                                    results_data = []
+                                    # Calcola massa e percentuale DM per tutti i cluster presenti nel dataset
+                                    for file in cluster_files:
+                                        df = get_cluster_data_cached(file)
+                                        if df is None or df.empty: continue
                                         
-                                    with ui.column().classes('flex-1 items-center'):
-                                        with ui.pyplot(figsize=(8,6)):
-                                            plt.plot(R_ext, rho_lum_ext, label=' Luminous Density', color='red')
-                                            plt.plot(R_ext, rho_DM_ext, label=' Dark Matter Density', color='green')
-                                            plt.plot(R_ext, rho_tot_ext, label=' Total Density', color='blue')
-                                            #plt.axvline(R200, color='gray', linestyle='--', label='$R_{200}$')
-                                            plt.xscale('log'); plt.yscale('log')
-                                            plt.xlabel('Radius (kpc)')
-                                            plt.ylabel('Density ($M_\\odot$ / kpc³)')
-                                            plt.title(f'Density Profile {os.path.splitext(selected_file)[0]}', fontweight='bold')
-                                            plt.grid(True, which="both", ls="--")
-                                            plt.legend()
-                                            ui.element('div').props('role=img tabindex=0 aria-label=Plot showing the mass density profile comparing luminous mass and total mass up to R200')
+                                        members = df.copy()
+                                        is_coma = "coma" in file.lower()
+                                        
+                                        if is_coma:
+                                            if 'redshift' in members.columns:
+                                                members['RV'] = members['redshift'] * c_light
+                                            mag_col = 'modelmag_r'
+                                        else:
+                                            mag_col = 'bmag'
+                                            
+                                        if 'RV' not in members.columns: continue
+                                            
+                                      
+                                        for _ in range(5):
+                                            v_rel = members["RV"] - np.median(members["RV"])
+                                            mad = np.median(np.abs(v_rel))
+                                            sigma = 1.4826 * mad if mad > 0 else np.std(v_rel)
+                                            mask = np.abs(v_rel) <= 3 * sigma
+                                            new_members = members[mask]
+                                            if len(new_members) == len(members): break
+                                            members = new_members
 
-                                    with ui.row().classes('w-full gap-4 justify-start'):
-                                        with ui.column().classes('flex-1 items-center '):
-                                            if image_filepath and os.path.exists(image_filepath):
-                                                file_name = os.path.basename(image_filepath)
-                                                web_path = f'/cluster_img/{file_name}'
-                                                aria_image(web_path, f"Image of the selected galaxy cluster {selected_file} ").classes('w-full max-w-xl')
-                                                reference_box("""
-    **Image references:**  
-    - [ESA Hubble](https://esahubble.org/)  
-    - Bonnarel, F. et al. (2000). *The ALADIN interactive sky atlas*. Astronomy and Astrophysics Supplement Series  
-    - Digitized Sky Survey 2 (DSS2), via CDS HiPS. [Aladin HiPS](https://alasky.cds.unistra.fr)
-    """).classes('w-full text-center text-base  italic mt-2')
-                                            else:
-                                                ui.label("Image not found").classes('text-red-500')
-            
-                                        with ui.column().classes('flex-1 items-center '):
-                                            table_filepath = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(selected_file)[0] + ".csv")
-                                            if os.path.exists(table_filepath):
-                                                df_table = pd.read_csv(table_filepath)
-                                                ui.table.from_pandas(df_table).props('aria-label=Table of the selected galaxy cluster characteristics role=table').classes('w-full max-w-xl')
-                                                reference_box("""
-    **Cluster data references:**  
-    - [Wikipedia: List of galaxy clusters](https://en.wikipedia.org/wiki/List_of_galaxy_groups_and_clusters)  
-    - Wenger, M., Ochsenbein, F. et al. (2000). *The SIMBAD astronomical database*. Astronomy & Astrophysics Supplement Series. [SIMBAD](https://simbad.u-strasbg.fr)  
-    - Helou, G., Madore, B. F. (1988). *The NASA/IPAC Extragalactic Database (NED)*. [NED](https://ned.ipac.caltech.edu)  
-    - Abell, G. O. et al. (1989). *A catalog of rich clusters of galaxies*. Astrophysical Journal Supplement Series  
-    - VizieR Online Data Catalog: VII/110A. [VizieR](https://vizier.u-strasbg.fr)
-    """).classes('w-full text-center text-base italic mt-2')
-                                            else:
-                                                ui.label("Table not found").classes('text-red-500')
+                                        if len(members) < 5: continue
+                                        
+                                        observed_vel = members["RV"].values
+                                        if is_coma:
+                                            sigma_global = np.std(observed_vel)
+                                        else:
+                                            sigma_global = np.std(observed_vel - np.median(observed_vel))
+                                            
+                                        rho_crit = rho_crit_Msunkpc3(70.0)
+                                        M200, R200 = estimate_M200_R200_from_sigma(sigma_global, rho_crit)
+                                        M_tot = M200
+                                        
+                                       
+                                        #if M_tot > 5e15 or M_tot < 1e13: continue
+
+                                        cluster_distance = np.median(observed_vel) / 70.0
+                                        if is_coma:
+                                            z_cluster = np.nanmedian(members['redshift'])
+                                            cluster_distance = (c_light * z_cluster) / 70.0
+                                            dist_mod = 5 * np.log10(cluster_distance * 1e6) - 5
+                                            ext_val = members['extinction_r'].values if 'extinction_r' in members.columns else 0.0
+                                            M_abs = members[mag_col].values - ext_val - dist_mod
+                                            L_B = 10**(-0.4 * (M_abs - 4.67))
+                                            MLR = 2.0
+                                        else:
+                                            D_pc = cluster_distance * 1e6
+                                            dist_mod = 5 * np.log10(D_pc) - 5
+                                            M_abs = members[mag_col].values - dist_mod
+                                            L_B = 10**(-0.4 * (M_abs - 5.48))
+                                            MLR = 5.0
+                                        
+                                        M_star_tot = MLR * np.sum(L_B)
+                                        f_gas_global = 0.093 * (((0.7 * M_tot) / 2e14)**0.21)
+                                        M_gas_tot = (0.7 * M_tot) * f_gas_global
+                                        
+                                        # Sottrazione pura
+                                        M_DM_tot = np.maximum(0.0, M_tot - M_star_tot - M_gas_tot)
+                                        perc_dm = (M_DM_tot / M_tot) * 100.0
+
+                                        results_data.append({
+                                            "Cluster": os.path.splitext(file)[0],
+                                            "M_tot": M_tot,
+                                            "Perc_DM": perc_dm
+                                        })
+                                        
+                                    if results_data:
+                                        df_res = pd.DataFrame(results_data)
+                                        fig = px.scatter(df_res, x="M_tot", y="Perc_DM", hover_name="Cluster",
+                                                         log_x=True, color_discrete_sequence=['forestgreen'],
+                                                         labels={"M_tot": "Total Mass (M_sun)", "Perc_DM": "Dark Matter Fraction (%)"},
+                                                         title="Clusters: Dark Matter Fraction vs Total Mass")
+                                        fig.update_traces(marker=dict(size=12, line=dict(width=1, color='black')), opacity=0.8)
+                                        ui.plotly(fig).classes('w-full max-w-4xl h-96')
+                                        
+                                        ui.element('div').props('role=img tabindex=0 aria-label=Interactive scatter plot showing the dark matter fraction vs total mass for all analyzed clusters')
+
+                                    # Sezione dedicata a Immagine e Tabella del Cluster attualmente selezionato
+                                    selected_file = cluster_select.value
+                                    if selected_file:
+                                        image_filepath = cluster_file_map.get(selected_file)
+                                        with ui.row().classes('w-full gap-4 justify-start mt-6'):
+                                            with ui.column().classes('flex-1 items-center '):
+                                                if image_filepath and os.path.exists(image_filepath):
+                                                    file_name = os.path.basename(image_filepath)
+                                                    web_path = f'/cluster_img/{file_name}'
+                                                    aria_image(web_path, f"Image of the selected galaxy cluster {selected_file} ").classes('w-full max-w-xl')
+                                                    reference_box("""
+        **Image references:**  
+        - [ESA Hubble](https://esahubble.org/)  
+        - Bonnarel, F. et al. (2000). *The ALADIN interactive sky atlas*. Astronomy and Astrophysics Supplement Series  
+        - Digitized Sky Survey 2 (DSS2), via CDS HiPS. [Aladin HiPS](https://alasky.cds.unistra.fr)
+        """).classes('w-full text-center text-base italic mt-2')
+                                                else:
+                                                    ui.label("Image not found").classes('text-red-500')
+
+                                            with ui.column().classes('flex-1 items-center '):
+                                                table_filepath = os.path.join(CLUSTER_TABLES_PATH, os.path.splitext(selected_file)[0] + ".csv")
+                                                if os.path.exists(table_filepath):
+                                                    df_table = pd.read_csv(table_filepath)
+                                                    ui.table.from_pandas(df_table).props('aria-label=Table of the selected galaxy cluster characteristics role=table').classes('w-full max-w-xl')
+                                                    reference_box("""
+        **Cluster data references:**  
+        - [Wikipedia: List of galaxy clusters](https://en.wikipedia.org/wiki/List_of_galaxy_groups_and_clusters)  
+        - Wenger, M., Ochsenbein, F. et al. (2000). *The SIMBAD astronomical database*. Astronomy & Astrophysics Supplement Series. [SIMBAD](https://simbad.u-strasbg.fr)  
+        - Helou, G., Madore, B. F. (1988). *The NASA/IPAC Extragalactic Database (NED)*. [NED](https://ned.ipac.caltech.edu)  
+        - Abell, G. O. et al. (1989). *A catalog of rich clusters of galaxies*. Astrophysical Journal Supplement Series  
+        - VizieR Online Data Catalog: VII/110A. [VizieR](https://vizier.u-strasbg.fr)
+        """).classes('w-full text-center text-base italic mt-2')
+                                                else:
+                                                    ui.label("Table not found").classes('text-red-500')
+                                                    
                                 except Exception as e:
-                                    warning_box(f"Error processing {selected_file}: {e}").classes('text-red-500')
-                                    
+                                    warning_box(f"Error processing clusters: {e}").classes('text-red-500')
                                     
                                     
                         

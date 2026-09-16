@@ -12,3 +12,4 @@ App.env.txt
 App/data/galaxy_SDSS.csv
 App/data/sdss_gal_morfo.txt
 App/data/GaiaSource.csv
+.venv/
