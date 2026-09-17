@@ -24,7 +24,7 @@ CMD git config --global credential.helper '!f() { echo "username=oauth2"; echo "
         git pull origin main; \
     else \
         echo "Clono il repository..." && \
-        git clone https://github.com/Elyon7/Cosmo-Edu_Lab.git .; \
+        git clone https://github.com/cosmo-edu-lab/cosmo-edu-lab.git .; \
     fi && \
     git lfs pull && \
     mkdir -p App/student_submissions && \
