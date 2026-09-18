@@ -2208,7 +2208,14 @@ def create_page():
                                 row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
                                 
                                 if not row.empty:
-                                    y_opt = float(row.iloc[0]['Upsilon'])
+                                    # Usa i nuovi parametri sdoppiati se esistono, altrimenti fallback
+                                    if 'Upsilon_disk' in row.columns and 'Upsilon_bulge' in row.columns:
+                                        y_disk = float(row.iloc[0]['Upsilon_disk'])
+                                        y_bulge = float(row.iloc[0]['Upsilon_bulge'])
+                                    else:
+                                        y_disk = float(row.iloc[0].get('Upsilon', 0.5))
+                                        y_bulge = 1.4 * y_disk
+                                        
                                     r_s = float(row.iloc[0]['r_s'])
                                     rho_s = float(row.iloc[0]['rho_s'])
                                 else:
@@ -2217,7 +2224,8 @@ def create_page():
 
                                 gal_state['base_rho_s'] = rho_s
                                 gal_state['base_r_s'] = r_s
-                                gal_state['upsilon'] = y_opt
+                                gal_state['upsilon_disk'] = y_disk
+                                gal_state['upsilon_bulge'] = y_bulge
                                 
                                 gal_state['base_M_dm_grid'] = M_burkert_enclosed(gal_state['r_ngc'], rho_s, r_s)
                                 
@@ -2632,9 +2640,10 @@ def create_page():
                             f = float(alpha_slider.value)
                             G_grav = 4.30091e-6
                             
-                            y_opt = gal_state.get('upsilon', 1.0)
+                            y_disk = gal_state.get('upsilon_disk', 0.5)
+                            y_bulge = gal_state.get('upsilon_bulge', 0.7)
                             
-                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
+                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
                             v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
                             
@@ -2738,10 +2747,10 @@ def create_page():
                             current_galaxy_name = gal_state['current_galaxy_name']
                             selected_file = gal_state['selected_file']
                             f = float(alpha_slider.value)
-                            y_opt = gal_state.get('upsilon', 1.0)
-    
-                          
-                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
+                            y_disk = gal_state.get('upsilon_disk', 0.5)
+                            y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                            
+                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
                             v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
                             
@@ -2808,10 +2817,10 @@ def create_page():
                                 f = float(alpha_slider.value) 
 
                         
-                                y_opt = gal_state.get('upsilon', 1.0)
-    
-                              
-                                V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
+                                y_disk = gal_state.get('upsilon_disk', 0.5)
+                                y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                            
+                                V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
                                 v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
                                 m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
                                 
@@ -2905,13 +2914,15 @@ def create_page():
                             if not galaxy_name or len(r_ngc) == 0:
                                 return np.inf
                             
-                            y_opt = gal_state.get('upsilon', 1.0)
+                            y_disk = gal_state.get('upsilon_disk', 0.5)
+                            y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                            
+                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
                             
                            
                             rho_s, r_s, unscaled_M_dm_grid = get_dm_params(1.0, r_array=r_ngc)
                             max_dm_unscaled = np.nanmax(unscaled_M_dm_grid) if len(unscaled_M_dm_grid) > 0 else 0
-                            
-                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
+                           
                             v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
                             val_m_bar = np.nanmax(m_baryonic) if len(m_baryonic) > 0 else 0
@@ -2944,9 +2955,10 @@ def create_page():
                             chi2_points = gal_state['chi2_points']
                           
                             f = float(alpha_slider.value)
-                            y_opt = gal_state.get('upsilon', 1.0)
-    
-                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_opt * (v_disk_ngc * np.abs(v_disk_ngc) + v_bul_ngc * np.abs(v_bul_ngc))
+                            y_disk = gal_state.get('upsilon_disk', 0.5)
+                            y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                            
+                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
                             v_baryonic = np.sqrt(np.maximum(V_bar_sq, 0))
                             m_baryonic = (v_baryonic**2 * r_ngc) / G_grav
                             
@@ -3418,7 +3430,13 @@ def create_page():
                                     row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
                                     if row.empty: continue
                                     
-                                    y_opt = float(row.iloc[0]['Upsilon'])
+                                    if 'Upsilon_disk' in row.columns and 'Upsilon_bulge' in row.columns:
+                                        y_disk = float(row.iloc[0]['Upsilon_disk'])
+                                        y_bulge = float(row.iloc[0]['Upsilon_bulge'])
+                                    else:
+                                        y_disk = float(row.iloc[0].get('Upsilon', 0.5))
+                                        y_bulge = 1.4 * y_disk
+                                    
                                     r_s = float(row.iloc[0]['r_s'])
                                     rho_s = float(row.iloc[0]['rho_s'])
 
@@ -3430,7 +3448,7 @@ def create_page():
                                     vdisk = pd.to_numeric(data_ngc['Vdisk'], errors='coerce').values if 'Vdisk' in data_ngc.columns else np.zeros_like(r)
                                     vbul = pd.to_numeric(data_ngc['Vbul'], errors='coerce').values if 'Vbul' in data_ngc.columns else np.zeros_like(r)
                                     
-                                    V_bar_sq = vgas * np.abs(vgas) + y_opt * (vdisk * np.abs(vdisk) + vbul * np.abs(vbul))
+                                    V_bar_sq = vgas * np.abs(vgas) + y_disk * (vdisk * np.abs(vdisk)) + y_bulge * (vbul * np.abs(vbul))
                                     M_bar = (r * V_bar_sq) / G_grav
                                     
                                     # Massa Dark Matter con BURKERT
@@ -3524,7 +3542,13 @@ def create_page():
                             row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
                             
                             if not row.empty:
-                                y_opt = float(row.iloc[0]['Upsilon'])
+                                if 'Upsilon_disk' in row.columns and 'Upsilon_bulge' in row.columns:
+                                    y_disk = float(row.iloc[0]['Upsilon_disk'])
+                                    y_bulge = float(row.iloc[0]['Upsilon_bulge'])
+                                else:
+                                    y_disk = float(row.iloc[0].get('Upsilon', 0.5))
+                                    y_bulge = 1.4 * y_disk
+                                    
                                 r_s = float(row.iloc[0]['r_s'])
                                 rho_s = float(row.iloc[0]['rho_s'])
                             else:
@@ -3535,7 +3559,7 @@ def create_page():
                             return
 
                      
-                        V_bar_sq = vgas * np.abs(vgas) + y_opt * (vdisk * np.abs(vdisk) + vbul * np.abs(vbul))
+                        V_bar_sq = vgas * np.abs(vgas) + y_disk * (vdisk * np.abs(vdisk)) + y_bulge * (vbul * np.abs(vbul))
                         V_bar = np.sqrt(np.maximum(V_bar_sq, 0))
                         
                        
