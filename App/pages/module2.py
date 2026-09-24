@@ -1832,6 +1832,7 @@ def create_page():
                                 t_comp = ui.tab('Computational Notes')
                                 t_chi2 = ui.tab('χ² Minimization')
                                 t_morpho = ui.tab('Morphology Top-View')
+                                t_3d = ui.tab('3D Mass Distribution')
                                 tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
                           
                             with ui.tab_panels(tabs, value=t_comp).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
@@ -1968,7 +1969,218 @@ def create_page():
                                    
                                     morph_plot_container = ui.column().classes("w-full items-center justify-center")
                                     
+                                with ui.tab_panel(t_3d).classes('flex flex-col items-center justify-start w-full'):
+                                    ui.label("Shell Theorem: Point Mass vs. Extended Mass").classes("text-2xl font-bold text-slate-800 mb-2")
                                     
+                                    html_info_box(r"""
+                                    <p><b>Why is the Solar System different from a Galaxy?</b></p>
+                                    <ul>
+                                        <li><b>Solar System (Point Mass):</b> 99.8% of the mass is concentrated in the Sun. As the orbital radius <span class="math">\(r\)</span> increases, the enclosed mass remains constant. Gravity weakens, causing the orbital velocity to drop: <span class="math">\( v \propto 1/\sqrt{r} \)</span>.</li>
+                                        <li><b>Galaxy (Extended Spherical Halo):</b> Matter (especially Dark Matter) forms a massive, diffuse spherical halo. The larger the orbit, <b>the more matter is enclosed within it</b>. This additional mass compensates for the increasing distance, keeping the outer stars' velocity constant!</li>
+                                    </ul>
+                                    <hr style="margin: 10px 0;">
+                                    <p><b>Interactive 3D Tools:</b></p>
+                                    <ul>
+                                        <li><i>Use the toggle below to compare the models.</i></li>
+                                        <li><i>Rotate the 3D plot with your mouse.</i></li>
+                                        <li><b><i>Click on the items in the Legend to turn the Baryonic Matter or Dark Matter on and off!</i></b></li>
+                                    </ul>
+                                    """)
+                                    model_selector = ui.toggle(['Solar System (Real Data)', 'Galaxy (SPARC Model)'], value='Galaxy (SPARC Model)').classes('mt-4 mb-2')
+                                    plot_3d_container = ui.column().classes('w-full items-center justify-center')
+
+                                    @ui.refreshable
+                                    def render_3d_mass_plot():
+                                        plot_3d_container.clear()
+                                        with plot_3d_container:
+                                            
+                                            
+                                            title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-2 mt-4 text-center w-full")
+                                            
+                                            fig = go.Figure()
+
+                                         
+                                            custom_colorbar = dict(
+                                                title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12)),
+                                                tickfont=dict(color='black', size=11),
+                                                x=-0.1  
+                                            )
+
+                                            if model_selector.value == 'Galaxy (SPARC Model)':
+                                                if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
+                                                    r_ngc = gal_state['r_ngc']
+                                                    current_gal = gal_state.get('current_galaxy_name', '').removesuffix('.txt')
+                                                    
+                                                    y_disk = gal_state.get('upsilon_disk', 0.5)
+                                                    y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                                                    
+                                                   
+                                                    m_bulge = (r_ngc * y_bulge * (gal_state['v_bul_ngc']**2)) / G_grav
+                                                    M_bulge_tot = np.nanmax(m_bulge) if np.nanmax(m_bulge) > 0 else 0
+                                                    
+                                                    m_disk = (r_ngc * y_disk * (gal_state['v_disk_ngc']**2)) / G_grav
+                                                    M_disk_tot = np.nanmax(m_disk) if np.nanmax(m_disk) > 0 else 0
+                                                    
+                                                    v_gas_sq = gal_state['v_gas_ngc'] * np.abs(gal_state['v_gas_ngc'])
+                                                    m_gas = (r_ngc * np.maximum(v_gas_sq, 0)) / G_grav
+                                                    M_gas_tot = np.nanmax(m_gas) if np.nanmax(m_gas) > 0 else 0
+                                                    
+                                                    rho_s = gal_state.get('base_rho_s', 0.0)
+                                                    r_s = gal_state.get('base_r_s', 1.0)
+                                                    M_dm_grid = M_burkert_enclosed(r_ngc, rho_s, r_s)
+                                                    M_dm_tot = np.nanmax(M_dm_grid) if np.nanmax(M_dm_grid) > 0 else 0
+                                                    
+                                                    
+                                                    m_baryonic_tot = m_bulge + m_disk + m_gas
+                                                    v_total_curve = np.sqrt(G_grav * (m_baryonic_tot + M_dm_grid) / r_ngc)
+                                                    
+                                                    M_tot_all = M_bulge_tot + M_disk_tot + M_gas_tot + M_dm_tot
+
+                                                    
+                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat Velocity )")
+
+                                                  
+                                                    v_min_gal = np.nanmin(v_total_curve)
+                                                    v_max_gal = np.nanmax(v_total_curve)
+                                                    c_max_bright = v_max_gal * 1.15 
+
+                                                
+                                                    N_TOTAL_POINTS = 3500
+                                                    n_bulge = int(N_TOTAL_POINTS * (M_bulge_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                                    n_disk  = int(N_TOTAL_POINTS * (M_disk_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                                    n_gas   = int(N_TOTAL_POINTS * (M_gas_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                                    n_dm    = N_TOTAL_POINTS - (n_bulge + n_disk + n_gas) 
+
+                                                    def sample_component(m_array, n_pts, is_spherical=False, z_thickness=0.1):
+                                                        if n_pts <= 0: return np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
+                                                        CDF = m_array / np.nanmax(m_array)
+                                                        CDF_clean = np.maximum.accumulate(np.nan_to_num(CDF))
+                                                        U = np.random.uniform(0, 1, n_pts)
+                                                        r_pts = np.interp(U, CDF_clean, r_ngc)
+                                                        
+                                                        if is_spherical:
+                                                            phi = np.arccos(np.random.uniform(-1, 1, n_pts))
+                                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
+                                                            x = r_pts * np.sin(phi) * np.cos(theta)
+                                                            y = r_pts * np.sin(phi) * np.sin(theta)
+                                                            z = r_pts * np.cos(phi)
+                                                        else:
+                                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
+                                                            x = r_pts * np.cos(theta)
+                                                            y = r_pts * np.sin(theta)
+                                                            z = np.random.normal(0, z_thickness, n_pts)
+                                                            
+                                                        v_pts = np.interp(r_pts, r_ngc, v_total_curve)
+                                                        m_enclosed = np.interp(r_pts, r_ngc, m_array)
+                                                        return x, y, z, v_pts, np.stack((r_pts, m_enclosed), axis=-1)
+
+                                                    traces = []
+
+                                                  
+                                                    if n_bulge > 0:
+                                                        x, y, z, v, c_data = sample_component(m_bulge, n_bulge, is_spherical=True)
+                                                        traces.append(go.Scatter3d(
+                                                            x=x, y=y, z=z, mode='markers',
+                                                            marker=dict(size=3.5, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
+                                                            name=f'Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data,
+                                                            hovertemplate="<b>Bulge</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
+                                                        ))
+                                                        
+                                                    
+                                                    if n_disk > 0:
+                                                        x, y, z, v, c_data = sample_component(m_disk, n_disk, is_spherical=False, z_thickness=0.2)
+                                                        traces.append(go.Scatter3d(
+                                                            x=x, y=y, z=z, mode='markers',
+                                                            marker=dict(size=2.5, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8),
+                                                            name=f'Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data,
+                                                            hovertemplate="<b>Stellar Disk</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
+                                                        ))
+
+                                                   
+                                                    if n_gas > 0:
+                                                        x, y, z, v, c_data = sample_component(m_gas, n_gas, is_spherical=False, z_thickness=0.1)
+                                                        traces.append(go.Scatter3d(
+                                                            x=x, y=y, z=z, mode='markers',
+                                                            marker=dict(size=2, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.6),
+                                                            name=f'Gas (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
+                                                            hovertemplate="<b>Gas</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
+                                                        ))
+
+                                                   
+                                                    if n_dm > 0:
+                                                        x, y, z, v, c_data = sample_component(M_dm_grid, n_dm, is_spherical=True)
+                                                        traces.append(go.Scatter3d(
+                                                            x=x, y=y, z=z, mode='markers',
+                                                            marker=dict(size=3, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.15, showscale=True, colorbar=custom_colorbar),
+                                                            name=f'DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data,
+                                                            hovertemplate="<b>Dark Matter</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
+                                                        ))
+
+                                                    for trace in traces:
+                                                        fig.add_trace(trace)
+                                                        
+                                                else:
+                                                    title_label.set_text("Select a Galaxy to load 3D Data")
+
+                                            else:
+                                                
+                                                title_label.set_text("Solar System (Velocity drops with Distance)")
+                                                fig.add_trace(go.Scatter3d(
+                                                    x=[0], y=[0], z=[0], mode='markers',
+                                                    marker=dict(size=18, color='yellow', symbol='circle'),
+                                                    name='Sun (99.8% Mass)', hoverinfo='name'
+                                                ))
+                                                
+                                                if df0 is not None and not df0.empty:
+                                                    v_min_sol = df0['Velocity(km/s)'].min()
+                                                    v_max_sol = df0['Velocity(km/s)'].max()
+                                                    c_max_bright_sol = v_max_sol * 1.15
+
+                                                    for idx, row in df0.iterrows():
+                                                        p_name = row['Celestial_Body']
+                                                        a_scaled = float(row['SemiMajorAxis(km)']) / 1e6
+                                                        v_scaled = float(row['Velocity(km/s)'])
+                                                        m_kg = float(row['Mass(kg)'])
+                                                        
+                                                        theta_p = np.linspace(0, 2*np.pi, 100)
+                                                        fig.add_trace(go.Scatter3d(
+                                                            x=a_scaled*np.cos(theta_p), y=a_scaled*np.sin(theta_p), z=np.zeros_like(theta_p), 
+                                                            mode='lines', line=dict(color='rgba(255,255,255,0.2)', width=1), 
+                                                            showlegend=False, hoverinfo='skip'
+                                                        ))
+                                                        
+                                                        angle = np.random.uniform(0, 2*np.pi)
+                                                        fig.add_trace(go.Scatter3d(
+                                                            x=[a_scaled*np.cos(angle)], y=[a_scaled*np.sin(angle)], z=[0], mode='markers', 
+                                                            marker=dict(
+                                                                size=8, 
+                                                                color=[v_scaled], 
+                                                                colorscale='turbo', 
+                                                                cmin=v_min_sol, 
+                                                                cmax=c_max_bright_sol, 
+                                                                showscale=False
+                                                            ), 
+                                                            name=f"{p_name}", text=[p_name], customdata=[[a_scaled, m_kg]],
+                                                            hovertemplate="<b>%{text}</b><br>Radius: %{customdata[0]:.1f}x10^6 km<br>Velocity: %{marker.color:.1f} km/s<br>Mass: %{customdata[1]:.2e} kg"
+                                                        ))
+                                                    
+                                                 
+                                                    fig.add_trace(go.Scatter3d(
+                                                        x=[None], y=[None], z=[None], mode='markers',
+                                                        marker=dict(colorscale='turbo', cmin=v_min_sol, cmax=c_max_bright_sol, showscale=True, colorbar=custom_colorbar),
+                                                        showlegend=False, hoverinfo='skip'
+                                                    ))
+
+                                            fig.update_layout(
+                                                scene=dict(xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False), bgcolor='rgb(15, 23, 42)'),
+                                                margin=dict(l=0, r=0, b=0, t=10),
+                                                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                                legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01)
+                                            )
+                                            ui.plotly(fig).classes('w-full h-[550px] rounded-lg shadow-lg')
+
+                                    render_3d_mass_plot()
+                                    model_selector.on_value_change(render_3d_mass_plot.refresh) 
                     combined_exercise_state = {'step': 0}
 
                     combined_exercises_html = [
@@ -2094,6 +2306,7 @@ def create_page():
                         </ul>
                         """
                     ]
+                                
 
                     with ui.dialog() as instr_combined_galaxy, ui.card().classes('p-4 w-full max-w-[1200px] overflow-x-auto').props('aria-label="Galaxy exercises" role=dialog'):
                         
@@ -2276,6 +2489,7 @@ def create_page():
                             update_mass_plot()
                             plot_chi2_user_curve()
                             update_morphology_plot()
+                            render_3d_mass_plot.refresh()
                         except Exception as ex:
                             import traceback; traceback.print_exc()
                             accessible_notify(f"Error: {ex}", type_='error')
@@ -4004,6 +4218,7 @@ def create_page():
                                     t_comp = ui.tab('Computational Notes')
                                     t_chi2 = ui.tab('χ² Minimization')
                                     t_sim = ui.tab('Velocity Simulation')
+                                    
                                     tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
 
                               
