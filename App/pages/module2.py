@@ -486,6 +486,14 @@ def create_page():
     def module2():
         #add custom CSS for the page
         #ui.add_head_html('<script src="https://cdn.tailwindcss.com"></script>')
+        ui.run_javascript("""
+    // Intercetta la configurazione di Quasar Notify e forza un timeout massimo
+    if (window.Quasar && window.Quasar.Notify) {
+        window.Quasar.Notify.setDefaults({
+            timeout: 3500 // Forza la scomparsa di TUTTE le notifiche (anche errori) dopo 3.5 secondi
+        });
+    }
+""")
         ui.add_head_html('''
     <link rel="stylesheet" href="/static/github.min.css">
 ''')
@@ -1994,22 +2002,27 @@ def create_page():
                                         plot_3d_container.clear()
                                         with plot_3d_container:
                                             
-                                            
                                             title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-2 mt-4 text-center w-full")
                                             
                                             fig = go.Figure()
 
-                                         
                                             custom_colorbar = dict(
-                                                title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12)),
+                                                title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12), side='top'),
                                                 tickfont=dict(color='black', size=11),
-                                                x=-0.1  
+                                                x=-0.12, 
+                                                thickness=15
                                             )
+
+                                        
+                                            r_max_plot = 10.0 
 
                                             if model_selector.value == 'Galaxy (SPARC Model)':
                                                 if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
                                                     r_ngc = gal_state['r_ngc']
                                                     current_gal = gal_state.get('current_galaxy_name', '').removesuffix('.txt')
+                                                    
+                                                   
+                                                    r_max_plot = np.nanmax(r_ngc) * 1.05
                                                     
                                                     y_disk = gal_state.get('upsilon_disk', 0.5)
                                                     y_bulge = gal_state.get('upsilon_bulge', 0.7)
@@ -2030,21 +2043,18 @@ def create_page():
                                                     M_dm_grid = M_burkert_enclosed(r_ngc, rho_s, r_s)
                                                     M_dm_tot = np.nanmax(M_dm_grid) if np.nanmax(M_dm_grid) > 0 else 0
                                                     
-                                                    
                                                     m_baryonic_tot = m_bulge + m_disk + m_gas
                                                     v_total_curve = np.sqrt(G_grav * (m_baryonic_tot + M_dm_grid) / r_ngc)
                                                     
-                                                    M_tot_all = M_bulge_tot + M_disk_tot + M_gas_tot + M_dm_tot
+                                                    M_bar_tot = M_bulge_tot + M_disk_tot + M_gas_tot
+                                                    M_tot_all = M_bar_tot + M_dm_tot
 
-                                                    
-                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat Velocity )")
+                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat Velocity Maintained by DM)")
 
-                                                  
                                                     v_min_gal = np.nanmin(v_total_curve)
                                                     v_max_gal = np.nanmax(v_total_curve)
                                                     c_max_bright = v_max_gal * 1.15 
 
-                                                
                                                     N_TOTAL_POINTS = 3500
                                                     n_bulge = int(N_TOTAL_POINTS * (M_bulge_tot / M_tot_all)) if M_tot_all > 0 else 0
                                                     n_disk  = int(N_TOTAL_POINTS * (M_disk_tot / M_tot_all)) if M_tot_all > 0 else 0
@@ -2076,42 +2086,38 @@ def create_page():
 
                                                     traces = []
 
-                                                  
                                                     if n_bulge > 0:
                                                         x, y, z, v, c_data = sample_component(m_bulge, n_bulge, is_spherical=True)
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=3.5, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
+                                                            marker=dict(size=3, symbol='square', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
                                                             name=f'Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Bulge</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
                                                         
-                                                    
                                                     if n_disk > 0:
                                                         x, y, z, v, c_data = sample_component(m_disk, n_disk, is_spherical=False, z_thickness=0.2)
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=2.5, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8),
+                                                            marker=dict(size=3, symbol='diamond', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8),
                                                             name=f'Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Stellar Disk</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
 
-                                                   
                                                     if n_gas > 0:
                                                         x, y, z, v, c_data = sample_component(m_gas, n_gas, is_spherical=False, z_thickness=0.1)
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=2, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.6),
-                                                            name=f'Gas (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
+                                                            marker=dict(size=4, symbol='cross', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
+                                                            name=f'Gas Disk (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Gas</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
 
-                                                   
                                                     if n_dm > 0:
                                                         x, y, z, v, c_data = sample_component(M_dm_grid, n_dm, is_spherical=True)
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=3, color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.15, showscale=True, colorbar=custom_colorbar),
+                                                            marker=dict(size=3, symbol='circle', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.3),
                                                             name=f'DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Dark Matter</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
@@ -2119,12 +2125,18 @@ def create_page():
                                                     for trace in traces:
                                                         fig.add_trace(trace)
                                                         
+                                                   
+                                                    fig.add_trace(go.Scatter3d(
+                                                        x=[None], y=[None], z=[None], mode='markers',
+                                                        marker=dict(colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, showscale=True, colorbar=custom_colorbar),
+                                                        showlegend=False, hoverinfo='skip'
+                                                    ))
+                                                        
                                                 else:
                                                     title_label.set_text("Select a Galaxy to load 3D Data")
 
                                             else:
-                                                
-                                                title_label.set_text("Solar System (Velocity drops with Distance)")
+                                                title_label.set_text("3D Mass Distribution: Solar System (Velocity Drops with Distance)")
                                                 fig.add_trace(go.Scatter3d(
                                                     x=[0], y=[0], z=[0], mode='markers',
                                                     marker=dict(size=18, color='yellow', symbol='circle'),
@@ -2135,6 +2147,9 @@ def create_page():
                                                     v_min_sol = df0['Velocity(km/s)'].min()
                                                     v_max_sol = df0['Velocity(km/s)'].max()
                                                     c_max_bright_sol = v_max_sol * 1.15
+                                                    
+                                                  
+                                                    r_max_plot = (df0['SemiMajorAxis(km)'].max() / 1e6) * 1.05
 
                                                     for idx, row in df0.iterrows():
                                                         p_name = row['Celestial_Body']
@@ -2153,27 +2168,29 @@ def create_page():
                                                         fig.add_trace(go.Scatter3d(
                                                             x=[a_scaled*np.cos(angle)], y=[a_scaled*np.sin(angle)], z=[0], mode='markers', 
                                                             marker=dict(
-                                                                size=8, 
-                                                                color=[v_scaled], 
-                                                                colorscale='turbo', 
-                                                                cmin=v_min_sol, 
-                                                                cmax=c_max_bright_sol, 
-                                                                showscale=False
+                                                                size=8, color=[v_scaled], colorscale='turbo', 
+                                                                cmin=v_min_sol, cmax=c_max_bright_sol, showscale=False
                                                             ), 
                                                             name=f"{p_name}", text=[p_name], customdata=[[a_scaled, m_kg]],
                                                             hovertemplate="<b>%{text}</b><br>Radius: %{customdata[0]:.1f}x10^6 km<br>Velocity: %{marker.color:.1f} km/s<br>Mass: %{customdata[1]:.2e} kg"
                                                         ))
                                                     
-                                                 
                                                     fig.add_trace(go.Scatter3d(
                                                         x=[None], y=[None], z=[None], mode='markers',
                                                         marker=dict(colorscale='turbo', cmin=v_min_sol, cmax=c_max_bright_sol, showscale=True, colorbar=custom_colorbar),
                                                         showlegend=False, hoverinfo='skip'
                                                     ))
 
+                                        
                                             fig.update_layout(
-                                                scene=dict(xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False), bgcolor='rgb(15, 23, 42)'),
-                                                margin=dict(l=0, r=0, b=0, t=10),
+                                                scene=dict(
+                                                    xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                    yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                    zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                    bgcolor='rgb(15, 23, 42)',
+                                                    aspectmode='cube' # FIX BUG 1: Mantiene le proporzioni geometriche rigide
+                                                ),
+                                                margin=dict(l=60, r=0, b=0, t=10), # FIX BUG 2: l=60 fa spazio alla label della colorbar
                                                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                                                 legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01)
                                             )
@@ -2421,7 +2438,7 @@ def create_page():
                                 row = df_params[df_params['Clean_Galaxy'] == gal_name_clean]
                                 
                                 if not row.empty:
-                                    # Usa i nuovi parametri sdoppiati se esistono, altrimenti fallback
+                                    
                                     if 'Upsilon_disk' in row.columns and 'Upsilon_bulge' in row.columns:
                                         y_disk = float(row.iloc[0]['Upsilon_disk'])
                                         y_bulge = float(row.iloc[0]['Upsilon_bulge'])

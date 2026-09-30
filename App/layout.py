@@ -251,7 +251,6 @@ global_notification_area = None
 def accessible_notify(text: str, type_: str = "info", *args, **kwargs):
     global global_notification_area
     
-  
     t = kwargs.get('type_', kwargs.get('type', type_))
     color_arg = kwargs.get('color', None)
     if color_arg:
@@ -262,11 +261,8 @@ def accessible_notify(text: str, type_: str = "info", *args, **kwargs):
     target_container = global_notification_area if global_notification_area else ui.context.client.layout
     
     if global_notification_area:
-        global_notification_area.clear()
-      
         global_notification_area.style('display: flex; width: 100%;')
 
-   
     color_classes = {
         "info": "bg-blue-100 text-blue-900 border border-blue-400",
         "success": "bg-green-100 text-green-900 border border-green-600",
@@ -275,18 +271,22 @@ def accessible_notify(text: str, type_: str = "info", *args, **kwargs):
     }.get(t, "bg-blue-100 text-blue-900 border border-blue-400")
 
     with target_container:
-        with ui.card().classes(f"p-2 rounded-lg shadow-sm w-full text-center my-1 text-lg font-bold {color_classes}").props(
+        # 1. Creiamo la card e la salviamo in una variabile specifica
+        noti_card = ui.card().classes(f"p-2 rounded-lg shadow-sm w-full text-center my-1 text-lg font-bold {color_classes}").props(
             f'role={"alert" if t in ["error","warning"] else "status"} aria-live=polite tabindex=0'
-        ): 
+        )
+        with noti_card: 
             ui.label(text)
 
-    def close_and_reset():
-        if global_notification_area:
-            global_notification_area.clear()
-           
-            global_notification_area.style('display: none;')
+    # 2. Funzione mirata che distrugge SOLO questa specifica card
+    def remove_noti():
+        try:
+            noti_card.delete()
+        except Exception:
+            pass
 
-    ui.timer(4.0, close_and_reset, once=True)
+    # 3. Timer impostato a 3.5 secondi
+    ui.timer(3.5, remove_noti, once=True)
 def enlargeable_plot(plot_func, width_percent=100):
     """
     Crea un container cliccabile. Quando cliccato, apre il grafico in un dialog grande.

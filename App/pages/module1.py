@@ -52,7 +52,7 @@ import networkx as nx
 import requests
 from dotenv import load_dotenv
 from fastapi import Request
-
+from groq import Groq
 #from ipywidgets import interact, FloatSlider
 from nicegui import ui, app, run , client
 #from nicegui_toolkit import inject_layout_tool
@@ -79,6 +79,14 @@ def create_page():
 ''')
         #ui.add_head_html('''    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"> ''')
         #<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+        ui.run_javascript("""
+    // Intercetta la configurazione di Quasar Notify e forza un timeout massimo
+    if (window.Quasar && window.Quasar.Notify) {
+        window.Quasar.Notify.setDefaults({
+            timeout: 3500 // Forza la scomparsa di TUTTE le notifiche (anche errori) dopo 3.5 secondi
+        });
+    }
+""")
         ui.add_head_html("""
     
     <style>
@@ -3128,7 +3136,7 @@ def create_page():
                                         ui.label(f"Ref: {source_text}").classes('text-[10px] font-mono text-gray-300 bg-black/60 px-2 py-1 rounded border border-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-400 transition-colors')
 
 #panel cosmological timeline
-        EPOCHS_EXTENDED = {"Before Big Bang":[
+        EPOCHS_EXTENDED = {"Near Big Bang":[
 
         {'name': 'Inflation', 'z_ref': 1e30, 'image': 'inflation.jpg',
         'desc': 'A rapid exponential expansion occurring ~10⁻³⁶ seconds after the Big Bang. [Wikipedia](https://en.wikipedia.org/wiki/Cosmic_inflation)'},
