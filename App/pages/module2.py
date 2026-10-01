@@ -2049,7 +2049,7 @@ def create_page():
                                                     M_bar_tot = M_bulge_tot + M_disk_tot + M_gas_tot
                                                     M_tot_all = M_bar_tot + M_dm_tot
 
-                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat Velocity Maintained by DM)")
+                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat velocity)")
 
                                                     v_min_gal = np.nanmin(v_total_curve)
                                                     v_max_gal = np.nanmax(v_total_curve)
@@ -2091,7 +2091,7 @@ def create_page():
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
                                                             marker=dict(size=3, symbol='square', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
-                                                            name=f'Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data,
+                                                            name=f'■ Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Bulge</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
                                                         
@@ -2100,7 +2100,7 @@ def create_page():
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
                                                             marker=dict(size=3, symbol='diamond', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8),
-                                                            name=f'Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data,
+                                                            name=f'★ Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Stellar Disk</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
 
@@ -2109,7 +2109,7 @@ def create_page():
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
                                                             marker=dict(size=4, symbol='cross', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
-                                                            name=f'Gas Disk (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
+                                                            name=f'✖ Gas Disk (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Gas</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
 
@@ -2118,7 +2118,7 @@ def create_page():
                                                         traces.append(go.Scatter3d(
                                                             x=x, y=y, z=z, mode='markers',
                                                             marker=dict(size=3, symbol='circle', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.3),
-                                                            name=f'DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data,
+                                                            name=f'● DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data,
                                                             hovertemplate="<b>Dark Matter</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
                                                         ))
 
@@ -2136,7 +2136,7 @@ def create_page():
                                                     title_label.set_text("Select a Galaxy to load 3D Data")
 
                                             else:
-                                                title_label.set_text("3D Mass Distribution: Solar System (Velocity Drops with Distance)")
+                                                title_label.set_text("3D Mass Distribution: Solar System (Velocity drops with Distance)")
                                                 fig.add_trace(go.Scatter3d(
                                                     x=[0], y=[0], z=[0], mode='markers',
                                                     marker=dict(size=18, color='yellow', symbol='circle'),
@@ -2188,9 +2188,9 @@ def create_page():
                                                     yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
                                                     zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
                                                     bgcolor='rgb(15, 23, 42)',
-                                                    aspectmode='cube' # FIX BUG 1: Mantiene le proporzioni geometriche rigide
+                                                    aspectmode='cube'
                                                 ),
-                                                margin=dict(l=60, r=0, b=0, t=10), # FIX BUG 2: l=60 fa spazio alla label della colorbar
+                                                margin=dict(l=60, r=0, b=0, t=10), 
                                                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                                                 legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01)
                                             )
