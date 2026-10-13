@@ -1325,6 +1325,7 @@ def create_page():
                             timer_state['started'] = True
                             time_label.set_text("Time: 0s")
                             ui.run_javascript("window.gameRunning = true; window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';")
+                            random.shuffle(IMAGES_MACRO)
                             render_astroscales_board.refresh()
 
                         def stop_game():
@@ -1340,6 +1341,7 @@ def create_page():
                                 time_label.set_text('Time: 0s'),
                                 ui.run_javascript("window.gameScore = 0; document.getElementById('score_display').innerText = 'Score: 0';"),
                                 ui.run_javascript('document.querySelectorAll("[id^=\'img-\']").forEach(img => {img.style.opacity = "1"; img.style.filter = "none"; img.style.pointerEvents = "auto"})'),
+                                random.shuffle(IMAGES_MACRO),
                                 render_astroscales_board.refresh(),
                                 render_drop_column.refresh(),
                                 ui.timer(0.2, update_math, once=True)
@@ -5318,40 +5320,41 @@ namelength=-1,
                             
                             memory_deck = [
                                 # --- IRREGULAR (6) ---
-                                {'type': 'Irregular', 'img': 'images/IC559_irregular.jpg'},
-                                {'type': 'Irregular', 'img': 'images/IC4710_irregular.jpg'},
-                                {'type': 'Irregular', 'img': 'images/NGC1427_irregular.jpg'},
-                                {'type': 'Irregular', 'img': 'images/NGC7292_irregular.jpg'},
-                                {'type': 'Irregular', 'img': 'images/NGC55_irregular.jpg'},
-                                {'type': 'Irregular', 'img': 'images/NGC5264_irregular.jpeg'}, 
+                                {'type': 'Irregular', 'name': 'IC 559', 'img': 'images/IC559_irregular.jpg'},
+                                {'type': 'Irregular', 'name': 'IC 4710', 'img': 'images/IC4710_irregular.jpg'},
+                                {'type': 'Irregular', 'name': 'NGC 1427', 'img': 'images/NGC1427_irregular.jpg'},
+                                {'type': 'Irregular', 'name': 'NGC 7292', 'img': 'images/NGC7292_irregular.jpg'},
+                                {'type': 'Irregular', 'name': 'NGC 55', 'img': 'images/NGC55_irregular.jpg'},
+                                {'type': 'Irregular', 'name': 'NGC 5264', 'img': 'images/NGC5264_irregular.jpeg'}, 
 
                                 # --- LENTICULAR (6) ---
-                                {'type': 'Lenticular', 'img': 'images/NGC4921_lenticular.jpg'},
-                                {'type': 'Lenticular', 'img': 'images/NGC1387_lenticular.png'},
-                                {'type': 'Lenticular', 'img': 'images/NGC2787_lenticular.jpg'},
-                                {'type': 'Lenticular', 'img': 'images/NGC5866_lenticular.png'},
-                                {'type': 'Lenticular', 'img': 'images/NGC5010_lenticular.jpg'},
-                                {'type': 'Lenticular', 'img': 'images/NGC4886_lenticular.jpeg'},
+                                {'type': 'Lenticular', 'name': 'NGC 4921', 'img': 'images/NGC4921_lenticular.jpg'},
+                                {'type': 'Lenticular', 'name': 'NGC 1387', 'img': 'images/NGC1387_lenticular.png'},
+                                {'type': 'Lenticular', 'name': 'NGC 2787', 'img': 'images/NGC2787_lenticular.jpg'},
+                                {'type': 'Lenticular', 'name': 'NGC 5866', 'img': 'images/NGC5866_lenticular.png'},
+                                {'type': 'Lenticular', 'name': 'NGC 5010', 'img': 'images/NGC5010_lenticular.jpg'},
+                                {'type': 'Lenticular', 'name': 'NGC 4886', 'img': 'images/NGC4886_lenticular.jpeg'},
 
                                 # --- ELLIPTICAL (6) ---
-                                {'type': 'Elliptical', 'img': 'images/NGC221_elliptical.jpg'},
-                                {'type': 'Elliptical', 'img': 'images/NGC4365_elliptical.png'},
-                                {'type': 'Elliptical', 'img': 'images/IC2006_elliptical.jpg'},
-                                {'type': 'Elliptical', 'img': 'images/NGC1316_elliptical.jpg'},
-                                {'type': 'Elliptical', 'img': 'images/NGC4150_elliptical.jpg'},
-                                {'type': 'Elliptical', 'img': 'images/NGC2865_elliptical.jpeg'},
+                                {'type': 'Elliptical', 'name': 'NGC 1399', 'img': 'images/NGC1399_elliptical.png'},
+                                {'type': 'Elliptical', 'name': 'NGC 4365', 'img': 'images/NGC4365_elliptical.png'},
+                                {'type': 'Elliptical', 'name': 'IC 2006', 'img': 'images/IC2006_elliptical.jpg'},
+                                {'type': 'Elliptical', 'name': 'NGC 1316', 'img': 'images/NGC1316_elliptical.jpg'},
+                                {'type': 'Elliptical', 'name': 'NGC 4150', 'img': 'images/NGC4150_elliptical.jpg'},
+                                {'type': 'Elliptical', 'name': 'NGC 2865', 'img': 'images/NGC2865_elliptical.jpeg'},
 
                                 # --- SPIRAL (6) ---
-                                {'type': 'Spiral', 'img': 'images/NGC1068_spiral.jpg'},
-                                {'type': 'Spiral', 'img': 'images/NGC1232_spiral.jpg'},
-                                {'type': 'Spiral', 'img': 'images/NGC_6217_spiral.jpg'},
-                                {'type': 'Spiral', 'img': 'images/NGC5335_spiral.jpg'},
-                                {'type': 'Spiral', 'img': 'images/NGC1365_spiral.jpg'},
-                                {'type': 'Spiral', 'img': 'images/NGC1300_spiral.jpg'}
+                                {'type': 'Spiral', 'name': 'NGC 1068', 'img': 'images/NGC1068_spiral.jpg'},
+                                {'type': 'Spiral', 'name': 'NGC 1232', 'img': 'images/NGC1232_spiral.jpg'},
+                                {'type': 'Spiral', 'name': 'NGC 6217', 'img': 'images/NGC_6217_spiral.jpg'},
+                                {'type': 'Spiral', 'name': 'NGC 5335', 'img': 'images/NGC5335_spiral.jpg'},
+                                {'type': 'Spiral', 'name': 'NGC 1365', 'img': 'images/NGC1365_spiral.jpg'},
+                                {'type': 'Spiral', 'name': 'NGC 1300', 'img': 'images/NGC1300_spiral.jpg'}
                             ]
                             
                             random.shuffle(memory_deck)
-                            mem_state['cards'] = [{'id': i, 'type': c['type'], 'img': c['img']} for i, c in enumerate(memory_deck)]
+                            # Aggiungiamo anche il name qui
+                            mem_state['cards'] = [{'id': i, 'type': c['type'], 'name': c['name'], 'img': c['img']} for i, c in enumerate(memory_deck)]
                             render_memory_board.refresh()
                             
                         def stop_memory():
@@ -5369,7 +5372,6 @@ namelength=-1,
                           
                             mem_state['cards'] = []
                             render_memory_board.refresh()
-
                         with ui.row().classes('gap-4'):
                             aria_button("Start", "start", on_click=start_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105 animate-pulse")
                             aria_button("Stop", "stop", on_click=stop_memory).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform hover:scale-105")
@@ -5438,12 +5440,17 @@ namelength=-1,
                             for card in mem_state['cards']:
                                 is_revealed = card['id'] in mem_state['flipped'] or card['id'] in mem_state['matched']
                                 label_stato = f"{card['type']} revealed" if is_revealed else "Hidden card"
-                                with ui.card().style('aspect-ratio: 1').classes('p-0 cursor-pointer w-full flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').props(f'role=button tabindex=0 aria-label="Memory card: {label_stato}"').on('click', lambda c_id=card['id']: flip_card(c_id)).on('keydown.enter', lambda c_id=card['id']: flip_card(c_id)):
+                                
+                                # Nota: ho aggiunto 'relative' alle classi della card per confinare la label assoluta
+                                with ui.card().style('aspect-ratio: 1').classes('relative p-0 cursor-pointer w-full flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-md border-2 border-slate-600').props(f'role=button tabindex=0 aria-label="Memory card: {label_stato}"').on('click', lambda c_id=card['id']: flip_card(c_id)).on('keydown.enter', lambda c_id=card['id']: flip_card(c_id)):
                                     if is_revealed:
-                                        
+                                        # Mostra l'immagine
                                         ui.image(card['img']).classes('w-full h-full object-cover').props('aria-hidden="true"')
+                                        
+                                        # Mostra la label nell'angolo in basso a destra
+                                        ui.label(f"{card['name']} ({card['type']})").classes('absolute bottom-1 right-1 text-white text-[9px] md:text-[11px] bg-black/70 px-1.5 py-0.5 rounded font-bold text-right leading-tight')
                                     else:
-                                       
+                                        # Retro della carta
                                         ui.element('div').classes('w-full h-full bg-blue-900 flex items-center justify-center').style('background-image: radial-gradient(circle, #1e3a8a, #0f172a);')
                                         ui.label('?').classes('text-white text-4xl font-bold absolute')
 

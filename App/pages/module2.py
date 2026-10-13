@@ -1388,7 +1388,7 @@ def create_page():
                                 m_sel = float(row['Mass(kg)'])
                             except IndexError:
                                 pass
-                        with ui.pyplot(figsize=(8, 6), close=True, clear=True) as m:
+                        with ui.pyplot(figsize=(6, 3.5), close=True, clear=True) as m:
                             mass=m
                             for pnm in planets:
                                 pa = float(df.loc[df['Celestial_Body'] == pnm, 'SemiMajorAxis(km)'].iloc[0])
@@ -1555,43 +1555,99 @@ def create_page():
                     with ui.row().classes('w-full items-center justify-center gap-8'): 
                         
                     
-                        with ui.column().classes('w-full md:w-auto min-w-[280px] items-center'):
-                            with ui.row().classes('flex-1'):
-                            
-                                ui.label("Select a Planet").style("font-size:20px; font-weight:bold; margin-bottom:6px;").props('id=planet_selector_label role=heading aria-level=3 tabindex=0')
-                        
-
+                        with ui.column().classes('w-full items-center justify-center gap-4'):
+                        # Selettore pianeta in alto al centro
+                            with ui.row().classes('w-full justify-center items-center'):
+                                ui.label("Select a Planet").style("font-size:20px; font-weight:bold; margin-right: 10px;").props('id=planet_selector_label role=heading aria-level=3 tabindex=0')
                                 selector = ui.select(
-                            planets,
-                            value="Earth" if "Earth" in planets else planets[0],
-                            label="Planet"
-                        ).classes('w-48').props('id=planet_selector aria-labelledby=planet_selector_label role=listbox tabindex=0')
+                                    planets,
+                                    value="Earth" if "Earth" in planets else planets[0],
+                                    label="Planet"
+                                ).classes('w-48').props('id=planet_selector aria-labelledby=planet_selector_label role=listbox tabindex=0')
+
+                            with ui.row().classes('w-full items-start justify-center gap-8 mt-2'): 
                                 
-                            with ui.row().classes('flex-1'):
-                                info_panel(selector.value)
-                            
-                    
-                        with ui.column().classes('w-full md:w-auto shrink-0'):
-                        
-                            plot_velocity(selector.value).classes('max-w-full')
-                            with ui.row().classes('w-full justify-center items-center gap-4 mt-4'):
-                                aria_button(
-                                    "Activity: Kepler", 
-                                    "Instructions for Kepler velocity plot", 
-                                    on_click=lambda: instr_kepler_phase1.open()
-                                ).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                                # --- COLONNA SINISTRA: Plot 3D del Sistema Solare ---
+                                with ui.column().classes('flex-1 min-w-[350px] max-w-[600px] items-center'):
+                                    @ui.refreshable
+                                    def render_solar_system_3d():
+                                        fig = go.Figure()
+                                        custom_colorbar = dict(
+                                            title=dict(text="Velocity<br>(km/s)", font=dict(color='white', size=12), side='top'),
+                                            tickfont=dict(color='white', size=11), x=-0.12, thickness=15
+                                        )
+                                        
+                                        fig.add_trace(go.Scatter3d(
+                                            x=[0], y=[0], z=[0], mode='markers',
+                                            marker=dict(size=18, color='yellow', symbol='circle'),
+                                            name='Sun (99.8% Mass)', hoverinfo='name'
+                                        ))
+                                        
+                                        r_max_plot = 10.0
+                                        if df0 is not None and not df0.empty:
+                                            v_min_sol = df0['Velocity(km/s)'].min()
+                                            v_max_sol = df0['Velocity(km/s)'].max()
+                                            c_max_bright_sol = v_max_sol * 1.15
+                                            r_max_plot = (df0['SemiMajorAxis(km)'].max() / 1e6) * 1.05
+
+                                            for idx, row in df0.iterrows():
+                                                p_name = row['Celestial_Body']
+                                                a_scaled = float(row['SemiMajorAxis(km)']) / 1e6
+                                                v_scaled = float(row['Velocity(km/s)'])
+                                                m_kg = float(row['Mass(kg)'])
+                                                
+                                                theta_p = np.linspace(0, 2*np.pi, 100)
+                                                fig.add_trace(go.Scatter3d(
+                                                    x=a_scaled*np.cos(theta_p), y=a_scaled*np.sin(theta_p), z=np.zeros_like(theta_p), 
+                                                    mode='lines', line=dict(color='rgba(255,255,255,0.2)', width=1), 
+                                                    showlegend=False, hoverinfo='skip'
+                                                ))
+                                                
+                                                angle = np.random.uniform(0, 2*np.pi)
+                                                fig.add_trace(go.Scatter3d(
+                                                    x=[a_scaled*np.cos(angle)], y=[a_scaled*np.sin(angle)], z=[0], mode='markers', 
+                                                    marker=dict(
+                                                        size=8, color=[v_scaled], colorscale='turbo', 
+                                                        cmin=v_min_sol, cmax=c_max_bright_sol, showscale=False
+                                                    ), 
+                                                    name=f"{p_name}", text=[p_name], customdata=[[a_scaled, m_kg]],
+                                                    hovertemplate="<b>%{text}</b><br>Radius: %{customdata[0]:.1f}x10^6 km<br>Velocity: %{marker.color:.1f} km/s<br>Mass: %{customdata[1]:.2e} kg"
+                                                ))
+                                            
+                                            fig.add_trace(go.Scatter3d(
+                                                x=[None], y=[None], z=[None], mode='markers',
+                                                marker=dict(colorscale='turbo', cmin=v_min_sol, cmax=c_max_bright_sol, showscale=True, colorbar=custom_colorbar),
+                                                showlegend=False, hoverinfo='skip'
+                                            ))
+
+                                        fig.update_layout(
+                                            title=dict(text="3D Solar System (Velocity drops with Distance)", font=dict(color='white', size=14), x=0.5, y=0.98),
+                                            scene=dict(
+                                                xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
+                                                bgcolor='rgb(15, 23, 42)', aspectmode='cube'
+                                            ),
+                                            margin=dict(l=0, r=0, b=0, t=30), 
+                                            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                            legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01)
+                                        )
+                                        ui.plotly(fig).classes('w-full h-[550px] rounded-lg shadow-lg')
+                                    render_solar_system_3d()
+
+                                # --- COLONNA DESTRA: Box Pianeta + Plot Velocità ---
+                                with ui.column().classes('flex-1 min-w-[350px] max-w-[600px] items-center shrink-0 gap-4'):
+                                    info_panel(selector.value)
+                                    plot_velocity(selector.value).classes('max-w-full')
+                                    
+                                    with ui.row().classes('w-full justify-center items-center gap-4 mt-2'):
+                                        aria_button("Activity: Kepler", "Instructions for Kepler velocity plot", on_click=lambda: instr_kepler_phase1.open()).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
+                                        aria_button("Dataset", "Info Kepler planets dataset", on_click=safe_click(lambda: [data_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
                                 
-                                aria_button(
-                                    "Dataset", 
-                                    "Info Kepler planets dataset",
-                                    on_click=safe_click(lambda: [data_kepler.open(), ui.run_javascript("MathJax.typesetPromise()")])
-                                ).classes("!bg-green-500 hover:!bg-green-700 text-white font-bold py-2 px-4 rounded")
-                        
-                    selector.on('update:model-value', lambda e: (
-                        plot_velocity.refresh(selector.value),
-                    
-                        info_panel.refresh(selector.value)
-                    ))
+                        selector.on('update:model-value', lambda e: (
+                            plot_velocity.refresh(selector.value),
+                            info_panel.refresh(selector.value)
+                        ))
 
 
                         
@@ -1817,16 +1873,197 @@ def create_page():
                         else:
                             ui.html("<p style='color:red;'>Table not found</p>")
                             
-                    with ui.dialog() as image_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Galaxy image" role=dialog'):
-                        ui.html("<h5>Galaxy Image</h5>")
-                        update_image()
-                        aria_button("close",'close',on_click=lambda:image_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                    
-                    with ui.dialog() as table_dialog2, ui.card().classes('w-full max-w-xl p-0 border border-gray-200 shadow-md rounded-xl').props('aria-label="Galaxy information table" role=dialog'):
-                        update_table()
-                        aria_button("close",'close',on_click=lambda:table_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded")
-                
+                  # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
+                    # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
+                    # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
+                    with ui.dialog() as galaxy_3d_info_dialog, ui.card().classes('p-6 w-full max-w-[800px] bg-white'):
+                        ui.label("Interactive 3D Tools Info").classes("text-2xl font-bold text-slate-800 mb-4")
+                        html_info_box(r"""
+                        <p><b>Why is the Solar System different from a Galaxy?</b></p>
+                        <ul>
+                            <li><b>Solar System (Point Mass):</b> 99.8% of the mass is concentrated in the Sun. As the orbital radius <span class="math">\(r\)</span> increases, the enclosed mass remains constant. Gravity weakens, causing the orbital velocity to drop: <span class="math">\( v \propto 1/\sqrt{r} \)</span>.</li>
+                            <li><b>Galaxy (Extended Spherical Halo):</b> Matter (especially Dark Matter) forms a massive, diffuse spherical halo. The larger the orbit, <b>the more matter is enclosed within it</b>. This additional mass compensates for the increasing distance, keeping the outer stars' velocity constant!</li>
+                        </ul>
+                        <hr style="margin: 10px 0;">
+                        <p><b>Interactive 3D Tools:</b></p>
+                        <ul>
+                            <li><i>Rotate the 3D plot with your mouse.</i></li>
+                            <li><b><i>Click on the items in the Legend to turn the Baryonic Matter or Dark Matter on and off!</i></b></li>
+                        </ul>
+                        """)
+                        aria_button("Close", "close", on_click=galaxy_3d_info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+
+                  
+                    with ui.dialog() as galaxy_3d_info_dialog, ui.card().classes('p-6 w-full max-w-[800px] bg-white'):
+                        ui.label("Interactive 3D Tools Info").classes("text-2xl font-bold text-slate-800 mb-4")
+                        html_info_box(r"""
+                        <p><b>Why is the Solar System different from a Galaxy?</b></p>
+                        <ul>
+                            <li><b>Solar System (Point Mass):</b> 99.8% of the mass is concentrated in the Sun. As the orbital radius <span class="math">\(r\)</span> increases, the enclosed mass remains constant. Gravity weakens, causing the orbital velocity to drop: <span class="math">\( v \propto 1/\sqrt{r} \)</span>.</li>
+                            <li><b>Galaxy (Extended Spherical Halo):</b> Matter (especially Dark Matter) forms a massive, diffuse spherical halo. The larger the orbit, <b>the more matter is enclosed within it</b>. This additional mass compensates for the increasing distance, keeping the outer stars' velocity constant!</li>
+                        </ul>
+                        <hr style="margin: 10px 0;">
+                        <p><b>Interactive 3D Tools:</b></p>
+                        <ul>
+                            <li><i>Add dark matter moving the slider.</i></li>
+                            <li><i>Rotate the 3D plot with your mouse.</i></li>
+                            <li><b><i>Click on the items in the Legend to turn the Baryonic Matter or Dark Matter on and off!</i></b></li>
+                        </ul>
+                        """)
+                        aria_button("Close", "close", on_click=galaxy_3d_info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
+
+
                    
+                    with ui.dialog() as galaxy_3d_dialog, ui.card().style('width: 1200px; max-width: 95vw; height: 90vh;').classes('p-6 overflow-hidden flex flex-col bg-white').props('aria-label="3D Galaxy Model" role=dialog'):
+                        
+                        with ui.row().classes('w-full justify-between items-center mb-2 shrink-0'):
+                            ui.label("Shell Theorem: Point Mass vs. Extended Mass").classes("text-2xl font-bold text-slate-800")
+                            with ui.row().classes('gap-4'):
+                                aria_button("Info", 'instructions', on_click=lambda: [galaxy_3d_info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md")
+                                aria_button("Close", 'close', on_click=lambda: galaxy_3d_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-6 rounded shadow-md")
+
+                        plot_3d_container = ui.column().classes('w-full flex-1 items-center justify-center overflow-hidden')
+
+                        @ui.refreshable
+                        def render_3d_mass_plot():
+                            plot_3d_container.clear()
+                            with plot_3d_container:
+                                title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-0 mt-2 text-center w-full")
+                                fig = go.Figure()
+                                
+                               
+                                custom_colorbar = dict(
+                                    title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12), side='top'),
+                                    tickfont=dict(color='black', size=11), x=-0.12, thickness=15
+                                )
+                                r_max_plot = 10.0 
+
+                                if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
+                                    r_ngc = gal_state['r_ngc']
+                                    current_gal = gal_state.get('current_galaxy_name', '').removesuffix('.txt')
+                                    r_max_plot = np.nanmax(r_ngc) * 1.05
+                                    
+                                    y_disk = gal_state.get('upsilon_disk', 0.5)
+                                    y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                                    
+                                    m_bulge = (r_ngc * y_bulge * (gal_state['v_bul_ngc']**2)) / G_grav
+                                    M_bulge_tot = np.nanmax(m_bulge) if np.nanmax(m_bulge) > 0 else 0
+                                    
+                                    m_disk = (r_ngc * y_disk * (gal_state['v_disk_ngc']**2)) / G_grav
+                                    M_disk_tot = np.nanmax(m_disk) if np.nanmax(m_disk) > 0 else 0
+                                    
+                                    v_gas_sq = gal_state['v_gas_ngc'] * np.abs(gal_state['v_gas_ngc'])
+                                    m_gas = (r_ngc * np.maximum(v_gas_sq, 0)) / G_grav
+                                    M_gas_tot = np.nanmax(m_gas) if np.nanmax(m_gas) > 0 else 0
+                                    
+                                    
+                                    f_slider = float(getattr(alpha_slider, 'value', 0.0))
+                                    rho_s, r_s, M_dm_grid = get_dm_params(f_slider, r_array=r_ngc)
+                                    M_dm_tot = np.nanmax(M_dm_grid) if (len(M_dm_grid) > 0 and np.nanmax(M_dm_grid) > 0) else 0
+                                    
+                                    m_baryonic_tot = m_bulge + m_disk + m_gas
+                                    v_total_curve = np.sqrt(G_grav * (m_baryonic_tot + M_dm_grid) / r_ngc)
+                                    
+                                    M_bar_tot = M_bulge_tot + M_disk_tot + M_gas_tot
+                                    M_tot_all = M_bar_tot + M_dm_tot
+
+                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat velocity)")
+
+                                    v_min_gal = np.nanmin(v_total_curve)
+                                    v_max_gal = np.nanmax(v_total_curve)
+                                    c_max_bright = v_max_gal * 1.15 
+
+                                  
+                                    N_TOTAL_POINTS = 3500
+                                    n_bulge = int(N_TOTAL_POINTS * (M_bulge_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                    n_disk  = int(N_TOTAL_POINTS * (M_disk_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                    n_gas   = int(N_TOTAL_POINTS * (M_gas_tot / M_tot_all)) if M_tot_all > 0 else 0
+                                    n_dm    = int(N_TOTAL_POINTS * (M_dm_tot / M_tot_all)) if M_tot_all > 0 else 0
+
+                                    def sample_component(m_array, n_pts, is_spherical=False, z_thickness=0.1):
+                                        
+                                        if n_pts <= 0 or np.nanmax(m_array) <= 0: 
+                                            return np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
+                                            
+                                        CDF = m_array / np.nanmax(m_array)
+                                        CDF_clean = np.maximum.accumulate(np.nan_to_num(CDF))
+                                        U = np.random.uniform(0, 1, n_pts)
+                                        r_pts = np.interp(U, CDF_clean, r_ngc)
+                                        
+                                        if is_spherical:
+                                            phi = np.arccos(np.random.uniform(-1, 1, n_pts))
+                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
+                                            x = r_pts * np.sin(phi) * np.cos(theta)
+                                            y = r_pts * np.sin(phi) * np.sin(theta)
+                                            z = r_pts * np.cos(phi)
+                                        else:
+                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
+                                            x = r_pts * np.cos(theta)
+                                            y = r_pts * np.sin(theta)
+                                            z = np.random.normal(0, z_thickness, n_pts)
+                                            
+                                        v_pts = np.interp(r_pts, r_ngc, v_total_curve)
+                                        m_enclosed = np.interp(r_pts, r_ngc, m_array)
+                                        return x, y, z, v_pts, np.stack((r_pts, m_enclosed), axis=-1)
+
+                                    traces = []
+                                    if n_bulge > 0:
+                                        x, y, z, v, c_data = sample_component(m_bulge, n_bulge, is_spherical=True)
+                                        traces.append(go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=dict(size=3, symbol='square', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9), name=f'■ Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data, hovertemplate="<b>Bulge</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"))
+                                    if n_disk > 0:
+                                        x, y, z, v, c_data = sample_component(m_disk, n_disk, is_spherical=False, z_thickness=0.2)
+                                        traces.append(go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=dict(size=3, symbol='diamond', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8), name=f'★ Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data, hovertemplate="<b>Stellar Disk</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"))
+                                    if n_gas > 0:
+                                        x, y, z, v, c_data = sample_component(m_gas, n_gas, is_spherical=False, z_thickness=0.1)
+                                        traces.append(go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=dict(size=4, symbol='cross', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9), name=f'✖ Gas Disk (M: {M_gas_tot:.1e} M_☉)', customdata=c_data, hovertemplate="<b>Gas</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"))
+                                    if n_dm > 0:
+                                        x, y, z, v, c_data = sample_component(M_dm_grid, n_dm, is_spherical=True)
+                                        traces.append(go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=dict(size=3, symbol='circle', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.3), name=f'● DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data, hovertemplate="<b>Dark Matter</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"))
+
+                                    for trace in traces:
+                                        fig.add_trace(trace)
+                                        
+                                    fig.add_trace(go.Scatter3d(x=[None], y=[None], z=[None], mode='markers', marker=dict(colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, showscale=True, colorbar=custom_colorbar), showlegend=False, hoverinfo='skip'))
+                                else:
+                                    title_label.set_text("Waiting for valid Galaxy Data...")
+                                    fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[0], mode='markers', marker=dict(color='rgba(0,0,0,0)')))
+
+                                fig.update_layout(
+                                    title=dict(text="", font=dict(color='white', size=16), x=0.5, y=0.98),
+                                    scene=dict(xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), bgcolor='rgb(15, 23, 42)', aspectmode='cube'),
+                                    margin=dict(l=0, r=0, b=0, t=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                    legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01),
+                                    autosize=True
+                                )
+                              
+                                global my_galaxy_3d_plot
+                                my_galaxy_3d_plot = ui.plotly(fig).classes('w-full').style('height: 65vh; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);')
+
+                        render_3d_mass_plot()
+
+
+                
+
+                    with ui.dialog() as table_dialog2, ui.card().style('width: 1200px; max-width: 95vw;').classes('p-8 border border-gray-200 shadow-md rounded-xl bg-white').props('aria-label="Galaxy Information and Image" role=dialog'):
+                        
+                      
+                        with ui.element('div').style('display: flex; flex-direction: row; width: 100%; gap: 2rem; align-items: flex-start; justify-content: space-between;'):
+                            
+                          
+                            with ui.element('div').style('flex: 0 0 450px; display: flex; flex-direction: column; align-items: center;'):
+                                ui.html("<h4 style='margin-top: 0; font-weight: bold; color: #1e3a8a;'>Galaxy Image</h4>")
+                                update_image()
+                            
+                        
+                            with ui.element('div').style('flex: 1 1 auto; width: 100%;'):
+                                update_table()
+                        
+                        with ui.row().classes('w-full justify-end mt-6'):
+                            aria_button("Close", 'close', on_click=lambda: table_dialog2.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-6 rounded shadow-md")
+                   
+                   
+                 
                     with ui.dialog() as comp_physics_dialog, ui.card().classes('p-0 w-full min-w-[1200px] max-w-[95vw] h-[90vh] overflow-hidden').props('role=dialog aria-modal="true" aria-labelledby="physics-title"'):
                         with ui.column().classes('w-full h-full bg-white'):
                             
@@ -1840,80 +2077,111 @@ def create_page():
                                 t_comp = ui.tab('Computational Notes')
                                 t_chi2 = ui.tab('χ² Minimization')
                                 t_morpho = ui.tab('Morphology Top-View')
-                                t_3d = ui.tab('3D Mass Distribution')
+                                #t_3d = ui.tab('3D Mass Distribution')
                                 tabs.on_value_change(lambda: ui.run_javascript("setTimeout(() => { if(typeof MathJax !== 'undefined') MathJax.typesetPromise(); }, 100)"))
                           
                             with ui.tab_panels(tabs, value=t_comp).classes('w-full h-full p-6 overflow-y-auto bg-gray-50 text-slate-900'):
-                                
-                              
+                                    
                                 with ui.tab_panel(t_comp):
-                                    html_info_box(r"""
-                                                  <style>
-            .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
-            .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
-            .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
-            .math-den { padding-top: 2px; }
-        </style>
-       <h3>Computational Notes</h3>
-                                        
-                                        <ul>
-                                            <li>
-                                                <b>Step 1:</b> Baryonic velocity with Mass-to-Light ratio (\( \Upsilon \))<br>
-                                                <span class="math">\( v_{\mathrm{bar}}^2(r) = v_{\mathrm{gas}}(r)|v_{\mathrm{gas}}(r)| + \Upsilon \left[ v_{\mathrm{disk}}(r)|v_{\mathrm{disk}}(r)| + v_{\mathrm{bulge}}(r)|v_{\mathrm{bulge}}(r)| \right] \)</span>
-                                            </li>
+                                    @ui.refreshable
+                                    def comp_notes_content():
+                                        with ui.row().classes('w-full items-start justify-between gap-6 flex-wrap lg:flex-nowrap'):
                                             
-                                            <li>
-                                                <b>Step 2:</b> Baryonic mass<br>
-                                                <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, \max(v_{\mathrm{bar}}^2(r), 0)}{G} \)</span>
-                                            </li>
-                                            
-                                            <li>
-                                                <b>Step 3:</b> Total observed mass from velocity data<br>
-                                                <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2(r)}{G} \)</span>
-                                            </li>
-                                            
-                                            <li>
-                                                <b>Step 4:</b> Observed dark matter density (from data)<br>
-                                                <span class="math">\( \rho_{\mathrm{DM}}(r) = \frac{1}{4 \pi G r^2} \, \frac{d}{dr} \Bigg[ r^2 \Big( \frac{v_{\mathrm{obs}}^2(r) - v_{\mathrm{bar}}^2(r)}{r} \Big) \Bigg] \)</span>
-                                            </li>
-                                            
-                                           <li>
-    <b>Step 5:</b> Burkert dark matter profile<br>
-    <span class="math">\( \rho_{\mathrm{Burkert}}(r) = \frac{\rho_s}{\left(1 + \tfrac{r}{r_s}\right)\left(1 + \left(\tfrac{r}{r_s}\right)^2\right)} \)</span> 
-</li>
-                                            
-                                            <li>
-                                                <b>Step 6:</b> Global Fit parameters<br>
-                                                The structural parameters \( \rho_s, r_s \) and \( \Upsilon \) are pre-calculated via a global \( \chi^2 \) minimization on the entire rotation curve dataset.
-                                            </li>
-                                            
-                                            <li>
-    <b>Step 7:</b> Enclosed dark matter mass (Burkert)<br>
-    <span class="math">\( M_{\mathrm{DM}}(r) = 2 \pi \rho_s r_s^3 \left[0.5 \ln(1+x^2) + \ln(1+x) - \arctan(x)\right], \;\; x = \tfrac{r}{r_s} \)</span>
-</li>
-                                            
-                                            <li>
-                                                <b>Step 8:</b> Dark matter rotational velocity<br>
-                                                <span class="math">\( v_{\mathrm{DM}}(r) = \sqrt{\frac{G M_{\mathrm{DM}}(r)}{r}} \)</span>
-                                            </li>
-                                            
-                                            <li>
-                                                <b>Step 9:</b> Total simulated velocity curve (linked to DM slider)<br>
-                                                <span class="math">\( v_{\mathrm{tot,sim}}(r) = \sqrt{\tfrac{G \, (M_{\mathrm{bar}}(r) + f\,M_{\mathrm{DM}}(r))}{r}}, \;\; f \in [0,2] \)</span>
-                                            </li>
-                                            
-                                            <li>
-                                                <b>Step 10:</b> Fit quality (χ²/d.o.f)<br>
-                                                <span class="math">\( \chi^2 = \sum_i \left(\tfrac{v_{\mathrm{obs}}(r_i) - v_{\mathrm{tot,sim}}(r_i)}{\sigma_i}\right)^2 \)</span>
-                                            </li>
-                                        </ul>
-        <h4>Plot Legend</h4>
-        <ul>
-            <li><b>X-axis:</b> Radius (data)</li>
-            <li><b>Y-axis:</b> <span class="math">\( v_{\mathrm{bar}} \)</span> (red), <span class="math">\( v_{\mathrm{obs}} \)</span> (blue with grey error bars), <span class="math">\( v_{\mathrm{tot,sim}} \)</span> (green)</li>
-        </ul>
-    """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the computational steps"')
+                                            # --- Colonna SINISTRA: Testo "Computational Notes" ---
+                                            with ui.column().classes('flex-[3] min-w-[500px]'):
+                                                html_info_box(r"""
+                                                                <style>
+                        .formula-box { background: rgba(255,255,255,0.9); padding: 15px; border: 1px solid #0284c7; border-radius: 8px; color: #111; margin-top: 15px; overflow-x: auto; }
+                        .math-frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 4px; }
+                        .math-num { border-bottom: 1px solid black; padding-bottom: 2px; }
+                        .math-den { padding-top: 2px; }
+                    </style>
+                    <h3>Computational Notes</h3>
+                                                    
+                                                    <ul>
+                                                        <li>
+                                                            <b>Step 1:</b> Baryonic velocity with Mass-to-Light ratio (\( \Upsilon \))<br>
+                                                            <span class="math">\( v_{\mathrm{bar}}^2(r) = v_{\mathrm{gas}}(r)|v_{\mathrm{gas}}(r)| + \Upsilon \left[ v_{\mathrm{disk}}(r)|v_{\mathrm{disk}}(r)| + v_{\mathrm{bulge}}(r)|v_{\mathrm{bulge}}(r)| \right] \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 2:</b> Baryonic mass<br>
+                                                            <span class="math">\( M_{\mathrm{bar}}(r) = \frac{r \, \max(v_{\mathrm{bar}}^2(r), 0)}{G} \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 3:</b> Total observed mass from velocity data<br>
+                                                            <span class="math">\( M_{\mathrm{tot}}(r) = \frac{r \, v_{\mathrm{obs}}^2(r)}{G} \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 4:</b> Observed dark matter density (from data)<br>
+                                                            <span class="math">\( \rho_{\mathrm{DM}}(r) = \frac{1}{4 \pi G r^2} \, \frac{d}{dr} \Bigg[ r^2 \Big( \frac{v_{\mathrm{obs}}^2(r) - v_{\mathrm{bar}}^2(r)}{r} \Big) \Bigg] \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                <b>Step 5:</b> Burkert dark matter profile<br>
+                                <span class="math">\( \rho_{\mathrm{Burkert}}(r) = \frac{\rho_s}{\left(1 + \tfrac{r}{r_s}\right)\left(1 + \left(\tfrac{r}{r_s}\right)^2\right)} \)</span> 
+                            </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 6:</b> Global Fit parameters<br>
+                                                            The structural parameters \( \rho_s, r_s \) and \( \Upsilon \) are pre-calculated via a global \( \chi^2 \) minimization on the entire rotation curve dataset.
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                <b>Step 7:</b> Enclosed dark matter mass (Burkert)<br>
+                                <span class="math">\( M_{\mathrm{DM}}(r) = 2 \pi \rho_s r_s^3 \left[0.5 \ln(1+x^2) + \ln(1+x) - \arctan(x)\right], \;\; x = \tfrac{r}{r_s} \)</span>
+                            </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 8:</b> Dark matter rotational velocity<br>
+                                                            <span class="math">\( v_{\mathrm{DM}}(r) = \sqrt{\frac{G M_{\mathrm{DM}}(r)}{r}} \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 9:</b> Total simulated velocity curve (linked to DM slider)<br>
+                                                            <span class="math">\( v_{\mathrm{tot,sim}}(r) = \sqrt{\tfrac{G \, (M_{\mathrm{bar}}(r) + f\,M_{\mathrm{DM}}(r))}{r}}, \;\; f \in [0,2] \)</span>
+                                                        </li>
+                                                        
+                                                        <li style="margin-top: 8px;">
+                                                            <b>Step 10:</b> Fit quality (χ²/d.o.f)<br>
+                                                            <span class="math">\( \chi^2 = \sum_i \left(\tfrac{v_{\mathrm{obs}}(r_i) - v_{\mathrm{tot,sim}}(r_i)}{\sigma_i}\right)^2 \)</span>
+                                                        </li>
+                                                    </ul>
+                    <h4>Plot Legend</h4>
+                    <ul style="margin-top: 5px;">
+                        <li><b>X-axis:</b> Radius (data)</li>
+                        <li><b>Y-axis:</b> <span class="math">\( v_{\mathrm{bar}} \)</span> (red), <span class="math">\( v_{\mathrm{obs}} \)</span> (blue with grey error bars), <span class="math">\( v_{\mathrm{tot,sim}} \)</span> (green)</li>
+                    </ul>
+                """).props('role=dialog aria-modal=true aria-label="Mathematical explanation of the computational steps"')
 
+                                            # --- Colonna DESTRA: Plot densità Burkert ---
+                                            with ui.column().classes('flex-[2] min-w-[400px] items-center justify-center lg:mt-12'):
+                                                if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
+                                                    r_arr = gal_state['r_ngc']
+                                                    rho_s = gal_state.get('base_rho_s', 0.0)
+                                                    r_s = gal_state.get('base_r_s', 1.0)
+                                                    
+                                                    gal_name = gal_state.get('current_galaxy_name', 'Unknown').removesuffix('.txt').removesuffix('.csv').removesuffix('.dat')
+                                                    
+                                                    # Calcolo del profilo di Burkert in scala lineare per il raggio
+                                                    rho_burkert = rho_s / ((1.0 + r_arr / r_s) * (1.0 + (r_arr / r_s)**2))
+                                                    
+                                                    with ui.pyplot(figsize=(5.5, 4.5), close=True, clear=True):
+                                                        plt.plot(r_arr, rho_burkert, '-', color='darkorange', linewidth=2.5, label='Burkert Density')
+                                                        plt.xlabel('Radius (kpc)', fontsize=10)
+                                                        plt.ylabel(r'DM Density ($M_\odot / kpc^3$)', fontsize=10)
+                                                        plt.yscale('log')
+                                                        plt.title(f'DM Density Profile: {gal_name}', fontsize=12, fontweight='bold')
+                                                        plt.grid(True, linestyle='--', alpha=0.6)
+                                                        plt.legend(fontsize=10)
+                                                        plt.tight_layout()
+                                                else:
+                                                    ui.label("Load a galaxy to see its Dark Matter density profile.").classes('text-gray-500 italic text-center')
+
+                                    # Inizializza il componente refreshable
+                                    comp_notes_content()
                                
                                 with ui.tab_panel(t_chi2):
                                     html_info_box(r"""
@@ -1977,227 +2245,8 @@ def create_page():
                                    
                                     morph_plot_container = ui.column().classes("w-full items-center justify-center")
                                     
-                                with ui.tab_panel(t_3d).classes('flex flex-col items-center justify-start w-full'):
-                                    ui.label("Shell Theorem: Point Mass vs. Extended Mass").classes("text-2xl font-bold text-slate-800 mb-2")
-                                    
-                                    html_info_box(r"""
-                                    <p><b>Why is the Solar System different from a Galaxy?</b></p>
-                                    <ul>
-                                        <li><b>Solar System (Point Mass):</b> 99.8% of the mass is concentrated in the Sun. As the orbital radius <span class="math">\(r\)</span> increases, the enclosed mass remains constant. Gravity weakens, causing the orbital velocity to drop: <span class="math">\( v \propto 1/\sqrt{r} \)</span>.</li>
-                                        <li><b>Galaxy (Extended Spherical Halo):</b> Matter (especially Dark Matter) forms a massive, diffuse spherical halo. The larger the orbit, <b>the more matter is enclosed within it</b>. This additional mass compensates for the increasing distance, keeping the outer stars' velocity constant!</li>
-                                    </ul>
-                                    <hr style="margin: 10px 0;">
-                                    <p><b>Interactive 3D Tools:</b></p>
-                                    <ul>
-                                        <li><i>Use the toggle below to compare the models.</i></li>
-                                        <li><i>Rotate the 3D plot with your mouse.</i></li>
-                                        <li><b><i>Click on the items in the Legend to turn the Baryonic Matter or Dark Matter on and off!</i></b></li>
-                                    </ul>
-                                    """)
-                                    model_selector = ui.toggle(['Solar System (Real Data)', 'Galaxy (SPARC Model)'], value='Galaxy (SPARC Model)').classes('mt-4 mb-2')
-                                    plot_3d_container = ui.column().classes('w-full items-center justify-center')
-
-                                    @ui.refreshable
-                                    def render_3d_mass_plot():
-                                        plot_3d_container.clear()
-                                        with plot_3d_container:
-                                            
-                                            title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-2 mt-4 text-center w-full")
-                                            
-                                            fig = go.Figure()
-
-                                            custom_colorbar = dict(
-                                                title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12), side='top'),
-                                                tickfont=dict(color='black', size=11),
-                                                x=-0.12, 
-                                                thickness=15
-                                            )
-
-                                        
-                                            r_max_plot = 10.0 
-
-                                            if model_selector.value == 'Galaxy (SPARC Model)':
-                                                if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
-                                                    r_ngc = gal_state['r_ngc']
-                                                    current_gal = gal_state.get('current_galaxy_name', '').removesuffix('.txt')
-                                                    
-                                                   
-                                                    r_max_plot = np.nanmax(r_ngc) * 1.05
-                                                    
-                                                    y_disk = gal_state.get('upsilon_disk', 0.5)
-                                                    y_bulge = gal_state.get('upsilon_bulge', 0.7)
-                                                    
-                                                   
-                                                    m_bulge = (r_ngc * y_bulge * (gal_state['v_bul_ngc']**2)) / G_grav
-                                                    M_bulge_tot = np.nanmax(m_bulge) if np.nanmax(m_bulge) > 0 else 0
-                                                    
-                                                    m_disk = (r_ngc * y_disk * (gal_state['v_disk_ngc']**2)) / G_grav
-                                                    M_disk_tot = np.nanmax(m_disk) if np.nanmax(m_disk) > 0 else 0
-                                                    
-                                                    v_gas_sq = gal_state['v_gas_ngc'] * np.abs(gal_state['v_gas_ngc'])
-                                                    m_gas = (r_ngc * np.maximum(v_gas_sq, 0)) / G_grav
-                                                    M_gas_tot = np.nanmax(m_gas) if np.nanmax(m_gas) > 0 else 0
-                                                    
-                                                    rho_s = gal_state.get('base_rho_s', 0.0)
-                                                    r_s = gal_state.get('base_r_s', 1.0)
-                                                    M_dm_grid = M_burkert_enclosed(r_ngc, rho_s, r_s)
-                                                    M_dm_tot = np.nanmax(M_dm_grid) if np.nanmax(M_dm_grid) > 0 else 0
-                                                    
-                                                    m_baryonic_tot = m_bulge + m_disk + m_gas
-                                                    v_total_curve = np.sqrt(G_grav * (m_baryonic_tot + M_dm_grid) / r_ngc)
-                                                    
-                                                    M_bar_tot = M_bulge_tot + M_disk_tot + M_gas_tot
-                                                    M_tot_all = M_bar_tot + M_dm_tot
-
-                                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat velocity)")
-
-                                                    v_min_gal = np.nanmin(v_total_curve)
-                                                    v_max_gal = np.nanmax(v_total_curve)
-                                                    c_max_bright = v_max_gal * 1.15 
-
-                                                    N_TOTAL_POINTS = 3500
-                                                    n_bulge = int(N_TOTAL_POINTS * (M_bulge_tot / M_tot_all)) if M_tot_all > 0 else 0
-                                                    n_disk  = int(N_TOTAL_POINTS * (M_disk_tot / M_tot_all)) if M_tot_all > 0 else 0
-                                                    n_gas   = int(N_TOTAL_POINTS * (M_gas_tot / M_tot_all)) if M_tot_all > 0 else 0
-                                                    n_dm    = N_TOTAL_POINTS - (n_bulge + n_disk + n_gas) 
-
-                                                    def sample_component(m_array, n_pts, is_spherical=False, z_thickness=0.1):
-                                                        if n_pts <= 0: return np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
-                                                        CDF = m_array / np.nanmax(m_array)
-                                                        CDF_clean = np.maximum.accumulate(np.nan_to_num(CDF))
-                                                        U = np.random.uniform(0, 1, n_pts)
-                                                        r_pts = np.interp(U, CDF_clean, r_ngc)
-                                                        
-                                                        if is_spherical:
-                                                            phi = np.arccos(np.random.uniform(-1, 1, n_pts))
-                                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
-                                                            x = r_pts * np.sin(phi) * np.cos(theta)
-                                                            y = r_pts * np.sin(phi) * np.sin(theta)
-                                                            z = r_pts * np.cos(phi)
-                                                        else:
-                                                            theta = np.random.uniform(0, 2*np.pi, n_pts)
-                                                            x = r_pts * np.cos(theta)
-                                                            y = r_pts * np.sin(theta)
-                                                            z = np.random.normal(0, z_thickness, n_pts)
-                                                            
-                                                        v_pts = np.interp(r_pts, r_ngc, v_total_curve)
-                                                        m_enclosed = np.interp(r_pts, r_ngc, m_array)
-                                                        return x, y, z, v_pts, np.stack((r_pts, m_enclosed), axis=-1)
-
-                                                    traces = []
-
-                                                    if n_bulge > 0:
-                                                        x, y, z, v, c_data = sample_component(m_bulge, n_bulge, is_spherical=True)
-                                                        traces.append(go.Scatter3d(
-                                                            x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=3, symbol='square', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
-                                                            name=f'■ Bulge (M: {M_bulge_tot:.1e} M_☉)', customdata=c_data,
-                                                            hovertemplate="<b>Bulge</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
-                                                        ))
-                                                        
-                                                    if n_disk > 0:
-                                                        x, y, z, v, c_data = sample_component(m_disk, n_disk, is_spherical=False, z_thickness=0.2)
-                                                        traces.append(go.Scatter3d(
-                                                            x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=3, symbol='diamond', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.8),
-                                                            name=f'★ Stellar Disk (M: {M_disk_tot:.1e} M_☉)', customdata=c_data,
-                                                            hovertemplate="<b>Stellar Disk</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
-                                                        ))
-
-                                                    if n_gas > 0:
-                                                        x, y, z, v, c_data = sample_component(m_gas, n_gas, is_spherical=False, z_thickness=0.1)
-                                                        traces.append(go.Scatter3d(
-                                                            x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=4, symbol='cross', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.9),
-                                                            name=f'✖ Gas Disk (M: {M_gas_tot:.1e} M_☉)', customdata=c_data,
-                                                            hovertemplate="<b>Gas</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
-                                                        ))
-
-                                                    if n_dm > 0:
-                                                        x, y, z, v, c_data = sample_component(M_dm_grid, n_dm, is_spherical=True)
-                                                        traces.append(go.Scatter3d(
-                                                            x=x, y=y, z=z, mode='markers',
-                                                            marker=dict(size=3, symbol='circle', color=v, colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, opacity=0.3),
-                                                            name=f'● DM Halo (M: {M_dm_tot:.1e} M_☉)', customdata=c_data,
-                                                            hovertemplate="<b>Dark Matter</b><br>Radius: %{customdata[0]:.1f} kpc<br>Velocity: %{marker.color:.0f} km/s<br>Enclosed Mass: %{customdata[1]:.1e} M_☉"
-                                                        ))
-
-                                                    for trace in traces:
-                                                        fig.add_trace(trace)
-                                                        
-                                                   
-                                                    fig.add_trace(go.Scatter3d(
-                                                        x=[None], y=[None], z=[None], mode='markers',
-                                                        marker=dict(colorscale='turbo', cmin=v_min_gal, cmax=c_max_bright, showscale=True, colorbar=custom_colorbar),
-                                                        showlegend=False, hoverinfo='skip'
-                                                    ))
-                                                        
-                                                else:
-                                                    title_label.set_text("Select a Galaxy to load 3D Data")
-
-                                            else:
-                                                title_label.set_text("3D Mass Distribution: Solar System (Velocity drops with Distance)")
-                                                fig.add_trace(go.Scatter3d(
-                                                    x=[0], y=[0], z=[0], mode='markers',
-                                                    marker=dict(size=18, color='yellow', symbol='circle'),
-                                                    name='Sun (99.8% Mass)', hoverinfo='name'
-                                                ))
-                                                
-                                                if df0 is not None and not df0.empty:
-                                                    v_min_sol = df0['Velocity(km/s)'].min()
-                                                    v_max_sol = df0['Velocity(km/s)'].max()
-                                                    c_max_bright_sol = v_max_sol * 1.15
-                                                    
-                                                  
-                                                    r_max_plot = (df0['SemiMajorAxis(km)'].max() / 1e6) * 1.05
-
-                                                    for idx, row in df0.iterrows():
-                                                        p_name = row['Celestial_Body']
-                                                        a_scaled = float(row['SemiMajorAxis(km)']) / 1e6
-                                                        v_scaled = float(row['Velocity(km/s)'])
-                                                        m_kg = float(row['Mass(kg)'])
-                                                        
-                                                        theta_p = np.linspace(0, 2*np.pi, 100)
-                                                        fig.add_trace(go.Scatter3d(
-                                                            x=a_scaled*np.cos(theta_p), y=a_scaled*np.sin(theta_p), z=np.zeros_like(theta_p), 
-                                                            mode='lines', line=dict(color='rgba(255,255,255,0.2)', width=1), 
-                                                            showlegend=False, hoverinfo='skip'
-                                                        ))
-                                                        
-                                                        angle = np.random.uniform(0, 2*np.pi)
-                                                        fig.add_trace(go.Scatter3d(
-                                                            x=[a_scaled*np.cos(angle)], y=[a_scaled*np.sin(angle)], z=[0], mode='markers', 
-                                                            marker=dict(
-                                                                size=8, color=[v_scaled], colorscale='turbo', 
-                                                                cmin=v_min_sol, cmax=c_max_bright_sol, showscale=False
-                                                            ), 
-                                                            name=f"{p_name}", text=[p_name], customdata=[[a_scaled, m_kg]],
-                                                            hovertemplate="<b>%{text}</b><br>Radius: %{customdata[0]:.1f}x10^6 km<br>Velocity: %{marker.color:.1f} km/s<br>Mass: %{customdata[1]:.2e} kg"
-                                                        ))
-                                                    
-                                                    fig.add_trace(go.Scatter3d(
-                                                        x=[None], y=[None], z=[None], mode='markers',
-                                                        marker=dict(colorscale='turbo', cmin=v_min_sol, cmax=c_max_bright_sol, showscale=True, colorbar=custom_colorbar),
-                                                        showlegend=False, hoverinfo='skip'
-                                                    ))
-
-                                        
-                                            fig.update_layout(
-                                                scene=dict(
-                                                    xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
-                                                    yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
-                                                    zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
-                                                    bgcolor='rgb(15, 23, 42)',
-                                                    aspectmode='cube'
-                                                ),
-                                                margin=dict(l=60, r=0, b=0, t=10), 
-                                                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                                                legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01)
-                                            )
-                                            ui.plotly(fig).classes('w-full h-[550px] rounded-lg shadow-lg')
-
-                                    render_3d_mass_plot()
-                                    model_selector.on_value_change(render_3d_mass_plot.refresh) 
+                              
+                                    #model_selector.on_value_change(render_3d_mass_plot.refresh) 
                     combined_exercise_state = {'step': 0}
 
                     combined_exercises_html = [
@@ -2387,10 +2436,9 @@ def create_page():
                         aria_button(
                             "Scientific Info", 
                             "Read detailed information about computational steps and morphology",
-                            on_click=lambda: [comp_physics_dialog.open(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")
+                            on_click=lambda: [comp_notes_content.refresh(), comp_physics_dialog.open(), ui.run_javascript("setTimeout(() => { if (typeof MathJax !== 'undefined') { MathJax.typesetPromise(); } }, 250);")
             ]
                         ).classes("!bg-blue-600 hover:!bg-blue-800 text-white font-bold py-2 px-6 rounded shadow-md")
-                       
                         
                         aria_button("Curiosity", "Open curiosity", on_click=lambda:[cur_rot.open(),ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-purple-600 hover:!bg-purple-800 text-white font-bold py-2 px-4 rounded")
                         
@@ -2506,7 +2554,7 @@ def create_page():
                             update_mass_plot()
                             plot_chi2_user_curve()
                             update_morphology_plot()
-                            render_3d_mass_plot.refresh()
+                            #render_3d_mass_plot.refresh()
                         except Exception as ex:
                             import traceback; traceback.print_exc()
                             accessible_notify(f"Error: {ex}", type_='error')
@@ -2737,8 +2785,60 @@ def create_page():
                                
                             with ui.column().classes('w-full gap-1 p-0 m-0'):
                                 galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight whitespace-nowrap")
-                                galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Enlarge galaxy image"').on('click', image_dialog2.open).on('keydown.enter', image_dialog2.open)
-                                #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
+                                async def open_galaxy_3d():
+                                    target_fraction = 0.5 # Default di fallback nel caso i dati non siano pronti
+                                    gal_name = gal_state.get('current_galaxy_name', 'Galaxy').removesuffix('.txt').removesuffix('.csv').removesuffix('.dat')
+
+                                    # Calcola la frazione reale di Dark Matter per QUESTA specifica galassia
+                                    if gal_state.get('DATA_LOADED') and len(gal_state.get('r_ngc', [])) > 0:
+                                        r_ngc = gal_state['r_ngc']
+                                        y_disk = gal_state.get('upsilon_disk', 0.5)
+                                        y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                                        
+                                        v_gas_ngc = gal_state['v_gas_ngc']
+                                        v_disk_ngc = gal_state['v_disk_ngc']
+                                        v_bul_ngc = gal_state['v_bul_ngc']
+                                        
+                                        # Massa Barionica Totale
+                                        V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
+                                        m_baryonic = (np.maximum(V_bar_sq, 0) * r_ngc) / G_grav
+                                        val_m_bar = np.nanmax(m_baryonic) if len(m_baryonic) > 0 else 0
+                                        
+                                        # Massa Oscura Ideale (best-fit dal dataset)
+                                        rho_s = gal_state.get('base_rho_s', 0.0)
+                                        r_s = gal_state.get('base_r_s', 1.0)
+                                        M_dm_grid_best = M_burkert_enclosed(r_ngc, rho_s, r_s)
+                                        val_m_dm_best = np.nanmax(M_dm_grid_best) if len(M_dm_grid_best) > 0 else 0
+                                        
+                                        # Frazione reale target (es. 0.75 -> 75% di DM sul totale)
+                                        total_mass = val_m_bar + val_m_dm_best
+                                        if total_mass > 0:
+                                            target_fraction = val_m_dm_best / total_mass
+
+                                    # Valore attuale impostato dallo slider dell'utente (espresso come percentuale DM/Tot)
+                                    # Ricaviamo la frazione attuale visualizzata sull'etichetta dello slider o calcolata
+                                    f_slider = float(alpha_slider.value)
+                                    
+                                    # Se lo slider controlla il fattore f, calcoliamo la frazione di DM corrispondente
+                                    current_dm_mass = val_m_dm_best * f_slider
+                                    current_total_mass = val_m_bar + current_dm_mass
+                                    current_fraction = current_dm_mass / current_total_mass if current_total_mass > 0 else 0
+                                    
+                                
+                                    if current_fraction < 0.05:
+                                        accessible_notify("Dark matter missing! Move the slider to add mass.", type_='warning')
+                                    elif current_fraction < target_fraction - 0.04:
+                                        accessible_notify(f"More Dark Matter needed! For {gal_name}, the ideal DM fraction is ~{target_fraction*100:.1f}%.", type_='warning')
+                                    elif current_fraction > target_fraction + 0.04:
+                                        accessible_notify(f"Too much Dark Matter! For {gal_name}, the ideal DM fraction is ~{target_fraction*100:.1f}%.", type_='warning')
+                                    else:
+                                        accessible_notify(f"Perfect! The Dark Matter halo matches the real value for {gal_name} (~{target_fraction*100:.1f}%).", type_='success')
+                                        
+                                    render_3d_mass_plot.refresh()
+                                    await asyncio.sleep(0.1)
+                                    galaxy_3d_dialog.open()
+                                galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Open 3D Galaxy Model"').on('click', open_galaxy_3d).on('keydown.enter', open_galaxy_3d)
+                                #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>") #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
                                 galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
                             with ui.row().classes('w-full justify-center mt-2 shrink-0'):
                                 aria_button(" Table", "table", on_click=table_dialog2.open).classes("!bg-blue-500 text-white font-bold py-1 px-2 rounded mt-auto")
@@ -2762,7 +2862,7 @@ def create_page():
             .audio-menu-wrapper {
                 position: relative;
                 display: inline-block;
-                z-index: 99999; 
+                z-index: 50 !important; /* Abbassato per stare SOTTO i dialoghi */
             }
             .audio-dropdown-content {
                 display: none; 
@@ -2776,12 +2876,11 @@ def create_page():
                 border: 1px solid #475569; 
                 border-radius: 0.5rem;
                 padding: 1rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
                 flex-direction: column;
                 gap: 1rem;
+                z-index: 50 !important; /* Abbassato */
             }
-            
-            /* --- IL PONTE INVISIBILE PER IL MENU GALASSIE --- */
             .audio-dropdown-content::after {
                 content: "";
                 position: absolute;
@@ -2791,7 +2890,6 @@ def create_page():
                 height: 1rem; 
                 background: transparent;
             }
-            
             .audio-menu-wrapper:hover .audio-dropdown-content {
                 display: flex !important;
             }
@@ -3011,7 +3109,7 @@ def create_page():
                                     ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
                                     plt.plot(r_ngc, m_baryonic, "r-", lw=3, label=f"Baryonic mass")
                                     plt.plot(r_ngc, m_total_obs, "b-", lw=3, label=f"Total mass")
-                                    plt.plot(r_ngc, m_total_model, "g-", lw=3, label=f"Simulated mass DM")
+                                    plt.plot(r_ngc, m_total_model, "g-", lw=3, label=f"Simulated mass")
                                     
                                     
                                    
@@ -5178,7 +5276,7 @@ def create_page():
             .sigma-audio-menu-wrapper {
                 position: relative;
                 display: inline-block;
-                z-index: 99999; 
+                z-index: 50 !important; /* Abbassato per stare SOTTO i dialoghi */
             }
             .sigma-audio-dropdown-content {
                 display: none;
@@ -5195,20 +5293,17 @@ def create_page():
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
                 flex-direction: column;
                 gap: 1rem;
+                z-index: 50 !important; /* Abbassato */
             }
-            
-            /* --- LA MAGIA: IL PONTE INVISIBILE --- */
             .sigma-audio-dropdown-content::after {
                 content: "";
                 position: absolute;
-                top: 100%;  /* Si attacca sotto al pannello nero */
+                top: 100%;  
                 left: 0;
                 width: 100%;
-                height: 1rem; /* Copre interamente il buco fino al bottone verde */
+                height: 1rem; 
                 background: transparent;
             }
-            /* ------------------------------------ */
-
             .sigma-audio-menu-wrapper:hover .sigma-audio-dropdown-content {
                 display: flex !important;
             }
