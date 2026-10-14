@@ -1566,9 +1566,8 @@ def create_page():
                                 ).classes('w-48').props('id=planet_selector aria-labelledby=planet_selector_label role=listbox tabindex=0')
 
                             with ui.row().classes('w-full items-start justify-center gap-8 mt-2'): 
-                                
-                                # --- COLONNA SINISTRA: Plot 3D del Sistema Solare ---
-                                with ui.column().classes('flex-1 min-w-[350px] max-w-[600px] items-center'):
+                             
+                                with ui.column().classes('flex-1 min-w-[350px] max-w-[800px] items-center'):
                                     @ui.refreshable
                                     def render_solar_system_3d():
                                         fig = go.Figure()
@@ -1621,7 +1620,7 @@ def create_page():
                                             ))
 
                                         fig.update_layout(
-                                            title=dict(text="3D Solar System (Velocity drops with Distance)", font=dict(color='white', size=14), x=0.5, y=0.98),
+                                            title=dict(text="3D Solar System", font=dict(color='white', size=14), x=0.5, y=0.98),
                                             scene=dict(
                                                 xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
                                                 yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), 
@@ -1873,26 +1872,7 @@ def create_page():
                         else:
                             ui.html("<p style='color:red;'>Table not found</p>")
                             
-                  # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
-                    # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
-                    # --- Nuovo Dialog secondario per le ISTRUZIONI del 3D ---
-                    with ui.dialog() as galaxy_3d_info_dialog, ui.card().classes('p-6 w-full max-w-[800px] bg-white'):
-                        ui.label("Interactive 3D Tools Info").classes("text-2xl font-bold text-slate-800 mb-4")
-                        html_info_box(r"""
-                        <p><b>Why is the Solar System different from a Galaxy?</b></p>
-                        <ul>
-                            <li><b>Solar System (Point Mass):</b> 99.8% of the mass is concentrated in the Sun. As the orbital radius <span class="math">\(r\)</span> increases, the enclosed mass remains constant. Gravity weakens, causing the orbital velocity to drop: <span class="math">\( v \propto 1/\sqrt{r} \)</span>.</li>
-                            <li><b>Galaxy (Extended Spherical Halo):</b> Matter (especially Dark Matter) forms a massive, diffuse spherical halo. The larger the orbit, <b>the more matter is enclosed within it</b>. This additional mass compensates for the increasing distance, keeping the outer stars' velocity constant!</li>
-                        </ul>
-                        <hr style="margin: 10px 0;">
-                        <p><b>Interactive 3D Tools:</b></p>
-                        <ul>
-                            <li><i>Rotate the 3D plot with your mouse.</i></li>
-                            <li><b><i>Click on the items in the Legend to turn the Baryonic Matter or Dark Matter on and off!</i></b></li>
-                        </ul>
-                        """)
-                        aria_button("Close", "close", on_click=galaxy_3d_info_dialog.close).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-4 rounded mt-2")
-
+                  
 
                   
                     with ui.dialog() as galaxy_3d_info_dialog, ui.card().classes('p-6 w-full max-w-[800px] bg-white'):
@@ -1917,11 +1897,62 @@ def create_page():
                    
                     with ui.dialog() as galaxy_3d_dialog, ui.card().style('width: 1200px; max-width: 95vw; height: 90vh;').classes('p-6 overflow-hidden flex flex-col bg-white').props('aria-label="3D Galaxy Model" role=dialog'):
                         
-                        with ui.row().classes('w-full justify-between items-center mb-2 shrink-0'):
-                            ui.label("Shell Theorem: Point Mass vs. Extended Mass").classes("text-2xl font-bold text-slate-800")
+                        with ui.row().classes('w-full justify-between items-center mb-1 shrink-0'):
+                            ui.label("Galaxy structure andmass distribution").classes("text-2xl font-bold text-slate-800")
                             with ui.row().classes('gap-4'):
                                 aria_button("Info", 'instructions', on_click=lambda: [galaxy_3d_info_dialog.open(), ui.run_javascript("MathJax.typesetPromise()")]).classes("!bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md")
                                 aria_button("Close", 'close', on_click=lambda: galaxy_3d_dialog.close()).classes("!bg-orange-500 hover:!bg-orange-700 text-white font-bold py-2 px-6 rounded shadow-md")
+
+                      
+                        dialog_status_label = ui.label("").classes("text-xl font-bold text-center w-full my-1")
+                        
+                        with ui.row().classes('w-full items-center justify-center gap-4 mt-1 mb-4 shrink-0 bg-slate-50 p-4 rounded-xl shadow-inner border border-slate-200'):
+                            ui.label("Add Dark Matter:").classes("font-bold text-lg text-slate-800")
+                          
+                            dialog_dm_slider = ui.slider(min=0.0, max=2.0, value=0.0, step=0.01).classes('w-1/2').props('color=purple label-always')
+
+                       
+                        def evaluate_dm_status_dialog(e=None):
+                            if not gal_state.get('DATA_LOADED'): return
+                            r_ngc = gal_state['r_ngc']
+                            y_disk = gal_state.get('upsilon_disk', 0.5)
+                            y_bulge = gal_state.get('upsilon_bulge', 0.7)
+                            v_gas_ngc = gal_state['v_gas_ngc']
+                            v_disk_ngc = gal_state['v_disk_ngc']
+                            v_bul_ngc = gal_state['v_bul_ngc']
+                            
+                            V_bar_sq = v_gas_ngc * np.abs(v_gas_ngc) + y_disk * (v_disk_ngc * np.abs(v_disk_ngc)) + y_bulge * (v_bul_ngc * np.abs(v_bul_ngc))
+                            m_baryonic = (np.maximum(V_bar_sq, 0) * r_ngc) / G_grav
+                            val_m_bar = np.nanmax(m_baryonic) if len(m_baryonic) > 0 else 0
+                            
+                            rho_s = gal_state.get('base_rho_s', 0.0)
+                            r_s = gal_state.get('base_r_s', 1.0)
+                            M_dm_grid_best = M_burkert_enclosed(r_ngc, rho_s, r_s)
+                            val_m_dm_best = np.nanmax(M_dm_grid_best) if len(M_dm_grid_best) > 0 else 0
+                            
+                            target_fraction = val_m_dm_best / (val_m_bar + val_m_dm_best) if (val_m_bar + val_m_dm_best) > 0 else 0
+                            
+                            f_slider = float(dialog_dm_slider.value)
+                            val_m_dm_current = val_m_dm_best * f_slider
+                            current_fraction = val_m_dm_current / (val_m_bar + val_m_dm_current) if (val_m_bar + val_m_dm_current) > 0 else 0
+                            
+                            gal_name = gal_state.get('current_galaxy_name', 'Galaxy').removesuffix('.txt').removesuffix('.csv').removesuffix('.dat')
+                            
+                            if current_fraction < 0.05:
+                                msg = "Dark matter missing! Move the slider to add mass."
+                                color_class = "text-red-600"
+                            elif current_fraction < target_fraction - 0.04:
+                                msg = f"More Dark Matter needed!"
+                                color_class = "text-orange-500"
+                            elif current_fraction > target_fraction + 0.04:
+                                msg = f"Too much Dark Matter!"
+                                color_class = "text-orange-500"
+                            else:
+                                msg = f"Perfect! The Dark Matter halo matches {gal_name}'s real rotation curve."
+                                color_class = "text-green-600"
+                                
+                            dialog_status_label.set_text(msg)
+                            dialog_status_label.classes(replace=f"text-xl font-bold text-center w-full my-1 {color_class}")
 
                         plot_3d_container = ui.column().classes('w-full flex-1 items-center justify-center overflow-hidden')
 
@@ -1929,10 +1960,9 @@ def create_page():
                         def render_3d_mass_plot():
                             plot_3d_container.clear()
                             with plot_3d_container:
-                                title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-0 mt-2 text-center w-full")
+                                title_label = ui.label("").classes("text-xl font-bold text-slate-800 mb-2 mt-8 text-center w-full z-10")
                                 fig = go.Figure()
                                 
-                               
                                 custom_colorbar = dict(
                                     title=dict(text="Velocity<br>(km/s)", font=dict(color='black', size=12), side='top'),
                                     tickfont=dict(color='black', size=11), x=-0.12, thickness=15
@@ -1957,8 +1987,7 @@ def create_page():
                                     m_gas = (r_ngc * np.maximum(v_gas_sq, 0)) / G_grav
                                     M_gas_tot = np.nanmax(m_gas) if np.nanmax(m_gas) > 0 else 0
                                     
-                                    
-                                    f_slider = float(getattr(alpha_slider, 'value', 0.0))
+                                    f_slider = float(dialog_dm_slider.value)
                                     rho_s, r_s, M_dm_grid = get_dm_params(f_slider, r_array=r_ngc)
                                     M_dm_tot = np.nanmax(M_dm_grid) if (len(M_dm_grid) > 0 and np.nanmax(M_dm_grid) > 0) else 0
                                     
@@ -1968,13 +1997,16 @@ def create_page():
                                     M_bar_tot = M_bulge_tot + M_disk_tot + M_gas_tot
                                     M_tot_all = M_bar_tot + M_dm_tot
 
-                                    title_label.set_text(f"3D Mass Distribution: {current_gal} (Flat velocity)")
+                               
+                                    dm_ratio_gal = (M_dm_tot / M_tot_all) if M_tot_all > 0 else 0.0
+                                    dialog_dm_slider.props(f'label-value="DM: {dm_ratio_gal * 100:.1f}%"')
+
+                                    title_label.set_text(f"3D Mass Distribution: {current_gal}")
 
                                     v_min_gal = np.nanmin(v_total_curve)
                                     v_max_gal = np.nanmax(v_total_curve)
                                     c_max_bright = v_max_gal * 1.15 
 
-                                  
                                     N_TOTAL_POINTS = 3500
                                     n_bulge = int(N_TOTAL_POINTS * (M_bulge_tot / M_tot_all)) if M_tot_all > 0 else 0
                                     n_disk  = int(N_TOTAL_POINTS * (M_disk_tot / M_tot_all)) if M_tot_all > 0 else 0
@@ -1982,7 +2014,6 @@ def create_page():
                                     n_dm    = int(N_TOTAL_POINTS * (M_dm_tot / M_tot_all)) if M_tot_all > 0 else 0
 
                                     def sample_component(m_array, n_pts, is_spherical=False, z_thickness=0.1):
-                                        
                                         if n_pts <= 0 or np.nanmax(m_array) <= 0: 
                                             return np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
                                             
@@ -2030,18 +2061,19 @@ def create_page():
                                     fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[0], mode='markers', marker=dict(color='rgba(0,0,0,0)')))
 
                                 fig.update_layout(
-                                    title=dict(text="", font=dict(color='white', size=16), x=0.5, y=0.98),
                                     scene=dict(xaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), yaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), zaxis=dict(visible=False, range=[-r_max_plot, r_max_plot]), bgcolor='rgb(15, 23, 42)', aspectmode='cube'),
                                     margin=dict(l=0, r=0, b=0, t=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                                     legend=dict(font=dict(color='white'), yanchor="top", y=0.95, xanchor="left", x=0.01),
-                                    autosize=True
+                                    autosize=False, width=1050, height=520
                                 )
-                              
+                                
                                 global my_galaxy_3d_plot
-                                my_galaxy_3d_plot = ui.plotly(fig).classes('w-full').style('height: 65vh; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);')
+                                my_galaxy_3d_plot = ui.plotly(fig).style('width: 1050px; height: 520px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);')
 
                         render_3d_mass_plot()
-
+                        
+                        # Aggiornamento in tempo reale mentre scorri lo slider!
+                        dialog_dm_slider.on('change', lambda e: [evaluate_dm_status_dialog(), render_3d_mass_plot.refresh()])
 
                 
 
@@ -2450,6 +2482,7 @@ def create_page():
                     ui.label("Move the slider to add the dark matter to the simulated velocity curve").props('id=alpha_slider_label aria-live=polite tabindex=0')
                     alpha_slider = aria_slider(min=0.0, max=2.0, value=0.0, step=0.01,
                                             aria_label="Dark matter fraction control slider").props('aria-describedby=alpha_slider_label label-always debounce=300')
+                    alpha_slider.bind_value(dialog_dm_slider, 'value')
                     f = float(alpha_slider.value)
                     
                     
@@ -2532,9 +2565,12 @@ def create_page():
                             new_max_gal = 2.0
                           
                             alpha_slider.max = round(new_max_gal, 1)
+                            dialog_dm_slider.max = round(new_max_gal, 1) 
                             alpha_slider.step = round(new_max_gal / 100.0, 2)
+                            dialog_dm_slider.step = round(new_max_gal / 100.0, 2)
                             alpha_slider.value = 0.0 
                             alpha_slider.update()
+                            dialog_dm_slider.update()
                             
                             gal_state['chi2_points'].clear()
                             gal_state['manual_points'].clear()
@@ -2785,7 +2821,9 @@ def create_page():
                                
                             with ui.column().classes('w-full gap-1 p-0 m-0'):
                                 galaxy_title_label = ui.label("Galaxy Info: ---").classes("text-xl font-bold text-blue-800 m-0 leading-tight whitespace-nowrap")
+                               
                                 async def open_galaxy_3d():
+                                    evaluate_dm_status_dialog()
                                     target_fraction = 0.5 # Default di fallback nel caso i dati non siano pronti
                                     gal_name = gal_state.get('current_galaxy_name', 'Galaxy').removesuffix('.txt').removesuffix('.csv').removesuffix('.dat')
 
@@ -2837,6 +2875,8 @@ def create_page():
                                     render_3d_mass_plot.refresh()
                                     await asyncio.sleep(0.1)
                                     galaxy_3d_dialog.open()
+                                    ui.run_javascript("setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 200);")
+                                                               
                                 galaxy_img_disp = ui.image().classes('w-full h-28 rounded cursor-pointer hover:scale-105 transition-transform').props('role=button tabindex=0 aria-label="Open 3D Galaxy Model"').on('click', open_galaxy_3d).on('keydown.enter', open_galaxy_3d)
                                 #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>") #ui.html("<small class='text-gray-500'><i>Click to enlarge (Ref: ESA Hubble)</i></small>")
                                 galaxy_info_content = ui.column().classes('w-full text-sm text-gray-700 gap-0 p-0 m-0')
